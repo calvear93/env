@@ -5,6 +5,7 @@
 
 # testing
 /coverage
+/env
 
 # published package
 /dist
