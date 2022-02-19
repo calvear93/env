@@ -1,5 +1,3 @@
-import { Argv, InferredOptionTypes } from 'yargs';
-
 // Common CLI arguments
 export const args = {
     env: {
@@ -22,9 +20,14 @@ export const args = {
     config: {
         alias: 'c',
         type: 'string',
-        default: 'env.config.json',
-        describe: 'Config file name'
+        default: '$root/env.config.json'
+    },
+    expand: {
+        alias: 'x',
+        type: 'boolean',
+        default: false,
+        describe: 'Expand environment variables into command'
     }
 } as const;
 
-export type CommandArguments = Argv<InferredOptionTypes<typeof args>>;
+export type CommandArguments = typeof args;
