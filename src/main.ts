@@ -24,8 +24,6 @@ async function exec() {
         .parserConfiguration(lib.parserConfig)
         .options(args)
         .config('config', (configPath) => {
-            console.log(configPath);
-            console.log(fs.existsSync(configPath));
             if (!fs.existsSync(configPath)) return {};
 
             return JSON.parse(fs.readFileSync(configPath, 'utf-8'));

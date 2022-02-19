@@ -20,7 +20,7 @@ export const args = {
     config: {
         alias: 'c',
         type: 'string',
-        default: '$root/env.config.json'
+        default: 'env/env.config.json'
     },
     expand: {
         alias: 'x',
