@@ -1,5 +1,5 @@
 import { TLogLevelName } from 'tslog';
-import { Arguments, Options } from 'yargs';
+import { Arguments, InferredOptionTypes, Options } from 'yargs';
 
 export interface CommandArguments extends Arguments {
     env: string;
@@ -7,7 +7,6 @@ export interface CommandArguments extends Arguments {
     root: string;
     config: string;
     envFile: string;
-    envFormat: string;
     secretsFile: string;
     logLevel: TLogLevelName;
 }
@@ -34,7 +33,8 @@ export const args: Record<keyof CommandArguments, Options> = {
     configFile: {
         alias: 'c',
         type: 'string',
-        default: '[[root]]/env.config.json'
+        default: '[[root]]/env.config.json',
+        describe: 'Path to config JSON file'
     },
     envFile: {
         type: 'string',
@@ -47,7 +47,7 @@ export const args: Record<keyof CommandArguments, Options> = {
     logLevel: {
         alias: 'log',
         type: 'string',
-        default: 'info',
+        default: 'trace',
         choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
     }
 };

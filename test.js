@@ -3,5 +3,5 @@ console.log(">>>>", "xasd");
 
 setTimeout(() => {
     console.log('wadafoca teimoeut');
-    console.log('wadafoca teimoeut 2');
+    // throw new Error('test de wadafoca')
 }, 2000);

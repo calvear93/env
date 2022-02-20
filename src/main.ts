@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import { LoggerWithoutCallSite as Logger, TLogLevelName } from 'tslog';
+import { readJson } from './utils/json.util';
 import yargs, { InferredOptionTypes } from 'yargs';
 import { args, CommandArguments } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
 import { prepare } from './prepare';
-import { interpolateJson } from './utils/interpolate.util';
+import { interpolate, interpolateJson } from './utils/interpolate.util';
 
 /**
  * Global stdout wrap.
@@ -13,8 +14,7 @@ import { interpolateJson } from './utils/interpolate.util';
 const logger = new Logger({
     displayDateTime: true,
     displayLoggerName: false,
-    displayInstanceName: true,
-    displayRequestId: false,
+    displayInstanceName: false,
     displayFunctionName: false,
     displayFilePath: 'hidden',
     dateTimePattern: 'hour:minute:second.millisecond',
@@ -73,13 +73,6 @@ function build(
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
         .options(args)
-        .config('configFile', (configPath): Partial<CommandArguments> => {
-            // console.info(`Loading ${configPath} config file`);
-
-            if (!fs.existsSync(configPath)) return {};
-
-            return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-        })
         .middleware((argv: InferredOptionTypes<typeof args>): void => {
             // in case of subcommand argument for main
             if (subcommand) argv.subcmd = subcommand;
@@ -88,14 +81,30 @@ function build(
                 minLevel: argv.logLevel as TLogLevelName
             });
 
+            const delimiters = config.delimiters.template;
+
+            // loads configuration file
+            if (typeof argv.configFile === 'string') {
+                const path = interpolate(argv.configFile, argv, delimiters);
+                const [config, success] = readJson<any>(path as string);
+
+                if (success) {
+                    Object.keys(config).forEach((key) => {
+                        if (!argv[key]) argv[key] = config[key];
+                    });
+                } else {
+                    console.warn('config file not found');
+                }
+            }
+
             // applies string templating with current vars
-            interpolateJson(argv, argv, config.delimiters.template);
+            interpolateJson(argv, argv, delimiters);
         })
         .check((argv): boolean => {
             if (argv._.length === 0 && !subcommand)
                 throw new Error('No one subcommand provided for exec after :');
 
-            prepare(argv.root as string);
+            // prepare(argv.root as string);
 
             return true;
         });

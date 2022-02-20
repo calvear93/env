@@ -17,6 +17,34 @@ export function isRecord(obj: unknown): obj is Record<string, unknown> {
  * Replaces string arguments with regex interpolation.
  *
  * @export
+ * @param {unknown} value
+ * @param {Record<string, unknown>} args
+ * @param {[string, string]} [delimiters=['[[', ']]']]
+ *
+ * @returns {unknown} mutated value
+ */
+export function interpolate(
+    value: unknown,
+    args: Record<string, unknown>,
+    delimiters: [string, string] = ['[[', ']]']
+): unknown {
+    if (typeof value === 'string') {
+        return subslate(value, args, {
+            startStopPairs: delimiters
+        });
+    } else if (Array.isArray(value)) {
+        return value.map((a) => interpolate(a, args, delimiters));
+    } else if (isRecord(value)) {
+        return interpolateJson(value, args, delimiters);
+    }
+
+    return value;
+}
+
+/**
+ * Replaces JSON string arguments with regex interpolation.
+ *
+ * @export
  * @param {Record<string, unknown>} args
  * @param {Record<string, unknown>} values
  * @param {[string, string]} [delimiters=['[[', ']]']]
@@ -29,22 +57,8 @@ export function interpolateJson(
     delimiters: [string, string] = ['[[', ']]']
 ): Record<string, unknown> {
     Object.keys(values).forEach((key) => {
-        const arg = values[key];
-
-        if (typeof arg === 'string') {
-            values[key] = subslate(arg, args, {
-                startStopPairs: delimiters
-            });
-        } else if (Array.isArray(arg)) {
-            values[key] = arg.map((a) =>
-                subslate(a, args, {
-                    startStopPairs: delimiters
-                })
-            );
-        } else if (isRecord(arg)) {
-            values[key] = interpolateJson(arg, args, delimiters);
-        }
+        values[key] = interpolate(values[key], args, delimiters);
     });
 
-    return args;
+    return values;
 }

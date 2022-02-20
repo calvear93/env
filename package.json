@@ -21,7 +21,8 @@
         "lint:fix": "eslint --fix --ext .ts, src/",
         "test": "jest --watchAll=false --verbose",
         "prebuild": "rimraf dist/**",
-        "postbuild": "copyfiles package.json README.md LICENSE.md CHANGELOG.md assets/* dist"
+        "postbuild": "copyfiles package.json README.md LICENSE.md CHANGELOG.md assets/* dist",
+        "exec": "npm run build && node dist/main.js -e dev --mode debug : npx nodemon test.js"
     },
     "dependencies": {
         "json-diff-ts": "^1.2.4",

@@ -34,7 +34,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: (argv) => {
         process.env.TEST = 'test wadafoca';
 
-        console.debug(argv.subcmd);
+        console.debug(argv);
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',
