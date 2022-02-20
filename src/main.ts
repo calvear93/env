@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import fs from 'fs';
-import { subslate } from 'subslate';
-import { LoggerWithoutCallSite as Logger } from 'tslog';
-import yargs from 'yargs';
-import { args } from './arguments';
+import { LoggerWithoutCallSite as Logger, TLogLevelName } from 'tslog';
+import yargs, { InferredOptionTypes } from 'yargs';
+import { args, CommandArguments } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
 import { prepare } from './prepare';
+import { interpolateJson } from './utils/interpolate.util';
 
 /**
- * Global logger wrap.
+ * Global stdout wrap.
  */
 const logger = new Logger({
     displayDateTime: true,
@@ -73,38 +73,25 @@ function build(
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
         .options(args)
-        .config('configFile', (configPath) => {
+        .config('configFile', (configPath): Partial<CommandArguments> => {
             // console.info(`Loading ${configPath} config file`);
 
             if (!fs.existsSync(configPath)) return {};
 
             return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
         })
-        .middleware((argv) => {
+        .middleware((argv: InferredOptionTypes<typeof args>): void => {
             // in case of subcommand argument for main
             if (subcommand) argv.subcmd = subcommand;
-            console.log(2);
 
-            // applies string templating with current vars
-            Object.keys(argv).forEach((key) => {
-                const arg = argv[key];
-
-                if (typeof arg === 'string') {
-                    argv[key] = subslate(arg, argv, {
-                        startStopPairs: config.delimiters.template
-                    });
-                } else if (Array.isArray(arg)) {
-                    argv[key] = arg.map((a) =>
-                        subslate(a, argv, {
-                            startStopPairs: config.delimiters.template
-                        })
-                    );
-                }
+            logger.setSettings({
+                minLevel: argv.logLevel as TLogLevelName
             });
 
-            return argv;
+            // applies string templating with current vars
+            interpolateJson(argv, argv, config.delimiters.template);
         })
-        .check((argv) => {
+        .check((argv): boolean => {
             if (argv._.length === 0 && !subcommand)
                 throw new Error('No one subcommand provided for exec after :');
 

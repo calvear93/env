@@ -1,3 +1,4 @@
+import { TLogLevelName } from 'tslog';
 import { Arguments, Options } from 'yargs';
 
 export interface CommandArguments extends Arguments {
@@ -8,6 +9,7 @@ export interface CommandArguments extends Arguments {
     envFile: string;
     envFormat: string;
     secretsFile: string;
+    logLevel: TLogLevelName;
 }
 
 // common CLI arguments
@@ -44,8 +46,8 @@ export const args: Record<keyof CommandArguments, Options> = {
     },
     logLevel: {
         alias: 'log',
-        type: 'number',
-        default: 3,
-        choices: [0, 1, 2, 3, 4, 5]
+        type: 'string',
+        default: 'info',
+        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
     }
 };
