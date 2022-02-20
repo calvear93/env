@@ -13,9 +13,24 @@ const log: Logger = new Logger({
     displayFunctionName: false,
     displayFilePath: 'hidden'
 });
-export const defaultCommand: CommandModule<any, CommandArguments> = {
+
+export interface EnvCommandArguments extends CommandArguments {
+    subcmd: string[];
+}
+
+export const envCommand: CommandModule<any, EnvCommandArguments> = {
     command: '$0 [options..] [: <subcmd>]',
     describe: 'Inject environment variables into process',
+    builder: (builder) => {
+        builder.options({
+            subcmd: {
+                type: 'array',
+                describe: 'Command for inject environment variables'
+            }
+        });
+
+        return builder;
+    },
     handler: (argv) => {
         process.env.TEST = 'test wadafoca';
 

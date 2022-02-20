@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import fs from 'fs';
-import yargs from 'yargs';
+import yargs, { CommandModule } from 'yargs';
 import { subslate } from 'subslate';
-import { args } from './arguments';
+import { args, CommandArguments } from './arguments';
 import { prepare } from './prepare';
-import { defaultCommand, pullCommand, pushCommand } from './commands';
+import { envCommand, pullCommand, pushCommand } from './commands';
 
 /**
  * Command preprocessing and lib info
@@ -96,8 +96,8 @@ function build(
         });
 
     // command builder
-    [defaultCommand, pullCommand, pushCommand].forEach((cmd) =>
-        builder.command(cmd)
+    [envCommand, pullCommand, pushCommand].forEach((cmd) =>
+        builder.command(cmd as any)
     );
 
     // executes command processing

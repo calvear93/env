@@ -9,7 +9,6 @@ export interface CommandArguments extends Arguments {
     envFormat: string;
     secretsFile: string;
     expand: boolean;
-    subcmd: string[];
 }
 
 // common CLI arguments
@@ -54,9 +53,5 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'boolean',
         default: false,
         describe: 'Expand environment variables into command'
-    },
-    subcmd: {
-        type: 'array',
-        describe: 'Command for inject environment variables'
     }
 };
