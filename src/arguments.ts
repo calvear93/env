@@ -1,5 +1,19 @@
-// Common CLI arguments
-export const args = {
+import { Arguments, Options } from 'yargs';
+
+export interface CommandArguments extends Arguments {
+    env: string;
+    mode: string[];
+    root: string;
+    config: string;
+    envFile: string;
+    envFormat: string;
+    secretsFile: string;
+    expand: boolean;
+    subcmd: string[];
+}
+
+// common CLI arguments
+export const args: Record<keyof CommandArguments, Options> = {
     env: {
         alias: 'e',
         type: 'string',
@@ -26,7 +40,12 @@ export const args = {
         type: 'string',
         default: '[[root]]/appsettings.json'
     },
-    secretFile: {
+    envFormat: {
+        type: 'string',
+        default: 'json',
+        choices: ['json', 'env', 'yml', 'yaml']
+    },
+    secretsFile: {
         type: 'string',
         default: '[[root]]/secrets/[[env]].env.json'
     },
@@ -35,7 +54,9 @@ export const args = {
         type: 'boolean',
         default: false,
         describe: 'Expand environment variables into command'
+    },
+    subcmd: {
+        type: 'array',
+        describe: 'Command for inject environment variables'
     }
-} as const;
-
-export type CommandArguments = typeof args;
+};

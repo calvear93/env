@@ -3,26 +3,60 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { subslate } from 'subslate';
 import { args } from './arguments';
+import { prepare } from './prepare';
 import { defaultCommand, pullCommand, pushCommand } from './commands';
-import { init } from './initialize';
 
-async function exec() {
-    // reads some base config from lib package.json
-    const lib = await import(`${__dirname}\\package.json`);
+/**
+ * Command preprocessing and lib info
+ * reading from package.json.
+ *
+ * @param {string[]} rawArgv process.argv
+ */
+async function exec(rawArgv: string[]) {
+    // reads some lib base config from package.json
+    const lib = await import(`${__dirname}/package.json`);
 
-    let cmd: string[];
-    const cmdIndex = process.argv.indexOf(':');
-    if (cmdIndex > 0) cmd = process.argv.splice(cmdIndex).slice(1);
+    const {
+        config: { delimiters }
+    } = lib;
 
-    const builder = yargs(process.argv.slice(2))
+    let subcommand: string[] = [];
+    // subcommand delimiter indexes
+    const begin = rawArgv.indexOf(delimiters.subcommand[0]);
+    const count = rawArgv.lastIndexOf(delimiters.subcommand[1]) - begin;
+
+    // calculates subcommand surrounded by delimiters
+    if (begin > 0) {
+        if (count > 0)
+            subcommand = rawArgv.splice(begin, count + 1).slice(1, -1);
+        else subcommand = rawArgv.splice(begin).slice(1);
+    }
+
+    // execs yargs
+    build(rawArgv.slice(2), subcommand, lib);
+}
+
+/**
+ * Builds commands and execs Yargs.
+ *
+ * @param {string[]} rawArgv process.argv.slice(2)
+ * @param {string[]} subcommand subcommand for wrap if exists
+ * @param {Record<string, any>} lib package.json info
+ */
+function build(
+    rawArgv: string[],
+    subcommand: string[],
+    { version, repository, config }: Record<string, any>
+) {
+    const builder = yargs(rawArgv)
         .scriptName('env')
-        .version(lib.version)
+        .version(version)
         .detectLocale(false)
         .strict()
         .wrap(yargs.terminalWidth())
-        .usage('Usage: $0 [command] [options]')
-        .epilog(`For more information visit ${lib.repository}`)
-        .parserConfiguration(lib.parserConfig)
+        .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
+        .epilog(`For more information visit ${repository}`)
+        .parserConfiguration(config.parser)
         .options(args)
         .config('config', (configPath) => {
             if (!fs.existsSync(configPath)) return {};
@@ -31,25 +65,32 @@ async function exec() {
         })
         .middleware((argv) => {
             // in case of subcommand argument for main
-            if (cmd) argv.cmd = cmd.join(' ');
+            if (subcommand) argv.subcmd = subcommand;
 
             // applies string templating with current vars
             Object.keys(argv).forEach((key) => {
-                const val = argv[key];
-                if (typeof val === 'string') {
-                    argv[key] = subslate(val, argv, {
-                        startStopPairs: ['[[', ']]']
+                const arg = argv[key];
+
+                if (typeof arg === 'string') {
+                    argv[key] = subslate(arg, argv, {
+                        startStopPairs: config.delimiters.template
                     });
+                } else if (Array.isArray(arg)) {
+                    argv[key] = arg.map((a) =>
+                        subslate(a, argv, {
+                            startStopPairs: config.delimiters.template
+                        })
+                    );
                 }
             });
 
             return argv;
         }, true)
         .check((argv) => {
-            if (argv._.length === 0 && !cmd)
+            if (argv._.length === 0 && !subcommand)
                 throw new Error('No one subcommand provided for exec after :');
 
-            init(argv.root);
+            prepare(argv.root as string);
 
             return true;
         });
@@ -63,4 +104,5 @@ async function exec() {
     builder.parse();
 }
 
-exec();
+// runs the program
+exec(process.argv);

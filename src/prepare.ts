@@ -7,7 +7,7 @@ import path from 'path';
  * @export
  * @param {string} dir
  */
-export function init(dir: string) {
+export function prepare(dir: string) {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
 
