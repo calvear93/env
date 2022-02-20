@@ -8,7 +8,6 @@ export interface CommandArguments extends Arguments {
     envFile: string;
     envFormat: string;
     secretsFile: string;
-    expand: boolean;
 }
 
 // common CLI arguments
@@ -17,7 +16,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         alias: 'e',
         type: 'string',
         requiresArg: true,
-        describe: 'Environment, i.e. dev, prod'
+        describe: 'Environment for load, i.e. dev, prod'
     },
     mode: {
         alias: 'm',
@@ -30,7 +29,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         default: 'env',
         describe: 'Default environment folder path'
     },
-    config: {
+    configFile: {
         alias: 'c',
         type: 'string',
         default: '[[root]]/env.config.json'
@@ -39,19 +38,14 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'string',
         default: '[[root]]/appsettings.json'
     },
-    envFormat: {
-        type: 'string',
-        default: 'json',
-        choices: ['json', 'env', 'yml', 'yaml']
-    },
     secretsFile: {
         type: 'string',
         default: '[[root]]/secrets/[[env]].env.json'
     },
-    expand: {
-        alias: 'x',
-        type: 'boolean',
-        default: false,
-        describe: 'Expand environment variables into command'
+    logLevel: {
+        alias: 'log',
+        type: 'number',
+        default: 3,
+        choices: [0, 1, 2, 3, 4, 5]
     }
 };

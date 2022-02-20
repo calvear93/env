@@ -1,10 +1,25 @@
 #!/usr/bin/env node
 import fs from 'fs';
-import yargs, { CommandModule } from 'yargs';
 import { subslate } from 'subslate';
-import { args, CommandArguments } from './arguments';
-import { prepare } from './prepare';
+import { LoggerWithoutCallSite as Logger } from 'tslog';
+import yargs from 'yargs';
+import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
+import { prepare } from './prepare';
+
+/**
+ * Global logger wrap.
+ */
+const logger = new Logger({
+    displayDateTime: true,
+    displayLoggerName: false,
+    displayInstanceName: true,
+    displayRequestId: false,
+    displayFunctionName: false,
+    displayFilePath: 'hidden',
+    dateTimePattern: 'hour:minute:second.millisecond',
+    overwriteConsole: true
+});
 
 /**
  * Command preprocessing and lib info
@@ -49,16 +64,18 @@ function build(
     { version, repository, config }: Record<string, any>
 ) {
     const builder = yargs(rawArgv)
+        .strict()
         .scriptName('env')
         .version(version)
         .detectLocale(false)
-        .strict()
-        .wrap(yargs.terminalWidth())
+        .showHelpOnFail(false)
+        .parserConfiguration(config.parser)
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
-        .parserConfiguration(config.parser)
         .options(args)
-        .config('config', (configPath) => {
+        .config('configFile', (configPath) => {
+            // console.info(`Loading ${configPath} config file`);
+
             if (!fs.existsSync(configPath)) return {};
 
             return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
@@ -66,6 +83,7 @@ function build(
         .middleware((argv) => {
             // in case of subcommand argument for main
             if (subcommand) argv.subcmd = subcommand;
+            console.log(2);
 
             // applies string templating with current vars
             Object.keys(argv).forEach((key) => {
@@ -85,7 +103,7 @@ function build(
             });
 
             return argv;
-        }, true)
+        })
         .check((argv) => {
             if (argv._.length === 0 && !subcommand)
                 throw new Error('No one subcommand provided for exec after :');

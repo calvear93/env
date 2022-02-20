@@ -115,7 +115,7 @@
             }
         ],
         "lines-between-class-members": ["warn", "always"],
-        "no-console": "warn",
+        "no-console": "off",
         "no-duplicate-case": "error",
         "no-empty": "error",
         "no-empty-pattern": "error",
