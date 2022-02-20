@@ -28,6 +28,7 @@
         "minimist": "^1.2.5",
         "prompts": "^2.4.2",
         "signale": "^1.4.0",
+        "subslate": "^1.0.0",
         "yargs": "^17.3.1"
     },
     "devDependencies": {

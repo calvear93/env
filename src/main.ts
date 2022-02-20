@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import yargs from 'yargs';
+import { subslate } from 'subslate';
 import { args } from './arguments';
 import { defaultCommand, pullCommand, pushCommand } from './commands';
 import { init } from './initialize';
@@ -31,6 +32,16 @@ async function exec() {
         .middleware((argv) => {
             // in case of subcommand argument for main
             if (cmd) argv.cmd = cmd.join(' ');
+
+            // applies string templating with current vars
+            Object.keys(argv).forEach((key) => {
+                const val = argv[key];
+                if (typeof val === 'string') {
+                    argv[key] = subslate(val, argv, {
+                        startStopPairs: ['[[', ']]']
+                    });
+                }
+            });
 
             return argv;
         }, true)
