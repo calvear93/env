@@ -64,7 +64,7 @@ function build(
     { version, repository, config }: Record<string, any>
 ) {
     const builder = yargs(rawArgv)
-        .strict()
+        .strictCommands()
         .scriptName('env')
         .version(version)
         .detectLocale(false)
@@ -99,7 +99,7 @@ function build(
 
             // applies string templating with current vars
             interpolateJson(argv, argv, delimiters);
-        })
+        }, true) // remove true forexecute after check
         .check((argv): boolean => {
             if (argv._.length === 0 && !subcommand)
                 throw new Error('No one subcommand provided for exec after :');

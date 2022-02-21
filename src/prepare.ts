@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Initialize environment folder if it does not exists.
+ * Initialize required files if they do not exists.
  *
  * @export
  * @param {string} dir
