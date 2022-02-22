@@ -10,8 +10,5 @@ export const logger = new Logger({
     displayFunctionName: false,
     displayFilePath: 'hidden',
     dateTimePattern: 'hour:minute:second.millisecond',
-    overwriteConsole: true,
-    maskPlaceholder: '***',
-    maskAnyRegEx: ['subcmd'],
-    maskValuesOfKeys: ['env', 'subcmd', 'node', '.*.js']
+    maskPlaceholder: '***'
 });

@@ -20,7 +20,17 @@ export const args: Record<keyof CommandArguments, Options> = {
         alias: 'log',
         type: 'string',
         default: 'trace',
-        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
+        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal']
+    },
+    logMaskAnyRegEx: {
+        alias: 'mrx',
+        type: 'array',
+        default: []
+    },
+    logMaskValuesOfKeys: {
+        alias: 'mvk',
+        type: 'array',
+        default: []
     },
     env: {
         alias: 'e',

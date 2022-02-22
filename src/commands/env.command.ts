@@ -1,6 +1,7 @@
 import { CommandModule } from 'yargs';
 import { spawn } from 'child_process';
 import { CommandArguments } from '../arguments';
+import { logger } from '../utils';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -44,14 +45,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: (argv) => {
         process.env.TEST = 'test wadafoca';
 
-        console.debug(argv);
+        logger.debug(argv);
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',
             shell: true
         }).on('exit', (code) => {
-            if (code === 0) console.info('process finished successfully');
-            else console.error('process finished with error');
+            if (code === 0) logger.info('process finished successfully');
+            else logger.error('process finished with error');
         });
     }
 };

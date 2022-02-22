@@ -1,5 +1,6 @@
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
+import { logger } from '../utils';
 
 export interface PullCommandArguments extends CommandArguments {
     providers: any[];
@@ -23,11 +24,9 @@ export const pullCommand: CommandModule<any, PullCommandArguments> = {
             }
         });
 
-        builder.array('providers');
-
         return builder;
     },
     handler: (argv) => {
-        console.log('pull running');
+        logger.silly('pull running');
     }
 };
