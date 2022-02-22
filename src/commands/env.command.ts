@@ -27,7 +27,18 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             .example(
                 'env -e dev -m test unit : npm start',
                 'Load "dev" environment variables, in "test" and "unit" modes, for "npm start" command'
-            );
+            )
+            .check((argv): boolean => {
+                if (argv._.length === 0 && !argv.subcmd) {
+                    throw new Error(
+                        'No one subcommand provided for exec after :'
+                    );
+                }
+
+                // prepare(argv.root as string);
+
+                return true;
+            });
 
         return builder;
     },

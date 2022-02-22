@@ -13,6 +13,12 @@ export interface CommandArguments extends Arguments {
 
 // common CLI arguments
 export const args: Record<keyof CommandArguments, Options> = {
+    logLevel: {
+        alias: 'log',
+        type: 'string',
+        default: 'trace',
+        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
+    },
     env: {
         alias: 'e',
         type: 'string',
@@ -34,20 +40,24 @@ export const args: Record<keyof CommandArguments, Options> = {
         alias: 'c',
         type: 'string',
         default: '[[root]]/env.config.json',
-        describe: 'Path to config JSON file'
+        describe: 'Config JSON file path'
     },
     envFile: {
+        alias: 'ef',
         type: 'string',
-        default: '[[root]]/appsettings.json'
+        default: '[[root]]/appsettings.json',
+        describe: 'Environment variables file path (non secrets)'
     },
     secretsFile: {
+        alias: 'sf',
         type: 'string',
-        default: '[[root]]/secrets/[[env]].env.json'
+        default: '[[root]]/secrets/[[env]].env.json',
+        describe: 'Secrets per environment file path'
     },
-    logLevel: {
-        alias: 'log',
+    localSecretsFile: {
+        alias: 'lsf',
         type: 'string',
-        default: 'trace',
-        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
+        default: '[[root]]/secrets/[[env]].local.env.json',
+        describe: 'Secrets per environment file path'
     }
 };

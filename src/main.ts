@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import { LoggerWithoutCallSite as Logger, TLogLevelName } from 'tslog';
-import { readJson } from './utils/json.util';
 import yargs, { InferredOptionTypes } from 'yargs';
-import { args, CommandArguments } from './arguments';
+import { LoggerWithoutCallSite as Logger, TLogLevelName } from 'tslog';
+import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
-import { prepare } from './prepare';
+import { readJson } from './utils/json.util';
 import { interpolate, interpolateJson } from './utils/interpolate.util';
 
 /**
@@ -18,7 +16,10 @@ const logger = new Logger({
     displayFunctionName: false,
     displayFilePath: 'hidden',
     dateTimePattern: 'hour:minute:second.millisecond',
-    overwriteConsole: true
+    overwriteConsole: true,
+    maskPlaceholder: '***',
+    maskAnyRegEx: ['subcmd'],
+    maskValuesOfKeys: ['env', 'subcmd', 'node', '.*.js']
 });
 
 /**
@@ -73,9 +74,9 @@ function build(
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
         .options(args)
-        .middleware((argv: InferredOptionTypes<typeof args>): void => {
+        .middleware((argv): void => {
             // in case of subcommand argument for main
-            if (subcommand) argv.subcmd = subcommand;
+            if (subcommand?.length > 0) argv.subcmd = subcommand;
 
             logger.setSettings({
                 minLevel: argv.logLevel as TLogLevelName
@@ -99,15 +100,7 @@ function build(
 
             // applies string templating with current vars
             interpolateJson(argv, argv, delimiters);
-        }, true) // remove true forexecute after check
-        .check((argv): boolean => {
-            if (argv._.length === 0 && !subcommand)
-                throw new Error('No one subcommand provided for exec after :');
-
-            // prepare(argv.root as string);
-
-            return true;
-        });
+        }, true); // remove true forexecute after check
 
     // command builder
     [envCommand, pullCommand, pushCommand].forEach((cmd) =>
