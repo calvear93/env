@@ -23,6 +23,8 @@ export const pullCommand: CommandModule<any, PullCommandArguments> = {
             }
         });
 
+        builder.array('providers');
+
         return builder;
     },
     handler: (argv) => {

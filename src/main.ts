@@ -1,26 +1,9 @@
 #!/usr/bin/env node
-import yargs, { InferredOptionTypes } from 'yargs';
-import { LoggerWithoutCallSite as Logger, TLogLevelName } from 'tslog';
+import yargs from 'yargs';
+import { TLogLevelName } from 'tslog';
 import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
-import { readJson } from './utils/json.util';
-import { interpolate, interpolateJson } from './utils/interpolate.util';
-
-/**
- * Global stdout wrap.
- */
-const logger = new Logger({
-    displayDateTime: true,
-    displayLoggerName: false,
-    displayInstanceName: false,
-    displayFunctionName: false,
-    displayFilePath: 'hidden',
-    dateTimePattern: 'hour:minute:second.millisecond',
-    overwriteConsole: true,
-    maskPlaceholder: '***',
-    maskAnyRegEx: ['subcmd'],
-    maskValuesOfKeys: ['env', 'subcmd', 'node', '.*.js']
-});
+import { interpolate, interpolateJson, logger, readJson } from './utils';
 
 /**
  * Command preprocessing and lib info

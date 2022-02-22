@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
 import { CommandModule } from 'yargs';
+import { spawn } from 'child_process';
 import { CommandArguments } from '../arguments';
 
 export interface EnvCommandArguments extends CommandArguments {
@@ -15,6 +15,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             .options({
                 subcmd: {
                     type: 'array',
+                    requiresArg: true,
                     describe: 'Command for inject environment variables'
                 },
                 expand: {
@@ -34,8 +35,6 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                         'No one subcommand provided for exec after :'
                     );
                 }
-
-                // prepare(argv.root as string);
 
                 return true;
             });
