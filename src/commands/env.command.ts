@@ -16,7 +16,6 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             .options({
                 subcmd: {
                     type: 'array',
-                    requiresArg: true,
                     describe: 'Command for inject environment variables'
                 },
                 expand: {
@@ -31,6 +30,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                 'Load "dev" environment variables, in "test" and "unit" modes, for "npm start" command'
             )
             .check((argv): boolean => {
+                // special check for custom argument
                 if (argv._.length === 0 && !argv.subcmd) {
                     throw new Error(
                         'No one subcommand provided for exec after :'
@@ -44,6 +44,8 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     },
     handler: (argv) => {
         process.env.TEST = 'test wadafoca';
+
+        logger.info('injecting environment variables');
 
         logger.debug(argv);
 

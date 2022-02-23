@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import chalk from 'chalk';
 import yargs from 'yargs';
 import { TLogLevelName } from 'tslog';
 import { args } from './arguments';
@@ -42,7 +43,7 @@ function build(
     { version, repository, config }: Record<string, any>
 ) {
     const builder = yargs(rawArgv)
-        .strictCommands()
+        .strict()
         .scriptName('env')
         .version(version)
         .detectLocale(false)
@@ -55,6 +56,16 @@ function build(
             // in case of subcommand argument for main
             if (subcommand?.length > 0) argv.subcmd = subcommand;
 
+            if (Array.isArray(argv.mode)) {
+                logger.info(
+                    `executing ${chalk.bold.green(
+                        argv.env
+                    )} environment in ${chalk.bold.magenta(
+                        argv.mode.join('+')
+                    )} mode\n`
+                );
+            }
+
             // loads configuration file
             loadConfigFile(argv, config.delimiters.template);
 
@@ -66,7 +77,7 @@ function build(
 
             // applies string templating with current vars
             interpolateJson(argv, argv, config.delimiters.template);
-        }, true); // remove true forexecute after check
+        }); // remove true forexecute after check
 
     // command builder
     [envCommand, pullCommand, pushCommand].forEach((cmd) =>
