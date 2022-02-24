@@ -53,17 +53,24 @@ function build(
         .epilog(`For more information visit ${repository}`)
         .options(args)
         .middleware((argv): void => {
-            // in case of subcommand argument for main
-            if (subcommand?.length > 0) argv.subcmd = subcommand;
-
             if (Array.isArray(argv.mode)) {
                 logger.info(
-                    `executing ${chalk.bold.green(
+                    `loading ${chalk.bold.underline.green(
                         argv.env
                     )} environment in ${chalk.bold.magenta(
                         argv.mode.join('+')
-                    )} mode\n`
+                    )} mode`
                 );
+            }
+
+            // in case of subcommand argument for main
+            if (subcommand?.length > 0) {
+                logger.debug(
+                    'subcommand found',
+                    chalk.bold.yellow(subcommand.join(' '))
+                );
+
+                argv.subcmd = subcommand;
             }
 
             // loads configuration file
@@ -74,6 +81,14 @@ function build(
                 maskAnyRegEx: argv.logMaskAnyRegEx as string[],
                 maskValuesOfKeys: argv.logMaskValuesOfKeys as string[]
             });
+
+            logger.debug(
+                'interpolating arguments surrounded by',
+                chalk.bold.yellow(
+                    config.delimiters.template[0],
+                    config.delimiters.template[1]
+                )
+            );
 
             // applies string templating with current vars
             interpolateJson(argv, argv, config.delimiters.template);

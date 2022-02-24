@@ -22,7 +22,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         group: LOG_WORKSPACE,
         alias: 'log',
         type: 'string',
-        default: 'trace',
+        default: 'silly',
         choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal']
     },
     logMaskAnyRegEx: {
