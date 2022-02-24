@@ -1,7 +1,7 @@
 import { CommandModule } from 'yargs';
 import { spawn } from 'child_process';
 import { CommandArguments } from '../arguments';
-import { logger } from '../utils';
+import { logger, readJson } from '../utils';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -42,12 +42,11 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: (argv) => {
+    handler: async (argv) => {
+        const [env, envFound] = await readJson(argv.envFile);
         process.env.TEST = 'test wadafoca';
 
-        logger.info('injecting environment variables');
-
-        logger.debug(argv);
+        logger.info('injecting environment variables', env);
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',

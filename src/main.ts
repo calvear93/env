@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import chalk from 'chalk';
 import yargs from 'yargs';
 import { TLogLevelName } from 'tslog';
@@ -12,20 +13,24 @@ import { interpolate, interpolateJson, logger, readJson } from './utils';
  * @param {Record<string, unknown>} argv
  * @param {[string, string]} delimiters
  */
-function loadConfigFile(
+async function loadConfigFile(
     argv: Record<string, unknown>,
     delimiters: [string, string]
-) {
+): Promise<void> {
     if (typeof argv.configFile === 'string') {
         const path = interpolate(argv.configFile, argv, delimiters);
-        const [config, success] = readJson<any>(path as string);
+        const [config, success] = await readJson<any>(path as string);
 
         if (success) {
             Object.keys(config).forEach((key) => {
                 argv[key] = config[key];
             });
         } else {
-            logger.warn('config file not found');
+            logger.warn(
+                `config file ${chalk.underline.yellow(
+                    path
+                )} not found, using defaults`
+            );
         }
     }
 }
@@ -52,7 +57,7 @@ function build(
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
         .options(args)
-        .middleware((argv): void => {
+        .middleware(async (argv): Promise<void> => {
             if (Array.isArray(argv.mode)) {
                 logger.info(
                     `loading ${chalk.bold.underline.green(
@@ -74,7 +79,7 @@ function build(
             }
 
             // loads configuration file
-            loadConfigFile(argv, config.delimiters.template);
+            await loadConfigFile(argv, config.delimiters.template);
 
             logger.setSettings({
                 minLevel: argv.logLevel as TLogLevelName,
@@ -92,6 +97,8 @@ function build(
 
             // applies string templating with current vars
             interpolateJson(argv, argv, config.delimiters.template);
+
+            logger.silly('config loaded', argv);
         }); // remove true forexecute after check
 
     // command builder
