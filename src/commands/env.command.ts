@@ -26,8 +26,12 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                 }
             })
             .example(
-                'env -e dev -m test unit : npm start',
+                'env -e dev -m test unit : npm test',
                 'Load "dev" environment variables, in "test" and "unit" modes, for "npm start" command'
+            )
+            .example(
+                'env -e dev -m debug : npm start : -c my-config.json',
+                'Load "dev" environment variables, in "debug" mode, for "npm test" command and custom config file'
             )
             .check((argv): boolean => {
                 // special check for custom argument
@@ -43,10 +47,10 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         return builder;
     },
     handler: async (argv) => {
-        const [env, envFound] = await readJson(argv.envFile);
+        const [appsettings, wasFound] = await readJson(argv.envFile);
         process.env.TEST = 'test wadafoca';
 
-        logger.info('injecting environment variables', env);
+        logger.info('injecting environment variables', appsettings);
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',
