@@ -56,9 +56,8 @@ export function interpolateJson(
     args: Record<string, unknown>,
     delimiters: [string, string] = ['[[', ']]']
 ): Record<string, unknown> {
-    Object.keys(values).forEach((key) => {
+    for (const key in values)
         values[key] = interpolate(values[key], args, delimiters);
-    });
 
     return values;
 }

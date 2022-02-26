@@ -1,7 +1,8 @@
-import { CommandModule } from 'yargs';
+import { Arguments, CommandModule } from 'yargs';
 import { spawn } from 'child_process';
 import { CommandArguments } from '../arguments';
-import { logger, readJson } from '../utils';
+import { logger, normalize, readJson } from '../utils';
+import { EnvMiddleware } from 'interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -46,11 +47,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: async (argv) => {
-        const [appsettings, wasFound] = await readJson(argv.envFile);
-        process.env.TEST = 'test wadafoca';
+    handler: (argv) => {
+        const env = normalize(middleware.loadEnv(argv), argv.nestingDelimiter);
 
-        logger.info('injecting environment variables', appsettings);
+        logger.info('injecting environment variables');
+        logger.debug('environment loaded:', env);
+
+        // loads env vars to process.env
+        for (const key in env) process.env[key] = env[key];
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',
@@ -59,5 +63,26 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             if (code === 0) logger.info('process finished successfully');
             else logger.error('process finished with error');
         });
+    }
+};
+
+const middleware: EnvMiddleware = {
+    loadEnv: (argv: Arguments<EnvCommandArguments>): Record<string, any> => {
+        // const [appsettings, wasFound] = await readJson(argv.envFile);
+        return {
+            TEST: 'wadamotherfoca',
+            ENV: 'devsito',
+            A3: () => 'caca',
+            T1: {
+                I_T8: null,
+                I_T1: 'hola',
+                I_T2: 'chao',
+                I_T3: 12,
+                I_T5: true,
+                I_T4: {
+                    I_I_T1: ['hola', 2, 4, 'hola', { a: 2 }]
+                }
+            }
+        };
     }
 };

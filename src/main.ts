@@ -22,9 +22,7 @@ async function loadConfigFile(
         const [config, success] = await readJson<any>(path as string);
 
         if (success) {
-            Object.keys(config).forEach((key) => {
-                argv[key] = config[key];
-            });
+            for (const key in config) argv[key] = config[key];
         } else {
             logger.warn(
                 `config file ${chalk.underline.yellow(
@@ -98,7 +96,7 @@ function build(
             // applies string templating with current vars
             interpolateJson(argv, argv, config.delimiters.template);
 
-            logger.silly('config loaded', argv);
+            logger.silly('config loaded:', argv);
         }); // remove true forexecute after check
 
     // command builder

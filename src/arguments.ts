@@ -9,6 +9,7 @@ export interface CommandArguments extends Arguments {
     logLevel: TLogLevelName;
     env: string;
     mode: string[];
+    nestingDelimiter: string;
     root: string;
     configFile: string;
     envFile: string;
@@ -50,6 +51,13 @@ export const args: Record<keyof CommandArguments, Options> = {
         requiresArg: true,
         demandOption: true,
         describe: 'Execution modes, i.e. debug, test'
+    },
+    nestingDelimiter: {
+        alias: 'nd',
+        type: 'string',
+        default: '__',
+        describe:
+            'Nesting level delimiter for flatten, i.e. { l1: { l2: "value" } } turns into { l1__l2: "value" }'
     },
     root: {
         group: GROUP_WORKSPACE,
