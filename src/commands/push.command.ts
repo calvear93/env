@@ -3,7 +3,6 @@ import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
 
 export interface PushCommandArguments extends CommandArguments {
-    providers: any[];
     force: boolean;
 }
 
@@ -13,10 +12,6 @@ export const pushCommand: CommandModule<any, PushCommandArguments> = {
     builder: (builder) => {
         builder
             .options({
-                providers: {
-                    type: 'array',
-                    describe: 'Plugins or providers for push variables'
-                },
                 force: {
                     alias: 'o',
                     type: 'boolean',

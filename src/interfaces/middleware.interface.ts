@@ -11,3 +11,9 @@ export interface EnvMiddleware {
         argv: Arguments<any>
     ) => Record<string, any> | Promise<Record<string, any>> | never;
 }
+
+export interface EnvConfigMiddleware {
+    key: string;
+
+    config: Record<string, unknown>;
+}

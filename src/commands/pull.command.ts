@@ -3,7 +3,6 @@ import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
 
 export interface PullCommandArguments extends CommandArguments {
-    providers: any[];
     overwrite: boolean;
 }
 
@@ -13,10 +12,6 @@ export const pullCommand: CommandModule<any, PullCommandArguments> = {
     builder: (builder) => {
         builder
             .options({
-                providers: {
-                    type: 'array',
-                    describe: 'Plugins or providers for pull variables'
-                },
                 overwrite: {
                     alias: 'o',
                     type: 'boolean',
