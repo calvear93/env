@@ -47,11 +47,17 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: (argv) => {
-        const env = normalize(middleware.loadEnv(argv), argv.nestingDelimiter);
+    handler: async (argv) => {
+        logger.info('loading environment variables');
 
-        logger.info('injecting environment variables');
+        let env = middleware.loadEnv(argv);
+        // awaits for async middleware
+        if (env instanceof Promise) env = await env;
+        // JSON data flatten and normalization
+        env = normalize(env, argv.nestingDelimiter);
+
         logger.debug('environment loaded:', env);
+        logger.info('injecting environment variables');
 
         // loads env vars to process.env
         for (const key in env) process.env[key] = env[key];
