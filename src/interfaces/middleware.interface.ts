@@ -15,5 +15,5 @@ export interface EnvMiddleware {
 export interface EnvConfigMiddleware {
     key: string;
 
-    config: Record<string, unknown>;
+    config?: Record<string, unknown>;
 }

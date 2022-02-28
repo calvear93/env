@@ -8,16 +8,16 @@ const GROUPS = {
 };
 
 export interface CommandArguments extends Arguments {
-    logLevel: TLogLevelName;
-    env: string;
-    mode: string[];
-    middleware: EnvConfigMiddleware[];
-    nestingDelimiter: string;
-    root: string;
-    configFile: string;
-    envFile: string;
-    secretsFile: string;
-    localSecretsFile: string;
+    logLevel?: TLogLevelName;
+    env?: string;
+    mode?: string[];
+    middleware?: EnvConfigMiddleware[];
+    nestingDelimiter?: string;
+    root?: string;
+    configFile?: string;
+    envFile?: string;
+    secretsFile?: string;
+    localSecretsFile?: string;
 }
 
 // common CLI arguments

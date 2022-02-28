@@ -5,33 +5,7 @@ import yargs from 'yargs';
 import { TLogLevelName } from 'tslog';
 import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
-import { interpolate, interpolateJson, logger, readJson } from './utils';
-
-/**
- * Injects config to command arguments from file.
- *
- * @param {Record<string, unknown>} argv
- * @param {[string, string]} delimiters
- */
-async function loadConfigFile(
-    argv: Record<string, unknown>,
-    delimiters: [string, string]
-): Promise<void> {
-    if (typeof argv.configFile === 'string') {
-        const path = interpolate(argv.configFile, argv, delimiters);
-        const [config, success] = await readJson<any>(path as string);
-
-        if (success) {
-            for (const key in config) argv[key] = config[key];
-        } else {
-            logger.warn(
-                `config file ${chalk.underline.yellow(
-                    path
-                )} not found, using defaults`
-            );
-        }
-    }
-}
+import { interpolateJson, loadConfigFile, logger } from './utils';
 
 /**
  * Builds commands and execs Yargs.
@@ -50,7 +24,7 @@ function build(
         .scriptName('env')
         .version(version)
         .detectLocale(false)
-        .showHelpOnFail(false)
+        .showHelpOnFail(true)
         .parserConfiguration(config.parser)
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
@@ -103,6 +77,12 @@ function build(
     [envCommand, pullCommand, pushCommand].forEach((cmd) =>
         builder.command(cmd as any)
     );
+
+    // console.log(builder.argv);
+    // builder.option('ate', {
+    //     alias: 'at',
+    //     demandOption: true
+    // });
 
     // executes command processing
     builder.parse();
