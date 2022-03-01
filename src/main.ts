@@ -2,6 +2,7 @@
 
 import chalk from 'chalk';
 import yargs, { Argv, CommandModule } from 'yargs';
+import yargsParser from 'yargs-parser';
 import { TLogLevelName } from 'tslog';
 import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
@@ -93,7 +94,7 @@ async function exec(rawArgv: string[]) {
     const lib = await import(`${__dirname}/package.json`);
 
     const {
-        config: { delimiters }
+        config: { delimiters, parser }
     } = lib;
 
     let subcommand: string[] = [];
@@ -107,6 +108,18 @@ async function exec(rawArgv: string[]) {
             subcommand = rawArgv.splice(begin, count + 1).slice(1, -1);
         else subcommand = rawArgv.splice(begin).slice(1);
     }
+
+    const argv = yargsParser(rawArgv, { configuration: parser });
+
+    const argv2 = yargs([])
+        .scriptName('env')
+        .middleware((argvi) => {
+            for (const k in argv) argvi[k] = argv[k];
+        })
+        .parserConfiguration(parser).argv;
+
+    console.log('>>>>>>>>> >>>>>', argv);
+    console.log('>>>>>>>>> >>>>>', argv2);
 
     // execs yargs
     build(rawArgv.slice(2), subcommand, lib);
