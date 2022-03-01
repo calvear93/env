@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import yargs from 'yargs';
+import yargs, { Argv, CommandModule } from 'yargs';
 import { TLogLevelName } from 'tslog';
 import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
@@ -71,18 +71,12 @@ function build(
             interpolateJson(argv, argv, config.delimiters.template);
 
             logger.silly('config loaded:', argv);
-        }); // remove true forexecute after check
+        });
 
     // command builder
     [envCommand, pullCommand, pushCommand].forEach((cmd) =>
-        builder.command(cmd as any)
+        builder.command(cmd as CommandModule)
     );
-
-    // console.log(builder.argv);
-    // builder.option('ate', {
-    //     alias: 'at',
-    //     demandOption: true
-    // });
 
     // executes command processing
     builder.parse();
