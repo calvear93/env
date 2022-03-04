@@ -52,6 +52,7 @@ function build(
                 argv.subcmd = subcommand;
             }
 
+            // merges preloaded args
             Object.assign(argv, preloadedArgv);
 
             logger.debug(
