@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import yargs, { Argv, CommandModule } from 'yargs';
-import yargsParser from 'yargs-parser';
 import { TLogLevelName } from 'tslog';
+import yargs, { Arguments, CommandModule } from 'yargs';
+import yargsParser from 'yargs-parser';
 import { args } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
 import { interpolateJson, loadConfigFile, logger } from './utils';
@@ -17,6 +17,7 @@ import { interpolateJson, loadConfigFile, logger } from './utils';
  */
 function build(
     rawArgv: string[],
+    preloadedArgv: Partial<Arguments>,
     subcommand: string[],
     { version, repository, config }: Record<string, any>
 ) {
@@ -30,7 +31,7 @@ function build(
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .epilog(`For more information visit ${repository}`)
         .options(args)
-        .middleware(async (argv): Promise<void> => {
+        .middleware((argv): void => {
             if (Array.isArray(argv.mode)) {
                 logger.info(
                     `loading ${chalk.bold.underline.green(
@@ -51,14 +52,7 @@ function build(
                 argv.subcmd = subcommand;
             }
 
-            // loads configuration file
-            await loadConfigFile(argv, config.delimiters.template);
-
-            logger.setSettings({
-                minLevel: argv.logLevel as TLogLevelName,
-                maskAnyRegEx: argv.logMaskAnyRegEx as string[],
-                maskValuesOfKeys: argv.logMaskValuesOfKeys as string[]
-            });
+            Object.assign(argv, preloadedArgv);
 
             logger.debug(
                 'interpolating arguments surrounded by',
@@ -109,20 +103,32 @@ async function exec(rawArgv: string[]) {
         else subcommand = rawArgv.splice(begin).slice(1);
     }
 
-    const argv = yargsParser(rawArgv, { configuration: parser });
+    // preload base config (ignores )
+    const { _, ...preloadedArgv } = yargsParser(rawArgv, {
+        configuration: parser,
+        alias: {
+            env: args.env.alias as string | string[],
+            mode: args.mode.alias as string | string[],
+            configFile: args.configFile.alias as string | string[]
+        },
+        default: {
+            root: args.root.default,
+            configFile: args.configFile.default
+        }
+    });
 
-    const argv2 = yargs([])
-        .scriptName('env')
-        .middleware((argvi) => {
-            for (const k in argv) argvi[k] = argv[k];
-        })
-        .parserConfiguration(parser).argv;
+    // loads configuration file
+    await loadConfigFile(preloadedArgv, delimiters.template);
 
-    console.log('>>>>>>>>> >>>>>', argv);
-    console.log('>>>>>>>>> >>>>>', argv2);
+    // logging level
+    logger.setSettings({
+        minLevel: preloadedArgv.logLevel as TLogLevelName,
+        maskAnyRegEx: preloadedArgv.logMaskAnyRegEx as string[],
+        maskValuesOfKeys: preloadedArgv.logMaskValuesOfKeys as string[]
+    });
 
     // execs yargs
-    build(rawArgv.slice(2), subcommand, lib);
+    build(rawArgv.slice(2), preloadedArgv, subcommand, lib);
 }
 
 // runs the program
