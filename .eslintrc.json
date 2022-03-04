@@ -63,7 +63,8 @@
             {
                 "args": "after-used",
                 "caughtErrors": "all",
-                "vars": "local"
+                "vars": "local",
+                "varsIgnorePattern": "^_.*"
             }
         ],
         "array-callback-return": "error",
@@ -115,7 +116,7 @@
             }
         ],
         "lines-between-class-members": ["warn", "always"],
-        "no-console": "off",
+        "no-console": "warn",
         "no-duplicate-case": "error",
         "no-empty": "error",
         "no-empty-pattern": "error",
