@@ -47,20 +47,20 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: async (argv) => {
+    handler: (argv) => {
         logger.info('loading environment variables');
 
-        let env = middleware.loadEnv(argv);
-        // awaits for async middleware
-        if (env instanceof Promise) env = await env;
-        // JSON data flatten and normalization
-        env = normalize(env, argv.nestingDelimiter);
+        // let env = middleware.loadEnv(argv);
+        // // awaits for async middleware
+        // if (env instanceof Promise) env = await env;
+        // // JSON data flatten and normalization
+        // env = normalize(env, argv.nestingDelimiter);
 
-        logger.debug('environment loaded:', env);
-        logger.info('injecting environment variables');
+        // logger.debug('environment loaded:', env);
+        // logger.info('injecting environment variables');
 
-        // loads env vars to process.env
-        for (const key in env) process.env[key] = env[key];
+        // // loads env vars to process.env
+        // for (const key in env) process.env[key] = env[key];
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',
@@ -69,26 +69,5 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             if (code === 0) logger.info('process finished successfully');
             else logger.error('process finished with error');
         });
-    }
-};
-
-const middleware: EnvMiddleware = {
-    loadEnv: (argv: Arguments<EnvCommandArguments>): Record<string, any> => {
-        // const [appsettings, wasFound] = await readJson(argv.envFile);
-        return {
-            TEST: 'wadamotherfoca',
-            ENV: 'devsito',
-            A3: () => 'caca',
-            T1: {
-                I_T8: null,
-                I_T1: 'hola',
-                I_T2: 'chao',
-                I_T3: 12,
-                I_T5: true,
-                I_T4: {
-                    I_I_T1: ['hola', 2, 4, 'hola', { a: 2 }]
-                }
-            }
-        };
     }
 };
