@@ -12,7 +12,6 @@ const MiddlewareDefault: EnvMiddleware<CommandArguments> = {
         return {
             TEST: 'wadamotherfoca',
             ENV: 'devsito',
-            A3: () => 'asda',
             T1: {
                 I_T8: null,
                 I_T1: 'hola',

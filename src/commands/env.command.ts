@@ -65,14 +65,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         const results = await Promise.all(loaders);
 
         // results normalization merging
-        const env = results.reduce(
-            (env, result) => ({
-                ...env,
-                // JSON data flatten and normalization
-                ...normalize(result, argv.nestingDelimiter)
-            }),
-            {}
-        );
+        const env = results.reduce((env, result, index) => {
+            // JSON data flatten and normalization
+            const vars = normalize(result, argv.nestingDelimiter);
+
+            logger.silly(`loader [${index}]`, vars);
+
+            return { ...env, ...vars };
+        }, {});
 
         logger.debug('environment loaded:', env);
         logger.debug('injecting environment variables');
