@@ -8,6 +8,8 @@ import { args, CommandArguments } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
 import { interpolateJson, loadConfigFile, logger } from './utils';
 
+type Alias = string | string[];
+
 /**
  * Command preprocessing and lib info
  * reading from package.json.
@@ -37,17 +39,23 @@ async function exec(rawArgv: string[]) {
     // preload base config (ignores _ arg)
     const { _, ...preloadedArgv } = yargsParser(rawArgv, {
         configuration: parser,
-        string: ['root', 'env', 'configFile'],
-        array: ['mode'],
+        string: ['root', 'env', 'configFile', 'logLevel'],
+        array: ['mode', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
         alias: {
-            env: args.env.alias as string | string[],
-            mode: args.mode.alias as string | string[],
-            configFile: args.configFile.alias as string | string[]
+            env: args.env.alias as Alias,
+            mode: args.mode.alias as Alias,
+            configFile: args.configFile.alias as Alias,
+            logLevel: args.logLevel.alias as Alias,
+            logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
+            logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias
         },
         default: {
             root: args.root.default,
-            middleware: [],
-            configFile: args.configFile.default
+            configFile: args.configFile.default,
+            middleware: args.middleware.default,
+            logLevel: args.logLevel.default,
+            logMaskAnyRegEx: args.logMaskAnyRegEx.default,
+            logMaskValuesOfKeys: args.logMaskValuesOfKeys.default
         }
     });
 
@@ -78,16 +86,24 @@ async function exec(rawArgv: string[]) {
         );
     }
 
-    for (const mw of middleware) {
-        try {
-            logger.debug(`loading ${chalk.yellow(mw.key)} middleware`);
+    if (middleware) {
+        // read middlewares from config
+        for (const mw of middleware) {
+            try {
+                logger.debug(`loading ${chalk.yellow(mw.key)} middleware`);
 
-            const { default: module } = await import(mw.key);
-            mw.loader = module;
-        } catch {
-            logger.error(`${chalk.yellow(mw.key)} middleware does not found`);
+                const { default: loader } = await import(
+                    mw.key === 'default' ? './middleware' : mw.key
+                );
 
-            process.exit(1);
+                mw.loader = loader;
+            } catch {
+                logger.error(
+                    `${chalk.yellow(mw.key)} middleware does not found`
+                );
+
+                process.exit(1);
+            }
         }
     }
 
@@ -121,14 +137,7 @@ function build(
         .options(args)
         .middleware((argv): void => {
             // in case of subcommand argument for main
-            if (subcommand?.length > 0) {
-                logger.debug(
-                    'subcommand found >',
-                    chalk.bold.yellow(subcommand.join(' '))
-                );
-
-                argv.subcmd = subcommand;
-            }
+            if (subcommand?.length > 0) argv.subcmd = subcommand;
 
             // merges preloaded args
             Object.assign(argv, preloadedArgv);

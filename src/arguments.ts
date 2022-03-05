@@ -26,8 +26,8 @@ export const args: Record<keyof CommandArguments, Options> = {
         group: GROUPS.LOG_WORKSPACE,
         alias: 'log',
         type: 'string',
-        default: 'silly',
-        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal']
+        default: 'debug',
+        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
     },
     logMaskAnyRegEx: {
         group: GROUPS.LOG_WORKSPACE,
@@ -60,7 +60,7 @@ export const args: Record<keyof CommandArguments, Options> = {
     middleware: {
         type: 'array',
         hidden: true,
-        default: [],
+        default: [{ key: 'default' }],
         describe: 'Middlewares or providers for handling variables loading'
     },
     nestingDelimiter: {

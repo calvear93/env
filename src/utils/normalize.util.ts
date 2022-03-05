@@ -21,6 +21,10 @@ export function normalize(
     for (let key in obj) {
         const value = obj[key];
         const type = typeof value;
+
+        // skipped property
+        if (key[0] === '#') continue;
+        // global property, but prefix removed for injection
         key = pkey + key.replace('$', '');
 
         if (type !== 'object' || value === null) {

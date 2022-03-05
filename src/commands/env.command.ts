@@ -1,8 +1,9 @@
-import { Arguments, CommandModule } from 'yargs';
+import chalk from 'chalk';
 import { spawn } from 'child_process';
+import { CommandModule } from 'yargs';
+import { logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { logger, normalize, readJson } from '../utils';
-import { EnvMiddleware } from 'interfaces';
+import { EnvMiddlewareResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -47,20 +48,45 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: (argv) => {
-        logger.info('loading environment variables');
+    handler: async (argv) => {
+        const loaders: EnvMiddlewareResult[] = [];
 
-        // let env = middleware.loadEnv(argv);
-        // // awaits for async middleware
-        // if (env instanceof Promise) env = await env;
-        // // JSON data flatten and normalization
-        // env = normalize(env, argv.nestingDelimiter);
+        // execs sync and async loaders
+        argv.middleware?.forEach(({ key, loader, config }) => {
+            logger.debug(`loading vars from ${chalk.yellow(key)} provider`);
 
-        // logger.debug('environment loaded:', env);
-        // logger.info('injecting environment variables');
+            // non secrets loader
+            loaders.push(loader.loadEnv(argv, config));
+            // secrets loader
+            if (loader.loadSecrets)
+                loaders.push(loader.loadSecrets(argv, config));
+        });
 
-        // // loads env vars to process.env
-        // for (const key in env) process.env[key] = env[key];
+        const results = await Promise.all(loaders);
+
+        // results normalization merging
+        const env = results.reduce(
+            (env, result) => ({
+                ...env,
+                // JSON data flatten and normalization
+                ...normalize(result, argv.nestingDelimiter)
+            }),
+            {}
+        );
+
+        logger.debug('environment loaded:', env);
+        logger.debug('injecting environment variables');
+
+        // loads env vars to process.env
+        process.env = {
+            ...process.env,
+            ...env
+        };
+
+        logger.info(
+            'executing command >',
+            chalk.bold.yellow(argv.subcmd.join(' '))
+        );
 
         spawn(argv.subcmd[0], argv.subcmd.slice(1), {
             stdio: 'inherit',

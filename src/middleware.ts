@@ -3,13 +3,16 @@ import { CommandArguments } from './arguments';
 import { EnvMiddleware } from './interfaces';
 import { logger } from './utils';
 
-export const MiddlewareDefault: EnvMiddleware<CommandArguments> = {
-    loadEnv: (argv: Arguments<CommandArguments>): Record<string, any> => {
+const MiddlewareDefault: EnvMiddleware<CommandArguments> = {
+    loadEnv: (
+        argv: Arguments<CommandArguments>,
+        config?: Record<string, any>
+    ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
         return {
             TEST: 'wadamotherfoca',
             ENV: 'devsito',
-            A3: () => 'caca',
+            A3: () => 'asda',
             T1: {
                 I_T8: null,
                 I_T1: 'hola',
@@ -23,10 +26,15 @@ export const MiddlewareDefault: EnvMiddleware<CommandArguments> = {
         };
     },
 
-    loadSecrets: (argv: Arguments<CommandArguments>): Record<string, any> => {
+    loadSecrets: (
+        argv: Arguments<CommandArguments>,
+        config?: Record<string, any>
+    ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
         return {
             SECRET: '12313123'
         };
     }
 };
+
+export default MiddlewareDefault;
