@@ -1,1 +1,1 @@
-export * from './middleware.interface';
+export * from './loader.interface';

@@ -26,3 +26,28 @@ export async function loadConfigFile(
         }
     }
 }
+
+/**
+ * Extracts subcommand from command line parameters.
+ *
+ * @export
+ * @param {string[]} rawArgv process.argv.slice(2)
+ * @param {[string, string]} delimiters
+ *
+ * @returns {string[]} subcommand for wrap if exists
+ */
+export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
+    let subcommand: string[] = [];
+    // subcommand delimiter indexes
+    const begin = rawArgv.indexOf(delimiters[0]);
+    const count = rawArgv.lastIndexOf(delimiters[1]) - begin;
+
+    // calculates subcommand surrounded by delimiters
+    if (begin > 0) {
+        if (count > 0)
+            subcommand = rawArgv.splice(begin, count + 1).slice(1, -1);
+        else subcommand = rawArgv.splice(begin).slice(1);
+    }
+
+    return subcommand;
+}

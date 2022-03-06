@@ -1,7 +1,16 @@
-import Ajv from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import toJsonSchema, { Options } from 'to-json-schema';
 
+/**
+ * Generates JSON schema from JSON template/object.
+ *
+ * @export
+ * @param {Record<string, unknown>} json json object
+ * @param {Options} [options]
+ *
+ * @returns {*}  {Record<string, unknown>}
+ */
 export function schemaFrom(
     json: Record<string, unknown>,
     options?: Options & { nullable?: boolean }
@@ -22,7 +31,19 @@ export function schemaFrom(
     });
 }
 
-export function createValidator(schema: Record<string, unknown>) {
+/**
+ * Creates a JSON schema validator using AJV.
+ *
+ * @see https://ajv.js.org/
+ *
+ * @export
+ * @param {Record<string, unknown>} schema json schema
+ *
+ * @returns {ValidateFunction} validator
+ */
+export function createValidator(
+    schema: Record<string, unknown>
+): ValidateFunction<unknown> {
     const ajv = new Ajv();
     addFormats(ajv);
 

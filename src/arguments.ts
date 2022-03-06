@@ -1,5 +1,4 @@
-import { EnvConfigMiddleware } from './interfaces';
-import { TLogLevelName } from 'tslog';
+import { EnvLoaderConfig } from './interfaces';
 import { Arguments, Options } from 'yargs';
 
 const GROUPS = {
@@ -8,41 +7,19 @@ const GROUPS = {
 };
 
 export interface CommandArguments extends Arguments {
-    logLevel?: TLogLevelName;
     env?: string;
     mode?: string[];
-    middleware?: EnvConfigMiddleware[];
+    loaders: EnvLoaderConfig[];
     nestingDelimiter?: string;
     root?: string;
     configFile?: string;
-    envFile?: string;
-    secretsFile?: string;
-    localSecretsFile?: string;
+    logLevel?: string;
+    logMaskAnyRegEx?: string[];
+    logMaskValuesOfKeys?: string[];
 }
 
 // common CLI arguments
 export const args: Record<keyof CommandArguments, Options> = {
-    logLevel: {
-        group: GROUPS.LOG_WORKSPACE,
-        alias: 'log',
-        type: 'string',
-        default: 'debug',
-        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
-    },
-    logMaskAnyRegEx: {
-        group: GROUPS.LOG_WORKSPACE,
-        alias: 'mrx',
-        type: 'array',
-        hidden: true,
-        default: []
-    },
-    logMaskValuesOfKeys: {
-        group: GROUPS.LOG_WORKSPACE,
-        alias: 'mvk',
-        type: 'array',
-        hidden: true,
-        default: []
-    },
     env: {
         alias: 'e',
         type: 'string',
@@ -57,11 +34,11 @@ export const args: Record<keyof CommandArguments, Options> = {
         demandOption: true,
         describe: 'Execution modes, i.e. debug, test'
     },
-    middleware: {
+    loaders: {
         type: 'array',
         hidden: true,
         default: [{ key: 'default' }],
-        describe: 'Middlewares or providers for handling variables loading'
+        describe: 'Variables loaders/providers'
     },
     nestingDelimiter: {
         alias: 'nd',
@@ -83,25 +60,25 @@ export const args: Record<keyof CommandArguments, Options> = {
         default: '[[root]]/env.config.json',
         describe: 'Config JSON file path'
     },
-    envFile: {
-        group: GROUPS.GROUP_WORKSPACE,
-        alias: 'ef',
+    logLevel: {
+        group: GROUPS.LOG_WORKSPACE,
+        alias: 'log',
         type: 'string',
-        default: '[[root]]/appsettings.json',
-        describe: 'Environment variables file path (non secrets)'
+        default: 'debug',
+        choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
     },
-    secretsFile: {
-        group: GROUPS.GROUP_WORKSPACE,
-        alias: 'sf',
-        type: 'string',
-        default: '[[root]]/secrets/[[env]].env.json',
-        describe: 'Secrets per environment file path'
+    logMaskAnyRegEx: {
+        group: GROUPS.LOG_WORKSPACE,
+        alias: 'mrx',
+        type: 'array',
+        hidden: true,
+        default: []
     },
-    localSecretsFile: {
-        group: GROUPS.GROUP_WORKSPACE,
-        alias: 'lsf',
-        type: 'string',
-        default: '[[root]]/secrets/[[env]].local.env.json',
-        describe: 'Secrets per environment file path'
+    logMaskValuesOfKeys: {
+        group: GROUPS.LOG_WORKSPACE,
+        alias: 'mvk',
+        type: 'array',
+        hidden: true,
+        default: []
     }
 };
