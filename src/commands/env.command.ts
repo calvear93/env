@@ -53,7 +53,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         // execs sync and async loaders
         argv.providers?.forEach(({ path, handler, config }) => {
-            logger.debug(`loading vars from ${chalk.yellow(path)} provider`);
+            logger.silly(`loading vars from ${chalk.yellow(path)} provider`);
 
             // non secrets loader
             loaders.push(handler.load(argv, config));
@@ -72,7 +72,6 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         }, {});
 
         logger.debug('environment loaded:', env);
-        logger.debug('injecting environment variables');
 
         // loads env vars to process.env
         process.env = {

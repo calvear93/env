@@ -23,19 +23,19 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         config?: Record<string, any>
     ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
-        logger.debug('>> app settings loaded');
+        logger.trace('>> app settings loaded');
 
         return {
-            TEST: 'wadamotherfoca',
-            ENV: 'devsito',
-            T1: {
-                I_T8: null,
-                I_T1: 'hola',
-                I_T2: 'chao',
-                I_T3: 12,
-                I_T5: true,
-                I_T4: {
-                    I_I_T1: ['hola', 2, 4, 'hola', { a: 2 }]
+            VAR1: 'V1',
+            VAR2: 'V2',
+            VAR3: 3,
+            ARR: ['A', 1, 2, 'B', { ANY: 'Text' }],
+            GROUP1: {
+                VAR1: null,
+                VAR2: 'G1V2',
+                VAR3: true,
+                GROUP2: {
+                    VAR1: 'G1G2V1'
                 }
             }
         };

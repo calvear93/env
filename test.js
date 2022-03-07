@@ -1,7 +1,8 @@
-console.log(">>>>", process.env.TEST);
-console.log(">>>>", process.env.T1__I_T4__I_I_T1);
-console.log(">>>>", process.env.T1__I_T3);
-console.log(">>>>", process.env.T1__I_T5);
+console.log(">>>>", process.env.VAR1);
+console.log(">>>>", process.env.ARR);
+console.log(">>>>", process.env.GROUP1__VAR2);
+console.log(">>>>", process.env.GROUP1__VAR3);
+console.log(">>>>", process.env.GROUP1__GROUP2__VAR1);
 // console.log(">>>>", "xasd");
 
 // setTimeout(() => {

@@ -28,6 +28,9 @@ export async function exec(rawArgv: string[]) {
     // reads some lib base config from package.json
     const { config, version } = await import(`${__dirname}/package.json`);
 
+    // execs yargs
+    const subcommand = getSubcommand(rawArgv, config.delimiters.subcommand);
+
     const preloadedArgv = await preloadConfig(
         rawArgv,
         config.parser,
@@ -61,7 +64,7 @@ export async function exec(rawArgv: string[]) {
     // read loaders from config
     for (const provider of providers) {
         try {
-            logger.debug(`loading ${chalk.yellow(provider.path)} provider`);
+            logger.debug(`executing ${chalk.yellow(provider.path)} provider`);
 
             if (provider.type === 'integrated') {
                 provider.handler = IntegratedProviders[provider.path];
@@ -82,9 +85,6 @@ export async function exec(rawArgv: string[]) {
             process.exit(1);
         }
     }
-
-    // execs yargs
-    const subcommand = getSubcommand(rawArgv, config.delimiters.subcommand);
 
     build(rawArgv.slice(2), preloadedArgv, subcommand, config, version);
 }
@@ -164,7 +164,7 @@ function build(
             // merges preloaded args
             Object.assign(argv, preloadedArgv);
 
-            logger.debug(
+            logger.silly(
                 'interpolating arguments surrounded by',
                 chalk.bold.yellow(
                     config.delimiters.template[0],
