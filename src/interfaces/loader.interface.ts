@@ -5,6 +5,8 @@ export type EnvProviderResult =
     | Promise<Record<string, any>>;
 
 export interface EnvProvider<A> {
+    key: string;
+
     builder?: (builder: Argv<any>) => void;
 
     load: (

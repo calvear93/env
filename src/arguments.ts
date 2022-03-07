@@ -12,6 +12,7 @@ export interface CommandArguments extends Arguments {
     mode?: string[];
     providers: EnvProviderConfig[];
     nestingDelimiter?: string;
+    arrayDescomposition?: boolean;
     root?: string;
     configFile?: string;
     logLevel?: string;
@@ -47,6 +48,12 @@ export const args: Record<keyof CommandArguments, Options> = {
         default: '__',
         describe:
             'Nesting level delimiter for flatten, i.e. { l1: { l2: "value" } } turns into { l1__l2: "value" }'
+    },
+    arrayDescomposition: {
+        alias: 'arrDesc',
+        type: 'boolean',
+        default: false,
+        describe: 'Whether serialize or break down arrays'
     },
     root: {
         group: GROUPS.GROUP_WORKSPACE,

@@ -8,6 +8,8 @@ interface AppSettingsCommandArguments extends CommandArguments {
 }
 
 export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
+    key: 'app-settings',
+
     builder: (builder: Argv<CommandArguments>) => {
         builder.options({
             envFile: {
@@ -23,13 +25,13 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         config?: Record<string, any>
     ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
-        logger.trace('>> app settings loaded');
+        logger.debug('>> app settings loaded');
 
         return {
             VAR1: 'V1',
             VAR2: 'V2',
             VAR3: 3,
-            ARR: ['A', 1, 2, 'B', { ANY: 'Text' }],
+            ARR: ['A', 1, 2, 'B'],
             GROUP1: {
                 VAR1: null,
                 VAR2: 'G1V2',

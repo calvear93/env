@@ -1,3 +1,5 @@
+// npm run build && node dist/main.js -e dev --mode debug : node test.js : --log debug
+
 console.log(">>>>", process.env.VAR1);
 console.log(">>>>", process.env.ARR);
 console.log(">>>>", process.env.GROUP1__VAR2);

@@ -2,12 +2,12 @@ import { EnvProvider } from '../interfaces';
 import { AppSettingsProvider } from './app-settings.provider';
 
 const IntegratedProviders: Record<string, EnvProvider<any>> = {
-    ['app-settings']: AppSettingsProvider
+    [AppSettingsProvider.key]: AppSettingsProvider
 };
 
 const IntegratedProviderConfig = [
     {
-        path: 'app-settings',
+        path: AppSettingsProvider.key,
         type: 'integrated'
     }
 ];

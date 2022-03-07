@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { spawn } from 'child_process';
-import { CommandModule } from 'yargs';
+import { Arguments, CommandModule } from 'yargs';
 import { logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
 import { EnvProviderResult } from '../interfaces';
@@ -49,27 +49,13 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         return builder;
     },
     handler: async (argv) => {
-        const loaders: EnvProviderResult[] = [];
+        const loaders: EnvProviderResult[] = loadVariablesFromProviders(argv);
 
-        // execs sync and async loaders
-        argv.providers?.forEach(({ path, handler, config }) => {
-            logger.silly(`loading vars from ${chalk.yellow(path)} provider`);
-
-            // non secrets loader
-            loaders.push(handler.load(argv, config));
-        });
-
+        // waits for async loaders
         const results = await Promise.all(loaders);
 
         // results normalization merging
-        const env = results.reduce((env, result, index) => {
-            // JSON data flatten and normalization
-            const vars = normalize(result, argv.nestingDelimiter);
-
-            logger.silly(`loader [${index}]`, vars);
-
-            return { ...env, ...vars };
-        }, {});
+        const env = normalizeResults(argv, results);
 
         logger.debug('environment loaded:', env);
 
@@ -93,3 +79,64 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         });
     }
 };
+
+/**
+ * Executes load functions from provider handlers.
+ *
+ * @param {Arguments<EnvCommandArguments>} argv
+ *
+ * @returns {EnvProviderResult[]}
+ */
+function loadVariablesFromProviders(
+    argv: Arguments<EnvCommandArguments>
+): EnvProviderResult[] {
+    const loaders: EnvProviderResult[] = [];
+
+    // execs sync and async loaders
+    argv.providers?.forEach(({ handler, config }) => {
+        logger.silly(`loading vars from ${chalk.yellow(handler.key)} provider`);
+
+        // non secrets loader
+        // NOTE: pass providers to other providers, security risk ?
+        const load = handler.load(argv, config);
+
+        if (load instanceof Promise) {
+            loaders.push(
+                load.then((result: EnvProviderResult) => ({
+                    key: handler.key,
+                    result
+                }))
+            );
+        } else {
+            loaders.push({ key: handler.key, result: load });
+        }
+    });
+
+    return loaders;
+}
+
+/**
+ * Merges and normalies results from provider handlers.
+ *
+ * @param {Arguments<EnvCommandArguments>} argv
+ * @param {Record<string, any>[]} results
+ *
+ * @returns {Record<string, any>}
+ */
+function normalizeResults(
+    argv: Arguments<EnvCommandArguments>,
+    results: Record<string, any>[]
+): Record<string, any> {
+    return results.reduce((env, { key, result }) => {
+        // JSON data flatten and normalization
+        const vars = normalize(
+            result,
+            argv.nestingDelimiter,
+            argv.arrayDescomposition
+        );
+
+        logger.silly(`loader ${chalk.yellow(key)}`, vars);
+
+        return { ...env, ...vars };
+    }, {});
+}
