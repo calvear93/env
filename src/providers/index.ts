@@ -1,8 +1,7 @@
-import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
 import { AppSettingsProvider } from './app-settings.provider';
 
-const IntegratedProviders: Record<string, EnvProvider<CommandArguments>> = {
+const IntegratedProviders: Record<string, EnvProvider<any>> = {
     ['app-settings']: AppSettingsProvider
 };
 

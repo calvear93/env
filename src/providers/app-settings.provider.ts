@@ -3,9 +3,23 @@ import { CommandArguments } from '../arguments';
 import { EnvProvider, EnvProviderConfig } from '../interfaces';
 import { logger } from '../utils';
 
-export const AppSettingsProvider: EnvProvider<CommandArguments> = {
+interface AppSettingsCommandArguments extends CommandArguments {
+    envFile: string;
+}
+
+export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
+    builder: (builder: Argv<CommandArguments>) => {
+        builder.options({
+            envFile: {
+                alias: 'ef',
+                type: 'string',
+                default: '[[root]]/appsettings.json',
+                describe: 'Environment variables file path (non secrets)'
+            }
+        });
+    },
     load: (
-        argv: Arguments<CommandArguments>,
+        argv: Arguments<AppSettingsCommandArguments>,
         config?: Record<string, any>
     ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
