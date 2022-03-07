@@ -1,5 +1,6 @@
-import { EnvLoaderConfig } from './interfaces';
 import { Arguments, Options } from 'yargs';
+import { EnvProviderConfig } from './interfaces';
+import { IntegratedProviderConfig } from './providers';
 
 const GROUPS = {
     LOG_WORKSPACE: 'Workspace Options',
@@ -7,9 +8,9 @@ const GROUPS = {
 };
 
 export interface CommandArguments extends Arguments {
-    env?: string;
+    env: string;
     mode?: string[];
-    loaders: EnvLoaderConfig[];
+    providers: EnvProviderConfig[];
     nestingDelimiter?: string;
     root?: string;
     configFile?: string;
@@ -34,11 +35,11 @@ export const args: Record<keyof CommandArguments, Options> = {
         demandOption: true,
         describe: 'Execution modes, i.e. debug, test'
     },
-    loaders: {
+    providers: {
         type: 'array',
         hidden: true,
-        default: [{ key: 'default' }],
-        describe: 'Variables loaders/providers'
+        default: IntegratedProviderConfig,
+        describe: 'Providers handling variables loading'
     },
     nestingDelimiter: {
         alias: 'nd',

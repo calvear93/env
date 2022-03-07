@@ -1,26 +1,25 @@
 import { Arguments, Argv } from 'yargs';
 
-export type EnvLoaderResult =
+export type EnvProviderResult =
     | Record<string, any>
     | Promise<Record<string, any>>;
 
-export interface EnvLoader<A> {
+export interface EnvProvider<A> {
     builder?: (builder: Argv<any>) => void;
 
     load: (
         argv: Arguments<A>,
         config?: Record<string, any>
-    ) => EnvLoaderResult | never;
+    ) => EnvProviderResult | never;
 
     pull?: (argv: Arguments<A>, config?: Record<string, any>) => void;
 
     push?: (argv: Arguments<A>, config?: Record<string, any>) => void;
 }
 
-export interface EnvLoaderConfig {
-    key: string;
-
-    provider: EnvLoader<any>;
-
+export interface EnvProviderConfig {
+    path: string;
+    type: 'integrated' | 'module' | 'script';
+    handler: EnvProvider<any>;
     config?: Record<string, unknown>;
 }

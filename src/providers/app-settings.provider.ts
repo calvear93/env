@@ -1,14 +1,16 @@
 import { Arguments, Argv } from 'yargs';
-import { CommandArguments } from './arguments';
-import { EnvLoader } from './interfaces';
-import { logger } from './utils';
+import { CommandArguments } from '../arguments';
+import { EnvProvider, EnvProviderConfig } from '../interfaces';
+import { logger } from '../utils';
 
-const LoaderDefault: EnvLoader<CommandArguments> = {
+export const AppSettingsProvider: EnvProvider<CommandArguments> = {
     load: (
         argv: Arguments<CommandArguments>,
         config?: Record<string, any>
     ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
+        logger.debug('>> app settings loaded');
+
         return {
             TEST: 'wadamotherfoca',
             ENV: 'devsito',
@@ -25,5 +27,3 @@ const LoaderDefault: EnvLoader<CommandArguments> = {
         };
     }
 };
-
-export default LoaderDefault;

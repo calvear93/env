@@ -3,14 +3,16 @@
 import chalk from 'chalk';
 import { TLogLevelName } from 'tslog';
 import yargsParser from 'yargs-parser';
-import yargs, { Arguments, CommandModule } from 'yargs';
+import yargs, { Arguments } from 'yargs';
+import { IntegratedProviders } from './providers';
 import { args, CommandArguments } from './arguments';
 import { envCommand, pullCommand, pushCommand } from './commands';
 import {
     getSubcommand,
     interpolateJson,
     loadConfigFile,
-    logger
+    logger,
+    resolvePath
 } from './utils';
 
 type Alias = string | string[];
@@ -35,13 +37,13 @@ export async function exec(rawArgv: string[]) {
     const {
         env,
         mode,
-        loaders,
+        providers,
         logLevel,
         logMaskAnyRegEx,
         logMaskValuesOfKeys
     } = preloadedArgv;
 
-    if (!Array.isArray(mode) || !loaders) throw new Error('Bad arguments');
+    if (!providers) throw new Error('"providers" must be well defined');
 
     // logging level
     logger.setSettings({
@@ -53,22 +55,28 @@ export async function exec(rawArgv: string[]) {
     logger.info(
         `loading ${chalk.bold.underline.green(
             env
-        )} environment in ${chalk.bold.magenta(mode.join('+'))} mode`
+        )} environment in ${chalk.bold.magenta(mode?.join('+'))} mode`
     );
 
     // read loaders from config
-    for (const loader of loaders) {
+    for (const provider of providers) {
         try {
-            logger.debug(`loading ${chalk.yellow(loader.key)} provider`);
+            logger.debug(`loading ${chalk.yellow(provider.path)} provider`);
 
-            const { default: module } = await import(
-                loader.key === 'default' ? './loader' : loader.key
-            );
+            if (provider.type === 'integrated') {
+                provider.handler = IntegratedProviders[provider.path];
+            } else {
+                const { default: module } = await import(
+                    provider.type === 'module'
+                        ? provider.path
+                        : resolvePath(provider.path)
+                );
 
-            loader.provider = module;
+                provider.handler = module;
+            }
         } catch {
             logger.error(
-                `${chalk.yellow(loader.key)} middleware does not found`
+                `${chalk.yellow(provider.path)} provider does not found`
             );
 
             process.exit(1);
@@ -111,7 +119,7 @@ async function preloadConfig(
         default: {
             root: args.root.default,
             configFile: args.configFile.default,
-            loaders: args.loaders.default,
+            providers: args.providers.default,
             logLevel: args.logLevel.default,
             logMaskAnyRegEx: args.logMaskAnyRegEx.default,
             logMaskValuesOfKeys: args.logMaskValuesOfKeys.default
@@ -170,13 +178,13 @@ function build(
             logger.silly('config loaded:', argv);
         });
 
-    // command builder
-    [envCommand, pullCommand, pushCommand].forEach((cmd) =>
-        builder.command(cmd as CommandModule)
-    );
+    // integrated commands builder
+    builder.command(envCommand);
+    builder.command(pullCommand);
+    builder.command(pushCommand);
 
     // extends command from plugins
-    preloadedArgv.loaders?.forEach(({ provider }) => {
+    preloadedArgv.providers?.forEach(({ handler: provider }) => {
         provider.builder && provider.builder(builder);
     });
 

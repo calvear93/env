@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import { CommandModule } from 'yargs';
 import { logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { EnvLoaderResult } from '../interfaces';
+import { EnvProviderResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -49,14 +49,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         return builder;
     },
     handler: async (argv) => {
-        const loaders: EnvLoaderResult[] = [];
+        const loaders: EnvProviderResult[] = [];
 
         // execs sync and async loaders
-        argv.loaders?.forEach(({ key, provider, config }) => {
-            logger.debug(`loading vars from ${chalk.yellow(key)} provider`);
+        argv.providers?.forEach(({ path, handler, config }) => {
+            logger.debug(`loading vars from ${chalk.yellow(path)} provider`);
 
             // non secrets loader
-            loaders.push(provider.load(argv, config));
+            loaders.push(handler.load(argv, config));
         });
 
         const results = await Promise.all(loaders);
@@ -76,7 +76,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         // loads env vars to process.env
         process.env = {
-            ...process.env,
+            ...JSON.parse(JSON.stringify(process.env)),
             ...env
         };
 
