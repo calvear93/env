@@ -93,21 +93,21 @@ function loadVariablesFromProviders(
     const loaders: EnvProviderResult[] = [];
 
     // execs sync and async loaders
-    argv.providers?.forEach(({ handler, config }) => {
-        logger.silly(`executing ${chalk.yellow(handler.key)} provider`);
+    argv.providers?.forEach(({ handler: { key, load }, config }) => {
+        logger.silly(`executing ${chalk.yellow(key)} provider`);
 
-        // non secrets loader
-        const load = handler.load(argv, config);
+        const result = load(argv, config);
 
         if (load instanceof Promise) {
             loaders.push(
-                load.then((result: EnvProviderResult) => ({
-                    key: handler.key,
+                result.then((result: EnvProviderResult) => ({
+                    key,
+                    config,
                     result
                 }))
             );
         } else {
-            loaders.push({ key: handler.key, result: load });
+            loaders.push({ key, config, result });
         }
     });
 
