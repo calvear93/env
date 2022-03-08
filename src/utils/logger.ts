@@ -9,7 +9,8 @@ export const logger = new Logger({
     displayInstanceName: false,
     displayFunctionName: false,
     prettyInspectHighlightStyles: {
-        regexp: 'green'
+        regexp: 'green',
+        number: 'cyan'
     },
     displayFilePath: 'hidden',
     dateTimePattern: 'hour:minute:second.millisecond',
