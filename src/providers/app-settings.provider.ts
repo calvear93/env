@@ -25,7 +25,6 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         config?: Record<string, any>
     ): Record<string, any> => {
         // const [appsettings, wasFound] = await readJson(argv.envFile);
-        logger.debug('>> app settings loaded');
 
         return {
             VAR1: 'V1',

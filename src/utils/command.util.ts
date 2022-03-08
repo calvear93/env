@@ -38,6 +38,7 @@ export async function loadConfigFile(
  */
 export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
     let subcommand: string[] = [];
+
     // subcommand delimiter indexes
     const begin = rawArgv.indexOf(delimiters[0]);
     const count = rawArgv.lastIndexOf(delimiters[1]) - begin;

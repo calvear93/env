@@ -19,27 +19,25 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                 subcmd: {
                     type: 'array',
                     describe: 'Command for inject environment variables'
-                },
-                expand: {
-                    alias: 'x',
-                    type: 'boolean',
-                    default: false,
-                    describe: 'Expand environment variables into subcommand'
                 }
             })
             .example(
                 'env -e dev -m test unit : npm test',
-                'Load "dev" environment variables, in "test" and "unit" modes, for "npm start" command'
+                'Loads "dev" environment variables, in "test" and "unit" modes, for "npm start" command'
             )
             .example(
                 'env -e dev -m debug : npm start : -c my-config.json',
-                'Load "dev" environment variables, in "debug" mode, for "npm test" command and custom config file'
+                'Loads "dev" environment variables, in "debug" mode, for "npm test" command and custom config file'
+            )
+            .example(
+                'env -e dev -m debug : npm start : -c [[root]]/[[env]].env.json',
+                'Loads custom config file placed in root folder and named same as the env'
             )
             .check((argv): boolean => {
                 // special check for custom argument
                 if (argv._.length === 0 && !argv.subcmd) {
                     throw new Error(
-                        'No one subcommand provided for exec after :'
+                        'No one subcommand provided for exec surrounded by :'
                     );
                 }
 
