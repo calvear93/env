@@ -3,4 +3,4 @@
 import { exec } from './exec';
 
 // runs the program
-exec(process.argv);
+exec(process.argv.slice(2));

@@ -64,7 +64,7 @@ export async function exec(rawArgv: string[]) {
     // read loaders from config
     for (const provider of providers) {
         try {
-            logger.debug(`executing ${chalk.yellow(provider.path)} provider`);
+            logger.debug(`loading ${chalk.yellow(provider.path)} provider`);
 
             if (provider.type === 'integrated') {
                 provider.handler = IntegratedProviders[provider.path];
@@ -86,7 +86,7 @@ export async function exec(rawArgv: string[]) {
         }
     }
 
-    build(rawArgv.slice(2), preloadedArgv, subcommand, config, version);
+    build(rawArgv, preloadedArgv, subcommand, config, version);
 }
 
 /**
@@ -103,8 +103,8 @@ async function preloadConfig(
     parser: Partial<yargsParser.Configuration>,
     delimiters: [string, string]
 ): Promise<Partial<CommandArguments>> {
-    // preload base config (ignores _ arg)
-    const { _, ...preloadedArgv } = yargsParser(rawArgv, {
+    // preload base config
+    const preloadedArgv = yargsParser(rawArgv, {
         configuration: parser,
         string: ['root', 'env', 'configFile', 'logLevel'],
         array: ['mode', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
@@ -184,8 +184,8 @@ function build(
     builder.command(pushCommand);
 
     // extends command from plugins
-    preloadedArgv.providers?.forEach(({ handler: provider }) => {
-        provider.builder && provider.builder(builder);
+    preloadedArgv.providers?.forEach(({ handler }) => {
+        handler.builder && handler.builder(builder);
     });
 
     // executes command processing

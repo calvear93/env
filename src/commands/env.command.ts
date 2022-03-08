@@ -61,7 +61,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         // loads env vars to process.env
         process.env = {
-            ...JSON.parse(JSON.stringify(process.env)),
+            ...process.env,
             ...env
         };
 
@@ -94,10 +94,9 @@ function loadVariablesFromProviders(
 
     // execs sync and async loaders
     argv.providers?.forEach(({ handler, config }) => {
-        logger.silly(`loading vars from ${chalk.yellow(handler.key)} provider`);
+        logger.silly(`executing ${chalk.yellow(handler.key)} provider`);
 
         // non secrets loader
-        // NOTE: pass providers to other providers, security risk ?
         const load = handler.load(argv, config);
 
         if (load instanceof Promise) {
@@ -135,7 +134,7 @@ function normalizeResults(
             argv.arrayDescomposition
         );
 
-        logger.silly(`loader ${chalk.yellow(key)}`, vars);
+        logger.silly(`${chalk.yellow(key)} provider loaded:`, vars);
 
         return { ...env, ...vars };
     }, {});
