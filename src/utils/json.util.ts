@@ -29,9 +29,9 @@ export function resolvePath(filePath: string): string {
  *
  * @returns {Promise<[Record<string, any>, boolean]>}
  */
-export async function readJson<T = unknown>(
+export async function readJson<T = Record<string, any>>(
     path: string
-): Promise<[T | Record<string, any>, boolean]> {
+): Promise<[T | Record<string, any>, boolean] | never> {
     if (!existsSync(path)) return [{}, false];
 
     return [JSON.parse(await readFile(path, 'utf-8')), true];
@@ -56,8 +56,8 @@ export async function writeJson(
 
     mkdirSync(path);
 
-    if (content && typeof content !== 'string')
-        content = content ? JSON.stringify(content) : '';
+    if (typeof content !== 'string')
+        content = content ? JSON.stringify(content) : '{}';
 
     await writeFile(path, content as string, 'utf-8');
 

@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import { Arguments, CommandModule } from 'yargs';
 import { logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { EnvProviderResult } from '../interfaces';
+import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -85,13 +85,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
  *
  * @returns {EnvProviderResult[]}
  */
-function loadVariablesFromProviders(
-    argv: Arguments<EnvCommandArguments>
-): EnvProviderResult[] {
+function loadVariablesFromProviders({
+    providers,
+    ...argv
+}: Arguments<EnvCommandArguments>): EnvProviderResult[] {
     const loaders: EnvProviderResult[] = [];
 
     // execs sync and async loaders
-    argv.providers?.forEach(({ handler: { key, load }, config }) => {
+    providers?.forEach(({ handler: { key, load }, config }) => {
         logger.silly(`executing ${chalk.yellow(key)} provider`);
 
         const result = load(argv, config);

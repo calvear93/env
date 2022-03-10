@@ -3,7 +3,7 @@ import { EnvProviderConfig } from './interfaces';
 import { IntegratedProviderConfig } from './providers';
 
 const GROUPS = {
-    LOG_WORKSPACE: 'Workspace Options',
+    LOG_WORKSPACE: 'Logger Options',
     GROUP_WORKSPACE: 'Workspace Options'
 };
 
@@ -15,6 +15,7 @@ export interface CommandArguments extends Arguments {
     arrayDescomposition?: boolean;
     root?: string;
     configFile?: string;
+    schemaFile?: string;
     logLevel?: string;
     logMaskAnyRegEx?: string[];
     logMaskValuesOfKeys?: string[];
@@ -67,6 +68,13 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'string',
         default: '[[root]]/env.config.json',
         describe: 'Config JSON file path'
+    },
+    schemaFile: {
+        group: GROUPS.GROUP_WORKSPACE,
+        alias: 's',
+        type: 'string',
+        default: '[[root]]/env.schema.json',
+        describe: 'Environment Schema JSON file path'
     },
     logLevel: {
         group: GROUPS.LOG_WORKSPACE,

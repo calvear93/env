@@ -17,26 +17,28 @@ export function isRecord(obj: unknown): obj is Record<string, unknown> {
  * Replaces string arguments with regex interpolation.
  *
  * @export
- * @param {unknown} value
+ * @template T
+ * @param {T} value
  * @param {Record<string, unknown>} args
  * @param {[string, string]} [delimiters=['[[', ']]']]
  *
- * @returns {unknown} mutated value
+ * @returns {T} mutated value
  */
-export function interpolate(
-    value: unknown,
+export function interpolate<T extends string | unknown>(
+    value: T,
     args: Record<string, unknown>,
     delimiters: [string, string] = ['[[', ']]']
-): unknown {
+): T {
     if (typeof value === 'string') {
         return subslate(value, args, {
             startStopPairs: delimiters
-        });
-    } else if (Array.isArray(value)) {
-        return value.map((a) => interpolate(a, args, delimiters));
-    } else if (isRecord(value)) {
-        return interpolateJson(value, args, delimiters);
+        }) as T;
     }
+
+    if (Array.isArray(value))
+        return value.map((a) => interpolate(a, args, delimiters)) as T;
+
+    if (isRecord(value)) return interpolateJson(value, args, delimiters) as T;
 
     return value;
 }

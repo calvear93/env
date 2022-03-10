@@ -13,7 +13,7 @@ export async function loadConfigFile(
 ): Promise<void> {
     if (typeof argv.configFile === 'string') {
         const path = interpolate(argv.configFile, argv, delimiters);
-        const [config, success] = await readJson<any>(path as string);
+        const [config, success] = await readJson(path);
 
         if (success) {
             for (const key in config) argv[key] = config[key];
@@ -51,4 +51,26 @@ export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
     }
 
     return subcommand;
+}
+
+/**
+ * Loads providers JSON schema from file.
+ *
+ * @param {Record<string, unknown>} argv
+ * @param {[string, string]} delimiters
+ *
+ * @returns {Promise<Record<string, unknown>>}
+ */
+export async function loadSchemaFile(
+    argv: Record<string, unknown>,
+    delimiters: [string, string]
+): Promise<Record<string, unknown>> {
+    if (typeof argv.schemaFile === 'string') {
+        const path = interpolate(argv.schemaFile, argv, delimiters);
+        const [schema] = await readJson(path);
+
+        return schema;
+    }
+
+    return {};
 }
