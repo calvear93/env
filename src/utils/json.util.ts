@@ -45,21 +45,20 @@ export async function readJson<T = Record<string, any>>(
  * @param {unknown} content
  * @param {false} overwrite
  *
- * @returns {*}  {Promise<boolean>}
+ * @returns {Promise<boolean>}
  */
 export async function writeJson(
     path: string,
-    content: unknown,
+    content: Record<string, unknown>,
     overwrite: false
-): Promise<boolean> {
-    if (existsSync(path) && !overwrite) return false;
+): Promise<boolean | never> {
+    const exists = existsSync(path);
 
-    mkdirSync(path);
+    if (exists && !overwrite) return false;
 
-    if (typeof content !== 'string')
-        content = content ? JSON.stringify(content) : '{}';
+    !overwrite && mkdirSync(path);
 
-    await writeFile(path, content as string, 'utf-8');
+    await writeFile(path, JSON.stringify(content), 'utf-8');
 
     return true;
 }

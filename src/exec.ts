@@ -106,12 +106,13 @@ async function preloadConfig(
     // preload base config
     const preloadedArgv = yargsParser(rawArgv, {
         configuration: parser,
-        string: ['root', 'env', 'configFile', 'logLevel'],
+        string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
         array: ['mode', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
         alias: {
             env: args.env.alias as Alias,
             mode: args.mode.alias as Alias,
             configFile: args.configFile.alias as Alias,
+            schemaFile: args.schemaFile.alias as Alias,
             logLevel: args.logLevel.alias as Alias,
             logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
             logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias
@@ -119,6 +120,7 @@ async function preloadConfig(
         default: {
             root: args.root.default,
             configFile: args.configFile.default,
+            schemaFile: args.schemaFile.default,
             providers: args.providers.default,
             logLevel: args.logLevel.default,
             logMaskAnyRegEx: args.logMaskAnyRegEx.default,
