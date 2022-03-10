@@ -64,13 +64,13 @@ export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
 export async function loadSchemaFile(
     argv: Record<string, unknown>,
     delimiters: [string, string]
-): Promise<Record<string, unknown>> {
+): Promise<Record<string, unknown> | undefined> {
     if (typeof argv.schemaFile === 'string') {
         const path = interpolate(argv.schemaFile, argv, delimiters);
-        const [schema] = await readJson(path);
+        const [schema, success] = await readJson(path);
 
-        return schema;
+        return success ? schema : undefined;
     }
 
-    return {};
+    return undefined;
 }

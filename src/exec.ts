@@ -11,6 +11,7 @@ import {
     getSubcommand,
     interpolateJson,
     loadConfigFile,
+    loadSchemaFile,
     logger,
     resolvePath
 } from './utils';
@@ -79,7 +80,9 @@ export async function exec(rawArgv: string[]) {
             }
         } catch {
             logger.error(
-                `${chalk.yellow(provider.path)} provider does not found`
+                `${chalk.yellow(
+                    provider.path
+                )} provider does not found or not compatible`
             );
 
             process.exit(1);
@@ -112,7 +115,6 @@ async function preloadConfig(
             env: args.env.alias as Alias,
             mode: args.mode.alias as Alias,
             configFile: args.configFile.alias as Alias,
-            schemaFile: args.schemaFile.alias as Alias,
             logLevel: args.logLevel.alias as Alias,
             logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
             logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias
@@ -120,7 +122,6 @@ async function preloadConfig(
         default: {
             root: args.root.default,
             configFile: args.configFile.default,
-            schemaFile: args.schemaFile.default,
             providers: args.providers.default,
             logLevel: args.logLevel.default,
             logMaskAnyRegEx: args.logMaskAnyRegEx.default,
@@ -159,7 +160,7 @@ function build(
         .parserConfiguration(config.parser)
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .options(args)
-        .middleware((argv): void => {
+        .middleware(async (argv): Promise<void> => {
             // in case of subcommand argument for main
             if (subcommand?.length > 0) argv.subcmd = subcommand;
 
@@ -178,6 +179,13 @@ function build(
             interpolateJson(argv, argv, config.delimiters.template);
 
             logger.silly('config loaded:', argv);
+
+            argv.schema = await loadSchemaFile(
+                argv,
+                config.delimiters.template
+            );
+
+            logger.silly('schema loaded:', argv.schema);
         });
 
     // integrated commands builder

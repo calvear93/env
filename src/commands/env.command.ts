@@ -1,9 +1,10 @@
 import chalk from 'chalk';
+import merge from 'merge-deep';
 import { spawn } from 'child_process';
 import { Arguments, CommandModule } from 'yargs';
 import { logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
+import { EnvProviderResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -47,10 +48,10 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         return builder;
     },
     handler: async (argv) => {
-        const loaders: EnvProviderResult[] = loadVariablesFromProviders(argv);
+        const results = await loadVariablesFromProviders(argv);
 
-        // waits for async loaders
-        const results = await Promise.all(loaders);
+        const e = merge({}, ...results.map((loader) => loader.result));
+        logger.info(e);
 
         // results normalization merging
         const env = normalizeResults(argv, results);
@@ -88,42 +89,39 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 function loadVariablesFromProviders({
     providers,
     ...argv
-}: Arguments<EnvCommandArguments>): EnvProviderResult[] {
-    const loaders: EnvProviderResult[] = [];
+}: Arguments<EnvCommandArguments>): Promise<EnvProviderResult[]> {
+    if (!providers) return [] as any;
 
-    // execs sync and async loaders
-    providers?.forEach(({ handler: { key, load }, config }) => {
-        logger.silly(`executing ${chalk.yellow(key)} provider`);
+    return Promise.all(
+        providers.map(({ handler: { key, load }, config }) => {
+            logger.silly(`executing ${chalk.yellow(key)} provider`);
 
-        const result = load(argv, config);
+            const result = load(argv, config);
 
-        if (load instanceof Promise) {
-            loaders.push(
-                result.then((result: EnvProviderResult) => ({
+            if (result instanceof Promise) {
+                return result.then((result: any) => ({
                     key,
                     config,
                     result
-                }))
-            );
-        } else {
-            loaders.push({ key, config, result });
-        }
-    });
-
-    return loaders;
+                }));
+            } else {
+                return { key, config, result };
+            }
+        })
+    );
 }
 
 /**
  * Merges and normalies results from provider handlers.
  *
  * @param {Arguments<EnvCommandArguments>} argv
- * @param {Record<string, any>[]} results
+ * @param {EnvProviderResult[]} results
  *
  * @returns {Record<string, any>}
  */
 function normalizeResults(
     argv: Arguments<EnvCommandArguments>,
-    results: Record<string, any>[]
+    results: EnvProviderResult[]
 ): Record<string, any> {
     return results.reduce((env, { key, result }) => {
         // JSON data flatten and normalization

@@ -11,6 +11,7 @@ export interface CommandArguments extends Arguments {
     env: string;
     mode?: string[];
     providers: EnvProviderConfig[];
+    schema: Record<string, unknown>;
     nestingDelimiter?: string;
     arrayDescomposition?: boolean;
     root?: string;

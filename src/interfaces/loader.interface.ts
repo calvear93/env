@@ -1,8 +1,12 @@
 import { Arguments, Argv } from 'yargs';
 
-export type EnvProviderResult =
-    | Record<string, any>
-    | Promise<Record<string, any>>;
+export type EnvResult = Record<string, any> | Promise<Record<string, any>>;
+
+export interface EnvProviderResult {
+    key: string;
+    config?: Record<string, unknown>;
+    result: Record<string, any>;
+}
 
 export interface EnvProvider<A> {
     key: string;
@@ -12,7 +16,7 @@ export interface EnvProvider<A> {
     load: (
         argv: Arguments<A>,
         config?: Record<string, any>
-    ) => EnvProviderResult | never;
+    ) => EnvResult | never;
 
     pull?: (argv: Arguments<A>, config?: Record<string, any>) => void;
 
