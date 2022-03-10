@@ -41,11 +41,9 @@ export function schemaFrom(
  *
  * @returns {ValidateFunction} validator
  */
-export function createValidator(
-    schema: Record<string, unknown>
-): ValidateFunction<unknown> {
+export function createValidator<T>(schema: T): ValidateFunction<T> {
     const ajv = new Ajv();
     addFormats(ajv);
 
-    return ajv.compile(schema);
+    return ajv.compile<T>(schema);
 }

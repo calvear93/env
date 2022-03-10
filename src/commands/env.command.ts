@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import merge from 'merge-deep';
 import { spawn } from 'child_process';
 import { Arguments, CommandModule } from 'yargs';
-import { logger, normalize } from '../utils';
+import { createValidator, logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
 import { EnvProviderResult } from '../interfaces';
 
@@ -50,11 +50,18 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: async (argv) => {
         const results = await loadVariablesFromProviders(argv);
 
-        const e = merge({}, ...results.map((loader) => loader.result));
-        logger.info(e);
+        let env = merge({}, ...results.map((loader) => loader.result));
+
+        const validator = createValidator(argv.schema);
+
+        if (!validator(env)) {
+            logger.error('schema validation failed', validator.errors);
+
+            process.exit(1);
+        }
 
         // results normalization merging
-        const env = normalizeResults(argv, results);
+        env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 
         logger.debug('environment loaded:', env);
 
@@ -109,30 +116,4 @@ function loadVariablesFromProviders({
             }
         })
     );
-}
-
-/**
- * Merges and normalies results from provider handlers.
- *
- * @param {Arguments<EnvCommandArguments>} argv
- * @param {EnvProviderResult[]} results
- *
- * @returns {Record<string, any>}
- */
-function normalizeResults(
-    argv: Arguments<EnvCommandArguments>,
-    results: EnvProviderResult[]
-): Record<string, any> {
-    return results.reduce((env, { key, result }) => {
-        // JSON data flatten and normalization
-        const vars = normalize(
-            result,
-            argv.nestingDelimiter,
-            argv.arrayDescomposition
-        );
-
-        logger.silly(`${chalk.yellow(key)} provider loaded:`, vars);
-
-        return { ...env, ...vars };
-    }, {});
 }
