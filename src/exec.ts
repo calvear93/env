@@ -180,12 +180,18 @@ function build(
 
             logger.silly('config loaded:', argv);
 
-            argv.schema = await loadSchemaFile(
-                argv,
-                config.delimiters.template
-            );
+            if (argv.schemaValidate) {
+                // loads environment JSON schema if exists
+                argv.schema = await loadSchemaFile(
+                    argv,
+                    config.delimiters.template
+                );
 
-            logger.silly('schema loaded:', argv.schema);
+                argv.schemaValidate = !!argv.schema;
+
+                if (argv.schemaValidate)
+                    logger.silly('schema loaded:', argv.schema);
+            }
         });
 
     // integrated commands builder

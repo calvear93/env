@@ -72,7 +72,7 @@ export const args: Record<keyof CommandArguments, Options> = {
     },
     schemaFile: {
         group: GROUPS.GROUP_WORKSPACE,
-        alias: 's',
+        alias: ['s', 'schema'],
         type: 'string',
         default: '[[root]]/env.schema.json',
         describe: 'Environment Schema JSON file path'
