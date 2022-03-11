@@ -8,7 +8,7 @@ import { EnvProviderResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
-    expand: boolean;
+    schemaValidate: boolean;
 }
 
 export const envCommand: CommandModule<any, EnvCommandArguments> = {
@@ -20,6 +20,12 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                 subcmd: {
                     type: 'array',
                     describe: 'Command for inject environment variables'
+                },
+                schemaValidate: {
+                    alias: 'validate',
+                    type: 'boolean',
+                    default: true,
+                    describe: 'Whether validates variables using JSON schema'
                 }
             })
             .example(
@@ -31,7 +37,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
                 'Loads "dev" environment variables, in "debug" mode, for "npm test" command and custom config file'
             )
             .example(
-                'env -e dev -m debug : npm start : -c [[root]]/[[env]].env.json',
+                'env -e dev -m debug -c [[root]]/[[env]].env.json : npm start',
                 'Loads custom config file placed in root folder and named same as the env'
             )
             .check((argv): boolean => {
@@ -52,12 +58,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         let env = merge({}, ...results.map((loader) => loader.result));
 
-        const validator = createValidator(argv.schema);
+        if (argv.schemaValidate) {
+            const validator = createValidator(argv.schema);
 
-        if (!validator(env)) {
-            logger.error('schema validation failed', validator.errors);
+            if (!validator(env)) {
+                logger.error('schema validation failed', validator.errors);
 
-            process.exit(1);
+                process.exit(1);
+            }
         }
 
         // results normalization merging

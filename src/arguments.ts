@@ -9,14 +9,14 @@ const GROUPS = {
 
 export interface CommandArguments extends Arguments {
     env: string;
-    mode?: string[];
+    mode: string[];
     providers: EnvProviderConfig[];
     schema: Record<string, unknown>;
-    nestingDelimiter?: string;
-    arrayDescomposition?: boolean;
-    root?: string;
-    configFile?: string;
-    schemaFile?: string;
+    nestingDelimiter: string;
+    arrayDescomposition: boolean;
+    root: string;
+    configFile: string;
+    schemaFile: string;
     logLevel?: string;
     logMaskAnyRegEx?: string[];
     logMaskValuesOfKeys?: string[];
