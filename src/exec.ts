@@ -180,13 +180,13 @@ function build(
 
             logger.silly('config loaded:', argv);
 
-            if (argv.schemaValidate) {
-                // loads environment JSON schema if exists
-                argv.schema = await loadSchemaFile(
-                    argv,
-                    config.delimiters.template
-                );
+            // loads environment JSON schema if exists
+            argv.schema = await loadSchemaFile(
+                argv,
+                config.delimiters.template
+            );
 
+            if (argv.schemaValidate) {
                 argv.schemaValidate = !!argv.schema;
 
                 if (argv.schemaValidate)

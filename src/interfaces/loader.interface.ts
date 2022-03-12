@@ -8,15 +8,12 @@ export interface EnvProviderResult {
     result: Record<string, any>;
 }
 
-export interface EnvProvider<A> {
+export interface EnvProvider<A, C extends Record<string, any>> {
     key: string;
 
     builder?: (builder: Argv<any>) => void;
 
-    load: (
-        argv: Arguments<A>,
-        config?: Record<string, any>
-    ) => EnvResult | never;
+    load: (argv: Arguments<A>, config?: C) => EnvResult | never;
 
     pull?: (argv: Arguments<A>, config?: Record<string, any>) => void;
 
@@ -26,6 +23,6 @@ export interface EnvProvider<A> {
 export interface EnvProviderConfig {
     path: string;
     type: 'integrated' | 'module' | 'script';
-    handler: EnvProvider<any>;
+    handler: EnvProvider<any, any>;
     config?: Record<string, unknown>;
 }

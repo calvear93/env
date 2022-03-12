@@ -1,7 +1,7 @@
 import { EnvProvider } from '../interfaces';
 import { AppSettingsProvider } from './app-settings.provider';
 
-const IntegratedProviders: Record<string, EnvProvider<any>> = {
+const IntegratedProviders: Record<string, EnvProvider<any, any>> = {
     [AppSettingsProvider.key]: AppSettingsProvider
 };
 
