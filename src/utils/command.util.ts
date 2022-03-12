@@ -16,7 +16,7 @@ export async function loadConfigFile(
         const [config, success] = await readJson(path);
 
         if (success) {
-            for (const key in config) argv[key] = config[key];
+            for (const key in config) if (!argv[key]) argv[key] = config[key];
         } else {
             logger.warn(
                 `config file ${chalk.underline.yellow(
