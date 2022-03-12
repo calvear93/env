@@ -10,10 +10,7 @@ interface AppSettingsCommandArguments extends CommandArguments {
     sectionPrefix: string;
 }
 
-export const AppSettingsProvider: EnvProvider<
-    AppSettingsCommandArguments,
-    Record<string, any>
-> = {
+export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
     key: KEY,
 
     builder: (builder: Argv<CommandArguments>) => {

@@ -10,10 +10,7 @@ interface SecretsCommandArguments extends CommandArguments {
     localSecretFile: string;
 }
 
-export const SecretsProvider: EnvProvider<
-    SecretsCommandArguments,
-    Record<string, any>
-> = {
+export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     key: KEY,
 
     builder: (builder: Argv<CommandArguments>) => {

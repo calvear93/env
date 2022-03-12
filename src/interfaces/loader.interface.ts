@@ -12,7 +12,10 @@ export interface EnvProviderResult {
     result: Record<string, any>;
 }
 
-export interface EnvProvider<A, C extends Record<string, any>> {
+export interface EnvProvider<
+    A,
+    C extends Record<string, any> | undefined = undefined
+> {
     key: string;
 
     builder?: (builder: Argv<any>) => void;
