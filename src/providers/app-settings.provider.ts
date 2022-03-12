@@ -1,12 +1,13 @@
 import { Arguments, Argv } from 'yargs';
 import { CommandArguments } from '../arguments';
-import { EnvProvider, EnvProviderConfig } from '../interfaces';
-import { logger, readJson } from '../utils';
+import { EnvProvider } from '../interfaces';
+import { readJson } from '../utils';
 
 const KEY = 'app-settings';
 
 interface AppSettingsCommandArguments extends CommandArguments {
     envFile: string;
+    sectionPrefix: string;
 }
 
 export const AppSettingsProvider: EnvProvider<
@@ -34,11 +35,22 @@ export const AppSettingsProvider: EnvProvider<
         });
     },
 
-    load: async (
-        argv: Arguments<AppSettingsCommandArguments>
-    ): Promise<Record<string, unknown>> => {
-        const [appsettings, wasFound] = await readJson(argv.envFile);
+    load: async ({
+        env,
+        modes,
+        envFile,
+        sectionPrefix
+    }: Arguments<AppSettingsCommandArguments>) => {
+        const [appsettings, wasFound] = await readJson(envFile);
 
-        return appsettings['[ENV]']['::dev'];
+        if (!wasFound) throw new Error(`${envFile} does not found`);
+
+        return [
+            appsettings['[DEFAULT]'],
+            appsettings['[ENV]']?.[`${sectionPrefix}${env}`],
+            ...modes.map(
+                (mode) => appsettings['[MODE]']?.[`${sectionPrefix}${mode}`]
+            )
+        ];
     }
 };

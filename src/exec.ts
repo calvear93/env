@@ -40,7 +40,7 @@ export async function exec(rawArgv: string[]) {
 
     const {
         env,
-        mode,
+        modes,
         providers,
         logLevel,
         logMaskAnyRegEx,
@@ -59,7 +59,7 @@ export async function exec(rawArgv: string[]) {
     logger.info(
         `loading ${chalk.bold.underline.green(
             env
-        )} environment in ${chalk.bold.magenta(mode?.join('+'))} mode`
+        )} environment in ${chalk.bold.magenta(modes?.join('+'))} mode`
     );
 
     // read loaders from config
@@ -110,10 +110,10 @@ async function preloadConfig(
     const preloadedArgv = yargsParser(rawArgv, {
         configuration: parser,
         string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
-        array: ['mode', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
+        array: ['modes', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
         alias: {
             env: args.env.alias as Alias,
-            mode: args.mode.alias as Alias,
+            mode: args.modes.alias as Alias,
             configFile: args.configFile.alias as Alias,
             logLevel: args.logLevel.alias as Alias,
             logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,

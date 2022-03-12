@@ -9,7 +9,7 @@ const GROUPS = {
 
 export interface CommandArguments extends Arguments {
     env: string;
-    mode: string[];
+    modes: string[];
     providers: EnvProviderConfig[];
     schema: Record<string, unknown>;
     nestingDelimiter: string;
@@ -31,7 +31,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         demandOption: true,
         describe: 'Environment for load, i.e. dev, prod'
     },
-    mode: {
+    modes: {
         alias: 'm',
         type: 'array',
         requiresArg: true,

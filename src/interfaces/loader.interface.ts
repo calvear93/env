@@ -1,6 +1,10 @@
 import { Arguments, Argv } from 'yargs';
 
-export type EnvResult = Record<string, any> | Promise<Record<string, any>>;
+export type EnvResult =
+    | Record<string, unknown>
+    | Record<string, unknown>[]
+    | Promise<Record<string, unknown>>
+    | Promise<Record<string, unknown>[]>;
 
 export interface EnvProviderResult {
     key: string;

@@ -30,7 +30,8 @@ export function normalize(
         key = pkey + key.replace('$', '');
 
         if (type !== 'object' || value === null) {
-            if (value && type !== 'function') flattened[key] = value;
+            if (value !== undefined && type !== 'function')
+                flattened[key] = value;
 
             continue;
         }

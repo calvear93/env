@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import { Arguments, CommandModule } from 'yargs';
 import { createValidator, logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { EnvProviderResult } from '../interfaces';
+import { EnvProviderConfig, EnvProviderResult, EnvResult } from '../interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -56,7 +56,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: async (argv) => {
         const results = await loadVariablesFromProviders(argv);
 
-        let env = merge({}, ...results.map((loader) => loader.result));
+        let env = merge({}, ...results.map((loader) => loader.result).flat(1));
 
         if (argv.schemaValidate) {
             const validator = createValidator(argv.schema);
@@ -114,7 +114,7 @@ function loadVariablesFromProviders({
             const result = load(argv, config);
 
             if (result instanceof Promise) {
-                return result.then((result: any) => ({
+                return result.then((result) => ({
                     key,
                     config,
                     result
