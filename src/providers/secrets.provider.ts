@@ -1,7 +1,6 @@
-import { Arguments, Argv } from 'yargs';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { readJson } from '../utils';
+import { logger, readJson } from '../utils';
 
 const KEY = 'secrets';
 
@@ -13,7 +12,7 @@ interface SecretsCommandArguments extends CommandArguments {
 export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     key: KEY,
 
-    builder: (builder: Argv<CommandArguments>) => {
+    builder: (builder) => {
         builder.options({
             secretFile: {
                 group: KEY,
@@ -32,15 +31,15 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         });
     },
 
-    load: async ({
-        secretFile,
-        localSecretFile
-    }: Arguments<SecretsCommandArguments>) => {
+    load: async ({ secretFile, localSecretFile }) => {
         const [secrets, secretWasFound] = await readJson(secretFile);
         const [localSecrets] = await readJson(localSecretFile);
 
-        if (!secretWasFound)
-            throw new Error(`${secretWasFound} does not found`);
+        if (!secretWasFound) {
+            logger.error(`${secretWasFound} not found`);
+
+            process.exit(1);
+        }
 
         return [secrets, localSecrets];
     }

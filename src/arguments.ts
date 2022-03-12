@@ -10,8 +10,9 @@ const GROUPS = {
 export interface CommandArguments extends Arguments {
     env: string;
     modes: string[];
+    app?: Record<string, unknown>;
+    schema?: Record<string, unknown>;
     providers: EnvProviderConfig[];
-    schema: Record<string, unknown>;
     nestingDelimiter: string;
     arrayDescomposition: boolean;
     root: string;

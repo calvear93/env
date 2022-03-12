@@ -74,3 +74,23 @@ export async function loadSchemaFile(
 
     return undefined;
 }
+
+/**
+ * Reads project package.json.
+ *
+ * @export
+ * @returns {Promise<Record<string, unknown>> | never}
+ */
+export async function loadProjectInfo(): Promise<
+    Record<string, unknown> | undefined
+> {
+    try {
+        return await import(`${process.cwd()}/package.json`);
+    } catch {
+        logger.warn(
+            `project file ${chalk.underline.yellow('package.json')} not found`
+        );
+
+        return undefined;
+    }
+}

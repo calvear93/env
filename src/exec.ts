@@ -11,6 +11,7 @@ import {
     getSubcommand,
     interpolateJson,
     loadConfigFile,
+    loadProjectInfo,
     loadSchemaFile,
     logger,
     resolvePath
@@ -82,7 +83,7 @@ export async function exec(rawArgv: string[]) {
             logger.error(
                 `${chalk.yellow(
                     provider.path
-                )} provider does not found or not compatible`
+                )} provider not found or not compatible`
             );
 
             process.exit(1);
@@ -181,10 +182,11 @@ function build(
             logger.silly('config loaded:', argv);
 
             // loads environment JSON schema if exists
-            argv.schema = await loadSchemaFile(
-                argv,
-                config.delimiters.template
-            );
+            // and current project info from package.json
+            [argv.app, argv.schema] = await Promise.all([
+                loadProjectInfo(),
+                loadSchemaFile(argv, config.delimiters.template)
+            ]);
 
             if (argv.schemaValidate) {
                 argv.schemaValidate = !!argv.schema;

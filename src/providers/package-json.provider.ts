@@ -1,4 +1,3 @@
-import { Arguments, Argv } from 'yargs';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
 
@@ -11,7 +10,7 @@ interface PackageJsonCommandArguments extends CommandArguments {
 export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
     key: KEY,
 
-    builder: (builder: Argv<CommandArguments>) => {
+    builder: (builder) => {
         builder.options({
             varPrefix: {
                 group: KEY,
@@ -23,9 +22,15 @@ export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
         });
     },
 
-    load: ({ env }: Arguments<CommandArguments>) => {
+    load: ({ env, app, varPrefix }) => {
         return {
-            ENV: 'yeh'
+            [`${varPrefix}ENV`]: env,
+
+            [`${varPrefix}VERSION`]: app?.version,
+            [`${varPrefix}PROJECT`]: app?.project,
+            [`${varPrefix}NAME`]: app?.name,
+            [`${varPrefix}TITLE`]: app?.title,
+            [`${varPrefix}DESCRIPTION`]: app?.description
         };
     }
 };

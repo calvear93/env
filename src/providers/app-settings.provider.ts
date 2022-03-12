@@ -1,7 +1,6 @@
-import { Arguments, Argv } from 'yargs';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { readJson } from '../utils';
+import { logger, readJson } from '../utils';
 
 const KEY = 'app-settings';
 
@@ -13,7 +12,7 @@ interface AppSettingsCommandArguments extends CommandArguments {
 export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
     key: KEY,
 
-    builder: (builder: Argv<CommandArguments>) => {
+    builder: (builder) => {
         builder.options({
             envFile: {
                 group: KEY,
@@ -32,19 +31,20 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         });
     },
 
-    load: async ({
-        env,
-        modes,
-        envFile,
-        sectionPrefix
-    }: Arguments<AppSettingsCommandArguments>) => {
+    load: async ({ env, modes, envFile, sectionPrefix }) => {
         const [appsettings, wasFound] = await readJson(envFile);
 
-        if (!wasFound) throw new Error(`${envFile} does not found`);
+        if (!wasFound) {
+            logger.error(`${envFile} not found`);
+
+            process.exit(1);
+        }
 
         return [
             appsettings['[DEFAULT]'],
+
             appsettings['[ENV]']?.[`${sectionPrefix}${env}`],
+
             ...modes.map(
                 (mode) => appsettings['[MODE]']?.[`${sectionPrefix}${mode}`]
             )

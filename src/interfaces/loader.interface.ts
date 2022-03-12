@@ -18,7 +18,7 @@ export interface EnvProvider<
 > {
     key: string;
 
-    builder?: (builder: Argv<any>) => void;
+    builder?: (builder: Argv<unknown>) => void;
 
     load: (argv: Arguments<A>, config?: C) => EnvResult | never;
 
