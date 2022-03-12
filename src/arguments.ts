@@ -18,7 +18,7 @@ export interface CommandArguments extends Arguments {
     root: string;
     configFile: string;
     schemaFile: string;
-    logLevel?: string;
+    logLevel?: 'silly' | 'trace' | 'debug' | 'info' | 'warn' | 'error';
     logMaskAnyRegEx?: string[];
     logMaskValuesOfKeys?: string[];
 }

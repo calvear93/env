@@ -1,4 +1,7 @@
 import chalk from 'chalk';
+import { EnvCommandArguments } from 'commands/env.command';
+import { Arguments } from 'yargs';
+import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
 import { interpolate, logger, readJson } from '../utils';
 
 /**
@@ -45,9 +48,10 @@ export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
 
     // calculates subcommand surrounded by delimiters
     if (begin > 0) {
-        if (count > 0)
-            subcommand = rawArgv.splice(begin, count + 1).slice(1, -1);
-        else subcommand = rawArgv.splice(begin).slice(1);
+        subcommand =
+            count > 0
+                ? rawArgv.splice(begin, count + 1).slice(1, -1)
+                : rawArgv.splice(begin).slice(1);
     }
 
     return subcommand;
@@ -93,4 +97,37 @@ export async function loadProjectInfo(): Promise<
 
         return undefined;
     }
+}
+
+/**
+ * Executes load functions from provider handlers.
+ *
+ * @param {EnvProviderConfig[]} providers
+ * @param {Partial<Arguments<EnvCommandArguments>>} argv
+ *
+ * @returns {EnvProviderResult[]}
+ */
+export function loadVariablesFromProviders(
+    providers: EnvProviderConfig[],
+    argv: Partial<Arguments<EnvCommandArguments>>
+): Promise<EnvProviderResult[]> {
+    if (!providers) return [] as any;
+
+    return Promise.all(
+        providers.map(({ handler: { key, load }, config }) => {
+            logger.silly(`executing ${chalk.yellow(key)} provider`);
+
+            const result = load(argv, config);
+
+            if (result instanceof Promise) {
+                return result.then((result) => ({
+                    key,
+                    config,
+                    result
+                }));
+            } else {
+                return { key, config, result };
+            }
+        })
+    );
 }

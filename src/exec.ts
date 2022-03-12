@@ -6,7 +6,12 @@ import yargsParser from 'yargs-parser';
 import yargs, { Arguments } from 'yargs';
 import { IntegratedProviders } from './providers';
 import { args, CommandArguments } from './arguments';
-import { envCommand, pullCommand, pushCommand } from './commands';
+import {
+    envCommand,
+    pullCommand,
+    pushCommand,
+    schemaCommand
+} from './commands';
 import {
     getSubcommand,
     interpolateJson,
@@ -86,7 +91,9 @@ export async function exec(rawArgv: string[]) {
                 )} provider not found or not compatible`
             );
 
-            process.exit(1);
+            throw new Error(
+                `${provider.path} provider not found or not compatible`
+            );
         }
     }
 
@@ -194,26 +201,25 @@ function build(
                 if (argv.schemaValidate)
                     logger.silly('schema loaded:', argv.schema);
             }
-        })
-        .check(({ providers }) => {
-            if (!Array.isArray(providers) || providers.length === 0) {
-                logger.error('no providers found');
-
-                process.exit(1);
-            }
-
-            return true;
         });
 
     // integrated commands builder
     builder.command(envCommand);
     builder.command(pullCommand);
     builder.command(pushCommand);
+    builder.command(schemaCommand);
+
+    const { providers } = preloadedArgv;
+
+    if (!Array.isArray(providers) || providers.length === 0) {
+        logger.error('no providers found');
+
+        throw new Error('no providers found');
+    }
 
     // extends command from plugins
-    preloadedArgv.providers?.forEach(({ handler }) => {
+    for (const { handler } of providers)
         handler.builder && handler.builder(builder);
-    });
 
     // executes command processing
     builder.parse();

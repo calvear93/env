@@ -1,10 +1,14 @@
 import chalk from 'chalk';
 import merge from 'merge-deep';
 import { spawn } from 'child_process';
-import { Arguments, CommandModule } from 'yargs';
+import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
-import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
-import { createValidator, logger, normalize } from '../utils';
+import {
+    createValidator,
+    loadVariablesFromProviders,
+    logger,
+    normalize
+} from '../utils';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -56,7 +60,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: async ({ providers, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
-        let env = merge({}, ...results.map((loader) => loader.result).flat(1));
+        let env = merge({}, ...results.flatMap((loader) => loader.result));
 
         if (argv.schemaValidate) {
             const validator = createValidator(argv.schema);
@@ -64,7 +68,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
             if (!validator(env)) {
                 logger.error('schema validation failed', validator.errors);
 
-                process.exit(1);
+                throw new Error('schema validation failed');
             }
         }
 
@@ -93,36 +97,3 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         });
     }
 };
-
-/**
- * Executes load functions from provider handlers.
- *
- * @param {EnvProviderConfig[]} providers
- * @param {Partial<Arguments<EnvCommandArguments>>} argv
- *
- * @returns {EnvProviderResult[]}
- */
-function loadVariablesFromProviders(
-    providers: EnvProviderConfig[],
-    argv: Partial<Arguments<EnvCommandArguments>>
-): Promise<EnvProviderResult[]> {
-    if (!providers) return [] as any;
-
-    return Promise.all(
-        providers.map(({ handler: { key, load }, config }) => {
-            logger.silly(`executing ${chalk.yellow(key)} provider`);
-
-            const result = load(argv, config);
-
-            if (result instanceof Promise) {
-                return result.then((result) => ({
-                    key,
-                    config,
-                    result
-                }));
-            } else {
-                return { key, config, result };
-            }
-        })
-    );
-}

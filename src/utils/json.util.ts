@@ -34,7 +34,7 @@ export async function readJson<T = Record<string, any>>(
 ): Promise<[T | Record<string, any>, boolean] | never> {
     if (!existsSync(path)) return [{}, false];
 
-    return [JSON.parse(await readFile(path, 'utf-8')), true];
+    return [JSON.parse(await readFile(path, 'utf8')), true];
 }
 
 /**
@@ -50,7 +50,7 @@ export async function readJson<T = Record<string, any>>(
 export async function writeJson(
     path: string,
     content: Record<string, unknown>,
-    overwrite: false
+    overwrite = false
 ): Promise<boolean | never> {
     const exists = existsSync(path);
 
@@ -58,7 +58,7 @@ export async function writeJson(
 
     !overwrite && mkdirSync(path);
 
-    await writeFile(path, JSON.stringify(content), 'utf-8');
+    await writeFile(path, JSON.stringify(content, undefined, 4), 'utf8');
 
     return true;
 }

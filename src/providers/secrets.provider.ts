@@ -38,7 +38,7 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         if (!secretWasFound) {
             logger.error(`${secretWasFound} not found`);
 
-            process.exit(1);
+            throw new Error(`${secretWasFound} not found`);
         }
 
         return [secrets, localSecrets];

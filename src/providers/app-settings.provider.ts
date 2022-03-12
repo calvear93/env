@@ -37,7 +37,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         if (!wasFound) {
             logger.error(`${envFile} not found`);
 
-            process.exit(1);
+            process.exit(0);
         }
 
         return [
