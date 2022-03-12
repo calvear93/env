@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
@@ -23,7 +24,19 @@ export const pushCommand: CommandModule<any, PushCommandArguments> = {
 
         return builder;
     },
-    handler: (argv) => {
-        logger.silly('push running');
+    handler: async ({ providers, ...argv }) => {
+        const promises = await Promise.all(
+            providers
+                .filter(({ handler: { push } }) => !!push)
+                .map(({ handler: { key, push }, config }) => {
+                    logger.silly(`pushing to ${chalk.yellow(key)} provider`);
+
+                    return push!(argv, config);
+                })
+        );
+
+        if (promises.length > 0)
+            logger.info('environment variables pushed successfully');
+        else logger.warn('no providers for push variables');
     }
 };

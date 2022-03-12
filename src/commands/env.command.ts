@@ -2,9 +2,9 @@ import chalk from 'chalk';
 import merge from 'merge-deep';
 import { spawn } from 'child_process';
 import { Arguments, CommandModule } from 'yargs';
-import { createValidator, logger, normalize } from '../utils';
 import { CommandArguments } from '../arguments';
-import { EnvProviderConfig, EnvProviderResult, EnvResult } from '../interfaces';
+import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
+import { createValidator, logger, normalize } from '../utils';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -53,8 +53,8 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: async (argv) => {
-        const results = await loadVariablesFromProviders(argv);
+    handler: async ({ providers, ...argv }) => {
+        const results = await loadVariablesFromProviders(providers, argv);
 
         let env = merge({}, ...results.map((loader) => loader.result).flat(1));
 
@@ -97,14 +97,15 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 /**
  * Executes load functions from provider handlers.
  *
- * @param {Arguments<EnvCommandArguments>} argv
+ * @param {EnvProviderConfig[]} providers
+ * @param {Partial<Arguments<EnvCommandArguments>>} argv
  *
  * @returns {EnvProviderResult[]}
  */
-function loadVariablesFromProviders({
-    providers,
-    ...argv
-}: Arguments<EnvCommandArguments>): Promise<EnvProviderResult[]> {
+function loadVariablesFromProviders(
+    providers: EnvProviderConfig[],
+    argv: Partial<Arguments<EnvCommandArguments>>
+): Promise<EnvProviderResult[]> {
     if (!providers) return [] as any;
 
     return Promise.all(

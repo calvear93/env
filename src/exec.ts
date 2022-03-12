@@ -66,7 +66,7 @@ export async function exec(rawArgv: string[]) {
     // read loaders from config
     for (const provider of providers) {
         try {
-            logger.debug(`loading ${chalk.yellow(provider.path)} provider`);
+            logger.debug(`using ${chalk.yellow(provider.path)} provider`);
 
             if (provider.type === 'integrated') {
                 provider.handler = IntegratedProviders[provider.path];
@@ -157,7 +157,7 @@ function build(
         .scriptName('env')
         .version(version)
         .detectLocale(false)
-        .showHelpOnFail(true)
+        .showHelpOnFail(false)
         .parserConfiguration(config.parser)
         .usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
         .options(args)
@@ -194,6 +194,15 @@ function build(
                 if (argv.schemaValidate)
                     logger.silly('schema loaded:', argv.schema);
             }
+        })
+        .check(({ providers }) => {
+            if (!Array.isArray(providers) || providers.length === 0) {
+                logger.error('no providers found');
+
+                process.exit(1);
+            }
+
+            return true;
         });
 
     // integrated commands builder

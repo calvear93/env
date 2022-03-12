@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
@@ -27,7 +28,19 @@ export const pullCommand: CommandModule<any, PullCommandArguments> = {
 
         return builder;
     },
-    handler: (argv) => {
-        logger.silly('pull running');
+    handler: async ({ providers, ...argv }) => {
+        const promises = await Promise.all(
+            providers
+                .filter(({ handler: { pull } }) => !!pull)
+                .map(({ handler: { key, pull }, config }) => {
+                    logger.silly(`pulling from ${chalk.yellow(key)} provider`);
+
+                    return pull!(argv, config);
+                })
+        );
+
+        if (promises.length > 0)
+            logger.info('environment variables pulled successfully');
+        else logger.warn('no providers for pull variables');
     }
 };
