@@ -30,8 +30,7 @@
         "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended",
         "plugin:eslint-comments/recommended",
-        "plugin:sonarjs/recommended",
-        "plugin:unicorn/recommended"
+        "plugin:sonarjs/recommended"
     ],
     "rules": {
         "prettier/prettier": [
@@ -245,7 +244,7 @@
         "unicorn/no-array-for-each": "error",
         "unicorn/no-array-method-this-argument": "error",
         "unicorn/no-array-push-push": "error",
-        "unicorn/no-array-reduce": "error",
+        "unicorn/no-array-reduce": "off",
         "unicorn/no-await-expression-member": "error",
         "unicorn/no-console-spaces": "error",
         "unicorn/no-document-cookie": "error",

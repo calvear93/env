@@ -1,8 +1,10 @@
 import chalk from 'chalk';
-import { EnvCommandArguments } from 'commands/env.command';
+import merge from 'merge-deep';
 import { Arguments } from 'yargs';
+import { CommandArguments } from 'arguments';
+import { EnvCommandArguments } from 'commands/env.command';
 import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
-import { interpolate, logger, readJson } from '../utils';
+import { interpolate, logger, readJson, schemaFrom, writeJson } from '../utils';
 
 /**
  * Injects config to command arguments from file.
@@ -117,17 +119,52 @@ export function loadVariablesFromProviders(
         providers.map(({ handler: { key, load }, config }) => {
             logger.silly(`executing ${chalk.yellow(key)} provider`);
 
-            const result = load(argv, config);
+            const value = load(argv, config);
 
-            if (result instanceof Promise) {
-                return result.then((result) => ({
+            if (value instanceof Promise) {
+                return value.then((value) => ({
                     key,
                     config,
-                    result
+                    value
                 }));
             } else {
-                return { key, config, result };
+                return { key, config, value };
             }
         })
     );
+}
+
+/**
+ * Creates or updates JSON schema from
+ * environment variables grouped by provider key.
+ *
+ * @export
+ * @param {EnvProviderResult[]} env
+ * @param {Arguments<EnvCommandArguments>} argv
+ *
+ * @returns {Promise<object>} JSON schema grouped by provider key.
+ */
+export async function generateSchemaFrom(
+    env: EnvProviderResult[],
+    argv: Arguments<CommandArguments>
+): Promise<object> {
+    const { resolve, nullable, detectFormat, schemaFile } = argv;
+
+    // generates schemas from proviers results
+    let schema = env.reduce((schema, { key, value }) => {
+        const env = Array.isArray(value) ? merge({}, ...value) : value;
+
+        schema[key] = schemaFrom(env, {
+            nullable,
+            strings: { detectFormat }
+        });
+
+        return schema;
+    }, {} as Record<string, unknown>);
+
+    if (resolve === 'merge') schema = merge(argv.schema, schema);
+
+    await writeJson(schemaFile, schema, true);
+
+    return schema;
 }

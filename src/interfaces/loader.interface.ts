@@ -9,7 +9,7 @@ export type EnvResult =
 export interface EnvProviderResult {
     key: string;
     config?: Record<string, unknown>;
-    result: Record<string, any>;
+    value: Record<string, any> | Record<string, any>[];
 }
 
 export interface EnvProvider<

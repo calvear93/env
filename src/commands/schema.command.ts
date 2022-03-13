@@ -1,69 +1,24 @@
-import merge from 'merge-deep';
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import {
+    generateSchemaFrom,
     loadVariablesFromProviders,
-    logger,
-    schemaFrom,
-    writeJson
+    logger
 } from '../utils';
 
-export interface SchemaCommandArguments extends CommandArguments {
-    resolve: 'merge' | 'override';
-    nullable: boolean;
-    detectFormat: boolean;
-}
-
-export const schemaCommand: CommandModule<any, SchemaCommandArguments> = {
+export const schemaCommand: CommandModule<any, CommandArguments> = {
     command: 'schema [options..]',
     describe: 'Handles environment variables JSON schema',
     builder: (builder) => {
-        builder
-            .options({
-                resolve: {
-                    alias: 'r',
-                    type: 'string',
-                    default: 'merge',
-                    choices: ['merge', 'override'],
-                    describe: 'Generates a JSON schema from variables'
-                },
-                nullable: {
-                    alias: 'null',
-                    type: 'boolean',
-                    default: true,
-                    describe: 'Whether variables are nullable'
-                },
-                detectFormat: {
-                    alias: 'df',
-                    type: 'boolean',
-                    default: true,
-                    describe:
-                        'Whether format of strings variables are included in schema'
-                }
-            })
-            .example(
-                'env schema --generate -e dev -m debug unit',
-                'Updates JSON schema'
-            );
-
-        return builder;
+        return builder.example(
+            'env schema --generate -e dev -m debug unit',
+            'Updates JSON schema'
+        );
     },
-    handler: async ({
-        providers,
-        resolve,
-        nullable,
-        detectFormat,
-        ...argv
-    }) => {
-        const results = await loadVariablesFromProviders(providers, argv);
-        const env = merge({}, ...results.flatMap((loader) => loader.result));
+    handler: async (argv) => {
+        const results = await loadVariablesFromProviders(argv.providers, argv);
 
-        logger.silly('environment loaded:', env);
-
-        let schema = schemaFrom(env, { nullable, strings: { detectFormat } });
-        if (resolve === 'merge') schema = merge(argv.schema, schema);
-
-        await writeJson(argv.schemaFile, schema, true);
+        const schema = await generateSchemaFrom(results, argv);
 
         logger.silly('schema:', schema);
         logger.info('schema updated successfully');

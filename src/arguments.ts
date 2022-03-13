@@ -4,20 +4,24 @@ import { IntegratedProviderConfig } from './providers';
 
 const GROUPS = {
     LOG_WORKSPACE: 'Logger Options',
-    GROUP_WORKSPACE: 'Workspace Options'
+    GROUP_WORKSPACE: 'Workspace Options',
+    JSON_SCHEMA_WORKSPACE: 'JSON Schema Options'
 };
 
 export interface CommandArguments extends Arguments {
     env: string;
     modes: string[];
     app?: Record<string, unknown>;
-    schema?: Record<string, unknown>;
+    schema?: Record<string, object>;
     providers: EnvProviderConfig[];
     nestingDelimiter: string;
     arrayDescomposition: boolean;
     root: string;
     configFile: string;
     schemaFile: string;
+    resolve: 'merge' | 'override';
+    nullable: boolean;
+    detectFormat: boolean;
     logLevel?: 'silly' | 'trace' | 'debug' | 'info' | 'warn' | 'error';
     logMaskAnyRegEx?: string[];
     logMaskValuesOfKeys?: string[];
@@ -77,6 +81,28 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'string',
         default: '[[root]]/env.schema.json',
         describe: 'Environment Schema JSON file path'
+    },
+    resolve: {
+        group: GROUPS.JSON_SCHEMA_WORKSPACE,
+        alias: 'r',
+        type: 'string',
+        default: 'merge',
+        choices: ['merge', 'override'],
+        describe: 'Generates a JSON schema from variables'
+    },
+    nullable: {
+        group: GROUPS.JSON_SCHEMA_WORKSPACE,
+        alias: 'null',
+        type: 'boolean',
+        default: true,
+        describe: 'Whether variables are nullable'
+    },
+    detectFormat: {
+        group: GROUPS.JSON_SCHEMA_WORKSPACE,
+        alias: 'df',
+        type: 'boolean',
+        default: true,
+        describe: 'Whether format of strings variables are included in schema'
     },
     logLevel: {
         group: GROUPS.LOG_WORKSPACE,

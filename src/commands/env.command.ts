@@ -1,14 +1,15 @@
 import chalk from 'chalk';
 import merge from 'merge-deep';
 import { spawn } from 'child_process';
-import { CommandModule } from 'yargs';
+import { Arguments, CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import {
-    createValidator,
+    createValidators,
     loadVariablesFromProviders,
     logger,
     normalize
 } from '../utils';
+import { EnvProviderResult } from 'interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     subcmd: string[];
@@ -60,17 +61,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: async ({ providers, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
-        let env = merge({}, ...results.flatMap((loader) => loader.result));
-
-        if (argv.schemaValidate) {
-            const validator = createValidator(argv.schema);
-
-            if (!validator(env)) {
-                logger.error('schema validation failed', validator.errors);
-
-                throw new Error('schema validation failed');
-            }
-        }
+        let env = merge({}, ...flatAndValidateResults(results, argv));
 
         // results normalization merging
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
@@ -97,3 +88,34 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         });
     }
 };
+
+/**
+ * Flattern and validates environment provider results.
+ *
+ * @param {EnvProviderResult[]} results
+ * @param {Partial<Arguments<EnvCommandArguments>>} argv
+ * @returns {*}
+ */
+function flatAndValidateResults(
+    results: EnvProviderResult[],
+    argv: Partial<Arguments<EnvCommandArguments>>
+) {
+    if (!argv.schemaValidate) return results.flatMap(({ value }) => value);
+
+    const validators = createValidators(argv.schema!, argv.detectFormat);
+
+    return results.flatMap(({ key, value }) => {
+        if (Array.isArray(value)) value = merge({}, ...value);
+
+        const validator = validators![key];
+
+        if (validator(value)) return value;
+
+        logger.error(
+            `schema validation failed for ${chalk.yellow(key)}`,
+            validator.errors
+        );
+
+        throw new Error(`schema validation failed for ${key}`);
+    });
+}

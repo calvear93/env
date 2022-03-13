@@ -19,12 +19,10 @@ export function schemaFrom(
         required: false,
         ...options,
         postProcessFnc: (type, schema, value, defaultFunc) => {
-            if (
-                value !== json &&
-                options?.nullable &&
-                !schema.type?.includes('null')
-            )
-                schema.type = [type, 'null'];
+            if (value !== json) {
+                schema.type = [type];
+                schema.nullable = options?.nullable ?? false;
+            }
 
             return defaultFunc(type, schema, value);
         }
@@ -32,18 +30,27 @@ export function schemaFrom(
 }
 
 /**
- * Creates a JSON schema validator using AJV.
+ * Creates a JSON schema validator lookup using AJV.
  *
  * @see https://ajv.js.org/
  *
  * @export
- * @param {Record<string, unknown>} schema json schema
+ * @param {Record<string, object>} createValidators json schema by provider
+ * @param {boolean} enableFormats whether formats are enabled
  *
- * @returns {ValidateFunction} validator
+ * @returns {Record<string, ValidateFunction>} validators lookup
  */
-export function createValidator<T>(schema: T): ValidateFunction<T> {
+export function createValidators(
+    schemaLookup: Record<string, object>,
+    enableFormats = true
+): Record<string, ValidateFunction> {
     const ajv = new Ajv();
-    addFormats(ajv);
+    enableFormats && addFormats(ajv);
 
-    return ajv.compile<T>(schema);
+    const validators: Record<string, ValidateFunction> = {};
+
+    for (const key in schemaLookup)
+        validators[key] = ajv.compile(schemaLookup[key]);
+
+    return validators;
 }
