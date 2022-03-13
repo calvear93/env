@@ -1,6 +1,26 @@
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv, { Format, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import toJsonSchema, { Options } from 'to-json-schema';
+
+const FORMAT_REGEXPS: Record<string, Format> = {
+    'ip-address':
+        /^(?:(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})$/,
+
+    color: /^(#?([\dA-Fa-f]{3}){1,2}\b|aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|yellow|(rgb\(\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*\))|(rgb\(\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*\)))$/,
+
+    hostname:
+        /^(?=.{1,255}$)[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?(?:\.[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?)*\.?$/,
+
+    alphanumeric: /^[\dA-Za-z]+$/,
+
+    'utc-millisec': (input: string) => !Number.isNaN(+input),
+
+    alpha: /^[A-Za-z]+$/,
+
+    style: /\s*(.+?):\s*([^;]+);?/g,
+
+    phone: /^\+(?:\d ?){6,14}\d$/
+};
 
 /**
  * Generates JSON schema from JSON template/object.
@@ -45,7 +65,13 @@ export function createValidators(
     enableFormats = true
 ): Record<string, ValidateFunction> {
     const ajv = new Ajv();
-    enableFormats && addFormats(ajv);
+
+    if (enableFormats) {
+        addFormats(ajv, { mode: 'fast' });
+
+        for (const key in FORMAT_REGEXPS)
+            ajv.addFormat(key, FORMAT_REGEXPS[key]);
+    }
 
     const validators: Record<string, ValidateFunction> = {};
 
