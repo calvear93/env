@@ -25,82 +25,6 @@ import {
 type Alias = string | string[];
 
 /**
- * Command preprocessing and lib info
- * reading from package.json.
- * Preloads config file and setup basic config.
- *
- * @param {string[]} rawArgv process.argv
- */
-export async function exec(rawArgv: string[]) {
-    // reads some lib base config from package.json
-    const { config, version } = await import(`${__dirname}/package.json`);
-
-    // execs yargs
-    const subcommand = getSubcommand(rawArgv, config.delimiters.subcommand);
-
-    const preloadedArgv = await preloadConfig(
-        rawArgv,
-        config.parser,
-        config.delimiters.template
-    );
-
-    const {
-        env,
-        modes,
-        providers,
-        logLevel,
-        logMaskAnyRegEx,
-        logMaskValuesOfKeys
-    } = preloadedArgv;
-
-    if (!providers) throw new Error('"providers" must be well defined');
-
-    // logging level
-    logger.setSettings({
-        minLevel: logLevel as TLogLevelName,
-        maskAnyRegEx: logMaskAnyRegEx as string[],
-        maskValuesOfKeys: logMaskValuesOfKeys as string[]
-    });
-
-    logger.info(
-        `loading ${chalk.bold.underline.green(
-            env
-        )} environment in ${chalk.bold.magenta(modes?.join('+'))} mode`
-    );
-
-    // read loaders from config
-    for (const provider of providers) {
-        try {
-            logger.debug(`using ${chalk.yellow(provider.path)} provider`);
-
-            if (provider.type === 'integrated') {
-                provider.handler = IntegratedProviders[provider.path];
-            } else {
-                const { default: module } = await import(
-                    provider.type === 'module'
-                        ? provider.path
-                        : resolvePath(provider.path)
-                );
-
-                provider.handler = module;
-            }
-        } catch {
-            logger.error(
-                `${chalk.yellow(
-                    provider.path
-                )} provider not found or not compatible`
-            );
-
-            throw new Error(
-                `${provider.path} provider not found or not compatible`
-            );
-        }
-    }
-
-    build(rawArgv, preloadedArgv, subcommand, config, version);
-}
-
-/**
  * Preload basic config from command line and config file.
  *
  * @param {string[]} rawArgv process.argv
@@ -141,6 +65,86 @@ async function preloadConfig(
     await loadConfigFile(preloadedArgv, delimiters);
 
     return preloadedArgv;
+}
+
+/**
+ * Command preprocessing and lib info
+ * reading from package.json.
+ * Preloads config file and setup basic config.
+ *
+ * @param {string[]} rawArgv process.argv
+ */
+export async function exec(rawArgv: string[]) {
+    // reads some lib base config from package.json
+    const { config, version } = await import(`${__dirname}/package.json`);
+
+    // execs yargs
+    const subcommand = getSubcommand(rawArgv, config.delimiters.subcommand);
+
+    const preloadedArgv = await preloadConfig(
+        rawArgv,
+        config.parser,
+        config.delimiters.template
+    );
+
+    const {
+        env,
+        modes,
+        providers,
+        logLevel,
+        logMaskAnyRegEx,
+        logMaskValuesOfKeys
+    } = preloadedArgv;
+
+    if (!Array.isArray(providers) || providers.length === 0) {
+        logger.error('no providers found');
+
+        throw new Error('no providers found');
+    }
+
+    // logging level
+    logger.setSettings({
+        minLevel: logLevel as TLogLevelName,
+        maskAnyRegEx: logMaskAnyRegEx as string[],
+        maskValuesOfKeys: logMaskValuesOfKeys as string[]
+    });
+
+    logger.info(
+        `loading ${chalk.bold.underline.green(
+            env
+        )} environment in ${chalk.bold.magenta(modes?.join('+'))} mode`
+    );
+
+    // read loaders from config
+    for (const provider of providers!) {
+        try {
+            logger.debug(`using ${chalk.yellow(provider.path)} provider`);
+
+            if (provider.type === 'integrated') {
+                provider.handler = IntegratedProviders[provider.path];
+            } else {
+                const { default: module } = await import(
+                    provider.type === 'module'
+                        ? provider.path
+                        : resolvePath(provider.path)
+                );
+
+                provider.handler = module;
+            }
+        } catch {
+            logger.error(
+                `${chalk.yellow(
+                    provider.path
+                )} provider not found or not compatible`
+            );
+
+            throw new Error(
+                `${provider.path} provider not found or not compatible`
+            );
+        }
+    }
+
+    build(rawArgv, preloadedArgv, subcommand, config, version);
 }
 
 /**
@@ -211,14 +215,8 @@ function build(
 
     const { providers } = preloadedArgv;
 
-    if (!Array.isArray(providers) || providers.length === 0) {
-        logger.error('no providers found');
-
-        throw new Error('no providers found');
-    }
-
     // extends command from plugins
-    for (const { handler } of providers)
+    for (const { handler } of providers!)
         handler.builder && handler.builder(builder);
 
     // executes command processing

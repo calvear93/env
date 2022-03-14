@@ -36,9 +36,9 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         const [localSecrets] = await readJson(localSecretFile);
 
         if (!secretWasFound) {
-            logger.error(`${secretWasFound} not found`);
+            logger.error(`${secretFile} not found`);
 
-            throw new Error(`${secretWasFound} not found`);
+            throw new Error(`${secretFile} not found`);
         }
 
         return [secrets, localSecrets];

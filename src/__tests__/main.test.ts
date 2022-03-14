@@ -1,44 +1,25 @@
-import { spawn } from 'child_process';
-import { args } from '../arguments';
+import { execSync } from 'child_process';
 
-const spawnAsync = (cmd: string, ...args: string[]) =>
-    new Promise((resolve, reject) => {
-        spawn(cmd, args, {
-            stdio: 'inherit',
-            shell: true
-        }).on('exit', (code) => {
-            if (code === 0) resolve(true);
-            else reject(new Error('process failed'));
-        });
+const CMD = 'node dist/main.js';
+
+const BASE_ARGS = ['--root src/__tests__/env'];
+
+const exec = (stdio: boolean, ...args: string[]): string | undefined => {
+    return execSync(`${CMD} ${[...BASE_ARGS, ...args].join(' ')}`)?.toString();
+};
+
+describe('env command', () => {
+    beforeAll(() => {
+        // builds application
+        execSync('npm run build');
+        // generates schema from environment variables
+        exec(false, 'schema', '-e dev', '-m debug');
     });
 
-describe('Test', () => {
-    const CMD = 'node dist/main.js';
+    test('load env into run.js', () => {
+        const args = ['-e dev', '--m debug', ': node src/__tests__/run.js'];
+        const response = exec(true, ...args);
 
-    beforeAll(async () => {
-        await spawnAsync('npm', 'run build');
-        await spawnAsync(
-            CMD,
-            'schema',
-            '-e dev',
-            '-m debug',
-            '--root src/__tests__'
-        );
-    });
-
-    test('t1', () => {
-        // const args = [
-        //     'pull',
-        //     '--root src/__tests__',
-        //     '-e dev',
-        //     '--modes debug',
-        //     ': node test.js'
-        // ];
-
-        // await spawnAsync(CMD);
-
-        // console.log(process.env);
-
-        expect(args).toBeDefined();
+        expect(response).not.toMatch(/error/i);
     });
 });
