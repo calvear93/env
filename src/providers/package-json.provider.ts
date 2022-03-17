@@ -7,6 +7,9 @@ interface PackageJsonCommandArguments extends CommandArguments {
     varPrefix: string;
 }
 
+/**
+ * Loads project info from package.json.
+ */
 export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
     key: KEY,
 

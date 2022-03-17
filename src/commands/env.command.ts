@@ -12,10 +12,19 @@ import {
 import { EnvProviderResult } from 'interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
+    // Command for execute after inject environment variables.
+    // Should be prefixed or surrounded by ':' character.
     subcmd: string[];
+    // whether validate schema before injecting variables
     schemaValidate: boolean;
 }
 
+/**
+ * Main command.
+ * Injects environment variables into process.env.
+ *
+ * @example [>_]: env -e dev -m debug : npm start
+ */
 export const envCommand: CommandModule<any, EnvCommandArguments> = {
     command: '$0 [options..] [: <subcmd> :]',
     describe: 'Inject environment variables into process',
@@ -99,12 +108,14 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
  *
  * @param {EnvProviderResult[]} results
  * @param {Partial<Arguments<EnvCommandArguments>>} argv
- * @returns {*}
+ *
+ * @throws {Error} on schema validation failed
+ * @returns {EnvProviderResult[]}
  */
 function flatAndValidateResults(
     results: EnvProviderResult[],
     argv: Partial<Arguments<EnvCommandArguments>>
-) {
+): EnvProviderResult[] | never {
     if (!argv.schemaValidate) return results.flatMap(({ value }) => value);
 
     const validators = createValidators(argv.schema!, argv.detectFormat);

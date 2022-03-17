@@ -9,6 +9,9 @@ interface AppSettingsCommandArguments extends CommandArguments {
     sectionPrefix: string;
 }
 
+/**
+ * Loads config from appsettings.json.
+ */
 export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
     key: KEY,
 

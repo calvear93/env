@@ -4,12 +4,18 @@ import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
 
 export interface PushCommandArguments extends CommandArguments {
+    // forces to push in case of conflict
     force: boolean;
 }
 
+/**
+ * Pushes environment variables to providers store.
+ *
+ * @example [>_]: env push -e dev
+ */
 export const pushCommand: CommandModule<any, PushCommandArguments> = {
     command: 'push [options..]',
-    describe: 'Pushes secrets to providers',
+    describe: 'Pushes environment variables to providers store',
     builder: (builder) => {
         builder
             .options({

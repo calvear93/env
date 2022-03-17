@@ -4,12 +4,18 @@ import { CommandArguments } from '../arguments';
 import { logger } from '../utils';
 
 export interface PullCommandArguments extends CommandArguments {
+    // whether variables should be overwritten in already exists
     overwrite: boolean;
 }
 
+/**
+ * Pulls environment variables from providers.
+ *
+ * @example [>_]: env pull -e dev
+ */
 export const pullCommand: CommandModule<any, PullCommandArguments> = {
     command: 'pull [options..]',
-    describe: 'Pulls secrets from providers',
+    describe: 'Pulls environment variables from providers',
     builder: (builder) => {
         builder
             .options({

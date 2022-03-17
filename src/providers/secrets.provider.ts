@@ -9,6 +9,9 @@ interface SecretsCommandArguments extends CommandArguments {
     localSecretFile: string;
 }
 
+/**
+ * Loads secrets from env files in env/secrets folder.
+ */
 export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     key: KEY,
 
