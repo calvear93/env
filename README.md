@@ -1,4 +1,4 @@
-# Azure Key Vault
+# json-diff-ts / promts
 
 Node library for handle Azure Key Vault, abstracts secrets management by project, environment and group when vault is shared.
 Also, this library handles nested JSON structures.

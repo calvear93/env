@@ -1,4 +1,4 @@
-import { execEnv } from './exec';
+import { execEnv, execDebugEnv } from './exec';
 
 const subcmd = ': node src/__tests__/run.js';
 
@@ -25,5 +25,12 @@ describe('env command', () => {
         const response = execEnv('-e dev', subcmd, ': -m debug');
 
         expect(response).not.toMatch(/error/i);
+    });
+
+    test('logger must not show SECRET variable value', () => {
+        const response = execDebugEnv('-e dev', subcmd);
+
+        expect(response).not.toMatch(/error/i);
+        expect(response).not.toMatch(/any secret/i);
     });
 });

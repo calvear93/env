@@ -53,16 +53,26 @@ async function preloadConfig(
         },
         default: {
             root: args.root.default,
-            configFile: args.configFile.default,
-            providers: args.providers.default,
-            logLevel: args.logLevel.default,
-            logMaskAnyRegEx: args.logMaskAnyRegEx.default,
-            logMaskValuesOfKeys: args.logMaskValuesOfKeys.default
+            configFile: args.configFile.default
         }
     });
 
     // loads configuration file
     await loadConfigFile(preloadedArgv, delimiters);
+
+    preloadedArgv.logLevel ??= args.logLevel.default;
+    preloadedArgv.logMaskAnyRegEx ??= args.logMaskAnyRegEx.default;
+    preloadedArgv.logMaskValuesOfKeys ??= args.logMaskValuesOfKeys.default;
+    preloadedArgv.providers ??= args.providers.default;
+
+    const { logLevel, logMaskAnyRegEx, logMaskValuesOfKeys } = preloadedArgv;
+
+    // logging level
+    logger.setSettings({
+        minLevel: logLevel,
+        maskAnyRegEx: logMaskAnyRegEx,
+        maskValuesOfKeys: logMaskValuesOfKeys
+    });
 
     return preloadedArgv;
 }
@@ -87,27 +97,13 @@ export async function exec(rawArgv: string[]) {
         config.delimiters.template
     );
 
-    const {
-        env,
-        modes,
-        providers,
-        logLevel,
-        logMaskAnyRegEx,
-        logMaskValuesOfKeys
-    } = preloadedArgv;
+    const { env, modes, providers } = preloadedArgv;
 
     if (!Array.isArray(providers) || providers.length === 0) {
         logger.error('no providers found');
 
         throw new Error('no providers found');
     }
-
-    // logging level
-    logger.setSettings({
-        minLevel: logLevel as TLogLevelName,
-        maskAnyRegEx: logMaskAnyRegEx as string[],
-        maskValuesOfKeys: logMaskValuesOfKeys as string[]
-    });
 
     logger.info(
         `loading ${chalk.bold.underline.green(env)} environment` +
