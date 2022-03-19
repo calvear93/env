@@ -10,7 +10,7 @@ const GROUPS = {
 
 export interface CommandArguments extends Arguments {
     env: string;
-    modes: string[];
+    modes?: string[];
     app?: Record<string, unknown>;
     schema?: Record<string, object>;
     providers: EnvProviderConfig[];
@@ -39,8 +39,6 @@ export const args: Record<keyof CommandArguments, Options> = {
     modes: {
         alias: 'm',
         type: 'array',
-        requiresArg: true,
-        demandOption: true,
         describe: 'Execution modes, i.e. debug, test'
     },
     providers: {

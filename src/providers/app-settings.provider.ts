@@ -34,7 +34,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         });
     },
 
-    load: async ({ env, modes, envFile, sectionPrefix }) => {
+    load: async ({ env, modes = [], envFile, sectionPrefix }) => {
         const [appsettings, wasFound] = await readJson(envFile);
 
         if (!wasFound) {

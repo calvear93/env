@@ -110,9 +110,8 @@ export async function exec(rawArgv: string[]) {
     });
 
     logger.info(
-        `loading ${chalk.bold.underline.green(
-            env
-        )} environment in ${chalk.bold.magenta(modes?.join('+'))} mode`
+        `loading ${chalk.bold.underline.green(env)} environment` +
+            (modes ? `in ${chalk.bold.magenta(modes.join('+'))} mode` : '')
     );
 
     // read loaders from config
