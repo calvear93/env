@@ -64,7 +64,10 @@ export function createValidators(
     schemaLookup: Record<string, object>,
     enableFormats = true
 ): Record<string, ValidateFunction> {
-    const ajv = new Ajv();
+    const ajv = new Ajv({
+        allErrors: true,
+        allowUnionTypes: true
+    });
 
     if (enableFormats) {
         addFormats(ajv, { mode: 'fast' });
