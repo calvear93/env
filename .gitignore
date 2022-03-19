@@ -5,7 +5,6 @@
 
 # testing
 /coverage
-/env
 
 # published package
 /dist
@@ -39,3 +38,6 @@ debug.log
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode - test
+
+/env
+run.js

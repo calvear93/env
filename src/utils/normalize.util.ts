@@ -24,14 +24,16 @@ export function normalize(
         const value = obj[key];
         const type = typeof value;
 
+        if (value === null || value === undefined || type === 'function')
+            continue;
+
         // skipped property
         if (key[0] === '#') continue;
         // global property, but prefix removed for injection
         key = pkey + key.replace('$', '');
 
-        if (type !== 'object' || value === null) {
-            if (value !== undefined && type !== 'function')
-                flattened[key] = value;
+        if (type !== 'object') {
+            flattened[key] = value;
 
             continue;
         }
