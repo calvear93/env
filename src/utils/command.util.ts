@@ -114,7 +114,7 @@ export function loadVariablesFromProviders(
     providers: EnvProviderConfig[],
     argv: Partial<Arguments<EnvCommandArguments>>
 ): Promise<EnvProviderResult[]> {
-    if (!providers) return [] as any;
+    if (!providers) return Promise.resolve([]) as Promise<EnvProviderResult[]>;
 
     return Promise.all(
         providers.map(({ handler: { key, load }, config }) => {

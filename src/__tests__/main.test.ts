@@ -14,4 +14,12 @@ describe('env command', () => {
 
         expect(response).not.toMatch(/error/i);
     });
+
+    test('pull', () => {
+        const response = execEnv('pull', '-e dev');
+
+        log(response);
+
+        expect(response).not.toMatch(/error/i);
+    });
 });
