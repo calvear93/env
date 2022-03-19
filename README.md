@@ -1,336 +1,118 @@
-# json-diff-ts / promts
-
-Node library for handle Azure Key Vault, abstracts secrets management by project, environment and group when vault is shared.
-Also, this library handles nested JSON structures.
-
-## How To Use 💡
-
-Should be initialized with AzureKeyVault as:
-
-```javascript
-import { AzureKeyVault } from '@calvear/azure-key-vault';
-
-// initializes azure key vault
-const keyVault = new AzureKeyVault(
-    {
-        project: 'my-project',
-        group: 'web',
-        env: 'dev',
-    },
-    {
-        keyVaultUri: 'https://my-key-vault.vault.azure.net',
-        clientId: 'f176a774-239e-4cd3-8551-88fd9fb9b441',
-        clientSecret: 'WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku',
-        tenantId: '9dba8525-be64-4d10-b124-e6f1644ae513',
-    }
-);
-
-async function main() {
-    await keyVault.setAll({
-        SECRET1: 'my secret 1',
-        SECRET2: 'my secret 2',
-        otherConfig: {
-            SECRET3: 'my secret 3',
-        },
-    });
-
-    const mySecret2 = await keyVault.getInfo('SECRET2');
-    console.log(mySecret2);
-    // name is 'my-project-dev-web-secret2' and value 'my secret 2'
-
-    const mySecret3 = await keyVault.getInfo('otherConfig:SECRET3');
-    console.log(mySecret3);
-    // name is 'my-project-dev-web-otherConfig--secret3' and value 'my secret 3'
-
-    const mySecrets = await keyVault.getFor({
-        SECRET1: null,
-        SECRET2: 'default value',
-        otherConfig: {
-            SECRET3: null,
-        },
-        SECRET4: 'def for secret 4',
-    });
-    console.log(mySecrets);
-    // prints { SECRET1: 'my secret 1, SECRET2: 'my secret 2', otherConfig: { SECRET3: 'my secret 3' }, SECRET4: 'def for secret 3' }
-}
-
-main();
-```
+<br />
+<div align="center">
+  <h2 align="center"><strong>env</strong></h2>
 
-You can initialize key vault with environment variables as:
+  <p align="center">
+    Environment variables handler (loader, puller, pusher) for NodeJS
+  </p>
+</div>
 
-```javascript
-import { AzureKeyVault } from '@calvear/azure-key-vault';
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-...
-process.env.AZURE_KEY_VAULT_URI = 'https://my-key-vault.vault.azure.net';
-process.env.AZURE_CLIENT_ID = 'f176a774-239e-4cd3-8551-88fd9fb9b441';
-process.env.AZURE_CLIENT_SECRET = 'WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku';
-process.env.AZURE_TENANT_ID = '9dba8525-be64-4d10-b124-e6f1644ae513';
-...
-
-// initializes azure key vault
-const keyVault = new AzureKeyVault({
-    project: 'my-project',
-    group: 'web',
-	env: 'dev'
-});
-
-...
-```
-
-### **Functions**
-
-Library has functions for manage key vault secrets.
-
-[i] You can use ':' for nested path, (i.e. `car:props:name`)
-[i] You can prefix your key with '&' for project shared secret, (i.e. `car:props:$name`)
-
--   **get**: returns secret value.
-
-| Parameters   | Description                           |
-| ------------ | ------------------------------------- |
-| `key`        | (string) secret key                   |
-| `serialized` | (boolean) whether value is serialized |
-
-```javascript
-const value = await keyVault.get('my-secret');
-```
-
--   **getInfo**: returns secret info.
-
-| Parameters | Description         |
-| ---------- | ------------------- |
-| `key`      | (string) secret key |
+<!-- ABOUT THE PROJECT -->
 
-```javascript
-const info = await keyVault.getInfo('my-secret');
-```
+## About
 
--   **set**: inserts or updates secret value.
+The aim of this library is ease NodeJS environment variable handling, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with powerfull features and extensibility for adding custom providers (as plugins) for load, pull and push the variables.
 
-| Parameters | Description         |
-| ---------- | ------------------- |
-| `key`      | (string) secret key |
-| `value`    | (string) secret key |
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-```javascript
-const info = await keyVault.set('my-secret', 'my secret value');
-```
+### Built With
 
--   **delete**: deletes a secret.
+-   [yargs](http://yargs.js.org/)
+-   [tslog](https://tslog.js.org/#/)
+-   [subslate](https://github.com/josh-hemphill/subslate)
+-   [merge-deep](https://github.com/jonschlinkert/merge-deep)
+-   [ajv](https://ajv.js.org/)
+-   [to-json-schema](https://www.npmjs.com/package/to-json-schema)
 
-| Parameters | Description         |
-| ---------- | ------------------- |
-| `key`      | (string) secret key |
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-```javascript
-const deletionInfo = await keyVault.delete('my-secret');
-```
+<!-- GETTING STARTED -->
 
--   **purge**: purges a deleted secret.
+## Getting Started
 
-| Parameters | Description         |
-| ---------- | ------------------- |
-| `key`      | (string) secret key |
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
 
-```javascript
-const info = await keyVault.purge('my-secret');
-```
+### Prerequisites
 
--   **restore**: restores a deleted secret.
+This is an example of how to list things you need to use the software and how to install them.
 
-| Parameters | Description         |
-| ---------- | ------------------- |
-| `key`      | (string) secret key |
+-   npm
+    ```sh
+    npm install npm@latest -g
+    ```
 
-```javascript
-const restoredInfo = await keyVault.restore('my-secret');
-```
+### Installation
 
--   **getAll**: gets all secrets for the project, env and group.
+1. Get a free API Key at [https://example.com](https://example.com)
+2. Clone the repo
+    ```sh
+    git clone https://github.com/github_username/repo_name.git
+    ```
+3. Install NPM packages
+    ```sh
+    npm install
+    ```
+4. Enter your API in `config.js`
+    ```js
+    const API_KEY = 'ENTER YOUR API';
+    ```
 
-```javascript
-const listOfSecrets = await keyVault.getAll();
-```
-
--   **getFor**: (faster than getAll) gets all secrets for the project, env and group defined in input object. **In order to get array correctly deserialized, use [] as default value instead of null or undefined**.
-
-| Parameters   | Description                                                                      |
-| ------------ | -------------------------------------------------------------------------------- |
-| `secrets`    | (any) object with secrets (key, value)                                           |
-| `[override]` | (boolean) (default: false) whether secrets with default value should be override |
-
-```javascript
-let secrets = {
-    '$global-var': null,
-    'my-secret': null,
-    'my-secret-2': 'default value',
-    'my-secret-group1': {
-        'my-secret-3': null
-    },
-    // in case of array type variable, default must be
-    // an array (or empty array) for correct deserialize
-    'my-array-secret': []
-};
-
-const listOfSecrets = await keyVault.getFor(secrets);
-```
-
--   **setAll**: insert or updates a set of secrets.
-
-| Parameters | Description                            |
-| ---------- | -------------------------------------- |
-| `secrets`  | (any) object with secrets (key, value) |
-
-```javascript
-let secrets = {
-    '$global-var': 'my shared secret',
-    'my-secret': 'my secret',
-    'my-secret-2': 'my secret 2',
-    'my-secret-group1': {
-        'my-secret-3': 'my secret 3'
-    },
-    'my-array-secret': ['a', 'b', 'c']
-};
-
-const listOfProperties = await keyVault.setAll(secrets);
-```
-
--   **deleteAll**: deletes every secrets for the project group.
-
-| Parameters   | Description            |
-| ------------ | ---------------------- |
-| `skipGlobal` | skips global variables |
-
-```javascript
-const info = await keyVault.deleteAll();
-```
-
--   **purgeAll**: purges every deleted secrets for the project group.
-
-| Parameters   | Description            |
-| ------------ | ---------------------- |
-| `skipGlobal` | skips global variables |
-
-```javascript
-const info = await keyVault.purgeAll();
-```
-
--   **restoreAll**: restores every deleted secrets for the project group.
-
-| Parameters   | Description            |
-| ------------ | ---------------------- |
-| `skipGlobal` | skips global variables |
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-```javascript
-const info = await keyVault.restoreAll();
-```
+<!-- USAGE EXAMPLES -->
 
-### **Commands**
+## Usage
 
-Library has node commands for use with npm.
-Every commands needs credentials arguments for connect to key vault.
+Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-| Parameters   | Description                                                                    |
-| ------------ | ------------------------------------------------------------------------------ |
-| `--project`  | (string) project name                                                          |
-| `--group`    | (string) secrets group                                                         |
-| `--env`      | (string) environment                                                           |
-| `--uri`      | (string) key vault uri (i.e. https://my-key-vault.vault.azure.net)             |
-| `--spn`      | (string) service principal name id (i.e. f176a774-239e-4cd3-8551-88fd9fb9b441) |
-| `--password` | (string) spn secret password (i.e. WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku)           |
-| `--tenant`   | (string) tenant id (i.e. 9dba8525-be64-4d10-b124-e6f1644ae513)                 |
+_For more examples, please refer to the [Documentation](https://example.com)_
 
-You should define your npm script command in **package.json** as:
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-```json
-// package.json
-{
-    ...,
-    "scripts": {
-        ...,
-        "akv": "akv --project=my-project --group=web --tenant=9dba8525-be64-4d10-b124-e6f1644ae513",
-        ...
-    },
-    ...
-}
-```
+<!-- ROADMAP -->
 
--   **getFor**: writes a file with secrets as JSON, using a JSON file as secrets structure definition.
+## Roadmap
 
-| Parameters | Description                                                                  |
-| ---------- | ---------------------------------------------------------------------------- |
-| `--file`   | (string) relative uri (from cmd root) for JSON file for structure definition |
-| `--output` | (string) relative uri for result secrets JSON file                           |
+-   [ ] Feature 1
+-   [ ] Feature 2
+-   [ ] Feature 3
+    -   [ ] Nested Feature
 
-```cmd
-foo@bar:~$ npm run akv getFor -- \
-    --env=dev \
-    --uri=https://my-key-vault.vault.azure.net \
-    --spn=f176a774-239e-4cd3-8551-88fd9fb9b441 \
-    --password=WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku \
-    --file=secrets-structure-definition.json \
-    --output=my-secrets.json \
-    --override
-```
+See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
 
--   **getAll**: writes all secrets (for project, group and env) in a JSON file.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-| Parameters | Description                                        |
-| ---------- | -------------------------------------------------- |
-| `--output` | (string) relative uri for result secrets JSON file |
+<!-- LICENSE -->
 
-```cmd
-foo@bar:~$ npm run akv getAll -- \
-    --env=dev \
-    --uri=https://my-key-vault.vault.azure.net \
-    --spn=f176a774-239e-4cd3-8551-88fd9fb9b441 \
-    --password=WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku \
-    --output=my-secrets.json \
-    --override
-```
+## License
 
--   **publish**: creates or updates secrets (for project, group and env) in key vault from a JSON file.
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-| Parameters | Description                                                      |
-| ---------- | ---------------------------------------------------------------- |
-| `--file`   | (string) relative uri (from cmd root) for JSON file with secrets |
-
-```cmd
-foo@bar:~$ npm run akv publish -- \
-    --env=dev \
-    --uri=https://my-key-vault.vault.azure.net \
-    --spn=f176a774-239e-4cd3-8551-88fd9fb9b441 \
-    --password=WyBwkmcL8rGQe9B2fvRLDrqDuannE4Ku \
-    --file=my-secrets.json
-```
-
--   **clear**: deletes all secrets (for project, group and env) in key vault.
-
--   **restore**: restores all deleted secrets (for project, group and env) in key vault.
-
-## Linting 🧿
-
-Project uses ESLint, for code formatting and code styling normalizing.
-
--   **eslint**: JavaScript and React linter with Airbnb React base config and some other additions.
-
-For correct interpretation of linters, is recommended to use [Visual Studio Code](https://code.visualstudio.com/) as IDE and install the plugins in .vscode folder at 'extensions.json', as well as use the config provided in 'settings.json'
-
-## Changelog 📄
-
-For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
-
-## Built with 🛠️
-
--   [@azure/identity](https://www.npmjs.com/package/@azure/identity) - azure identity provider.
--   [@azure/keyvault-secrets](https://www.npmjs.com/package/@azure/keyvault-secrets) - azure key vault bae handler.
-
-## License 📄
-
-This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) file for details.
-
----
-
-⌨ by [Alvear Candia, Cristopher Alejandro](https://github.com/calvear93)
+<p align="right">(<a href="#top">back to top</a>)</p>
