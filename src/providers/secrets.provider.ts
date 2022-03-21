@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
 import { logger, readJson } from '../utils';
@@ -43,10 +44,11 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
             await readJson(localSecretFile)
         ]);
 
-        if (!secretsWasFound) logger.warn(`${secretFile} not found`);
+        if (!secretsWasFound)
+            logger.warn(`${chalk.magenta(secretFile)} not found`);
 
         if (!localSecretsWasFound)
-            logger.warn(`${localSecretsWasFound} not found`);
+            logger.warn(`${chalk.magenta(localSecretsWasFound)} not found`);
 
         return [secrets, localSecrets];
     }

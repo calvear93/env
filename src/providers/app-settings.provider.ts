@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
 import { logger, readJson, writeJson } from '../utils';
@@ -46,7 +47,9 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         );
 
         if (!wasFound) {
-            logger.warn(`${envFile} not found`);
+            logger.warn(`${chalk.magenta(envFile)} not found`);
+
+            logger.debug(`creating default ${chalk.magenta(envFile)} file`);
 
             await writeJson(envFile, APP_SETTINGS_DEFAULT);
         }
