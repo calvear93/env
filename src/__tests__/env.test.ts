@@ -6,8 +6,6 @@ describe('env command', () => {
     test('show helps', () => {
         const response = execEnv('--help');
 
-        console.log(response);
-
         expect(response).toMatch(/usage: env/i);
     });
 

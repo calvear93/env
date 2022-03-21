@@ -40,11 +40,12 @@ async function preloadConfig(
     // preload base config
     const preloadedArgv = yargsParser(rawArgv, {
         configuration: parser,
+        boolean: ['help'],
         string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
         array: ['modes', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
         alias: {
             env: args.env.alias as Alias,
-            mode: args.modes.alias as Alias,
+            modes: args.modes.alias as Alias,
             configFile: args.configFile.alias as Alias,
             logLevel: args.logLevel.alias as Alias,
             logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
@@ -96,7 +97,9 @@ export async function exec(rawArgv: string[]) {
         config.delimiters.template
     );
 
-    const { env, modes, providers } = preloadedArgv;
+    const { env, modes, providers, help } = preloadedArgv;
+
+    if (help) build(rawArgv, preloadedArgv, subcommand, config, version);
 
     if (!Array.isArray(providers) || providers.length === 0) {
         logger.error('no providers found');
@@ -106,7 +109,7 @@ export async function exec(rawArgv: string[]) {
 
     logger.info(
         `loading ${chalk.bold.underline.green(env)} environment` +
-            (modes ? `in ${chalk.bold.magenta(modes.join('+'))} mode` : '')
+            (modes ? ` in ${chalk.bold.magenta(modes.join('+'))} mode` : '')
     );
 
     // read loaders from config
@@ -211,7 +214,7 @@ function build(
 
     // extends command from plugins
     for (const { handler } of providers!)
-        handler.builder && handler.builder(builder);
+        handler?.builder && handler.builder(builder);
 
     // executes command processing
     builder.parse();
