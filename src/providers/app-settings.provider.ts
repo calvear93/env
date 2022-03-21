@@ -44,12 +44,12 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         }
 
         return [
-            appsettings['[DEFAULT]'],
+            appsettings['|DEFAULT|'],
 
-            appsettings['[ENV]']?.[`${sectionPrefix}${env}`],
+            appsettings['|ENV|']?.[`${sectionPrefix}${env}`],
 
             ...modes.map(
-                (mode) => appsettings['[MODE]']?.[`${sectionPrefix}${mode}`]
+                (mode) => appsettings['|MODE|']?.[`${sectionPrefix}${mode}`]
             )
         ];
     }

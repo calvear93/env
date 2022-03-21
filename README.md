@@ -1,6 +1,4 @@
 <div align="center">
-  <img alt="logo" src="assets/logo.png" width="256px"/>
-  <br/>
   <span style="font-size:48px;font-weight:bolder">env</span>
 </div>
 
@@ -75,6 +73,8 @@ Eases NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.np
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 &nbsp;
+
+<!-- QUICK START -->
 
 ## ⚡️ **Quick start**
 
@@ -166,6 +166,8 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 <p align="right">(<a href="#top">back to top</a>)</p>
 &nbsp;
 
+<!-- REQUIREMENTS -->
+
 ## 📌 **Requirements**
 
 First, [download](https://nodejs.org/) and install **NodeJS**. Version `14` or higher is required.
@@ -187,6 +189,9 @@ You can initialize a new npm project using:
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+<!-- COMMANDS AND OPTIONS -->
 
 ## ⚙️ **Commands & Options**
 
@@ -310,7 +315,196 @@ Examples:
 > env schema -e dev -m build
 ```
 
-### Built With
+<!-- PROVIDERS -->
+
+## 📡 **Providers**
+
+Main feature of this library is using providers for get and set environment variables.
+So, you cand define your own provider, but lib came with 3 integrated providers:
+
+-   ## **`package-json`**
+
+Load some info from your project `package.json`.
+
+Info read is:
+
+```json
+{
+    "version": "1.0.0",
+    "project": "project-name",
+    "name": "@package-name",
+    "title": "app-name",
+    "description": "any description"
+}
+```
+
+| Option              | Description                 | Type     | Default | Required? |
+| ------------------- | --------------------------- | -------- | ------- | --------- |
+| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
+
+Examples:
+
+```bash
+> env -e dev -m build : react-script build : --vp REACT_APP_
+```
+
+</br>
+
+-   ## **`app-settings`**
+
+Non secrets loader for `appsettings.json`.
+
+`appsettings.json` file has the format below:
+
+```json
+{
+    "|DEFAULT|": {},
+    "|MODE|": {},
+    "|ENV|": {}
+}
+```
+
+In example:
+
+```json
+{
+    "|DEFAULT|": {
+        "VAR1": "v1_default"
+    },
+    "|MODE|": {
+        "::build": {
+            "NODE_ENV": "production"
+        },
+        "::debug": {
+            "NODE_ENV": "development"
+        },
+        "::test": {
+            "NODE_ENV": "test"
+        }
+    },
+    "|ENV|": {
+        "::dev": {
+            "C1": "V1",
+            "C2": "V2",
+            "C3": 3,
+            "GROUP1": {
+                "VAR1": null,
+                "VAR2": "G1V2",
+                "VAR3": true,
+                "GROUP2": {
+                    "VAR1": "G1G2V1"
+                }
+            },
+            "C4": "23"
+        }
+    }
+}
+```
+
+| Option                  | Description                          | Type     | Default                     | Required? |
+| ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
+| `--ef, --envFile`       | Environment variables file path      | `string` | `[[root]]/appsettings.json` | No        |
+| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `::`                        | No        |
+
+</br>
+
+-   ## **`secrets`**
+
+Secrets loader for `env/secrets/[[env]].env.json` and `env/secrets/[[env]].local.env.json`.
+
+| Option                     | Description                      | Type     | Default                                   | Required? |
+| -------------------------- | -------------------------------- | -------- | ----------------------------------------- | --------- |
+| `--sf, --secretFile`       | Secret variables file path       | `string` | `[[root]]/secrets/[[env]].env.json`       | No        |
+| `--lsf, --localSecretFile` | Local secret variables file path | `string` | `[[root]]/secrets/[[env]].local.env.json` | No        |
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+<!-- CONFIG -->
+
+## 📎 **Config**
+
+You can configure any config argument inside you config file, but commonly providers are designed for this purpose.
+
+```json
+{
+    "log": "silly",
+    // will hide values of keys SECRET and MY_API_KEY in logging
+    "logMaskValuesOfKeys": ["SECRET", "MY_API_KEY"],
+    // integrated providers and custom providers together
+    "providers": [
+        {
+            "path": "package-json",
+            "type": "integrated"
+        },
+        {
+            "path": "app-settings",
+            "type": "integrated"
+        },
+        {
+            "path": "secrets",
+            "type": "integrated"
+        },
+        {
+            // custom NPM package
+            "path": "@npm-package",
+            "type": "module",
+            "config": {
+                "any-config": "any value"
+            }
+        },
+        {
+            // custom script inside project
+            "path": "scripts/custom-loader.js",
+            "type": "script"
+        }
+    ]
+}
+```
+
+<!-- ROADMAP -->
+
+## 📑 Roadmap
+
+-   [x] Environment injection handling
+-   [x] Customizable variables store providers
+-   [x] Commands
+    -   [x] `push` executes a pushing action over every providers
+    -   [x] `pull` executes a pulling action over every providers
+    -   [x] `schema` regenerates JSON schema using providers output
+    -   [ ] `prepare` prepares environment (creates folder and files required)
+-   [ ] Improves documentation
+-   [ ] Providers pull history
+-   [ ] Providers pull and push difference calc and prompts
+-   [ ] Providers dependsOn option
+-   [ ] Programatic module
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+## 🧿 **Linting**
+
+Project uses ESLint, for code formatting and code styling normalizing.
+
+-   **eslint**: linter integrated with TypeScript.
+
+For correct interpretation of linters, is recommended to use [Visual Studio Code](https://code.visualstudio.com/) as IDE and install the plugins in .vscode folder at 'extensions.json', as well as use the config provided in 'settings.json'
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+<!-- CHANGELOG -->
+
+## 📋 Changelog
+
+For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+<!-- BUILT WITH -->
+
+## 🛠️ Built with
 
 -   [yargs](http://yargs.js.org/)
 -   [tslog](https://tslog.js.org/#/)
@@ -320,68 +514,17 @@ Examples:
 -   [to-json-schema](https://www.npmjs.com/package/to-json-schema)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-
--   npm
-    ```sh
-    npm install npm@latest -g
-    ```
-
-### Installation
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-    ```sh
-    git clone https://github.com/github_username/repo_name.git
-    ```
-3. Install NPM packages
-    ```sh
-    npm install
-    ```
-4. Enter your API in `config.js`
-    ```js
-    const API_KEY = 'ENTER YOUR API';
-    ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- ROADMAP -->
-
-## Roadmap
-
--   [ ] Feature 1
--   [ ] Feature 2
--   [ ] Feature 3
-    -   [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
 
 <!-- LICENSE -->
 
-## License
+## 📄 License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) file for details.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
+
+---
+
+⌨ by [Alvear Candia, Cristopher Alejandro](https://github.com/calvear93)
