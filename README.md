@@ -1,11 +1,43 @@
-<br />
-<div align="center">
-  <h2 align="center"><strong>env</strong></h2>
+<h2 align="center">
+  <img alt="logo" src="assets/logo.png" width="256px"/>
+  <br/>
+  <strong styles="with=800px">env</strong>
+</h2>
 
-  <p align="center">
-    Environment variables handler (loader, puller, pusher) for NodeJS
-  </p>
-</div>
+<h3 align="center">
+  ¡Environment variables handler made easy!
+</h3>
+
+<br />
+
+<p align="center">
+  <img
+    src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square"
+    alt="version"
+  />
+  &nbsp;
+  <img
+    src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white"
+    alt="typescript"
+  />
+  &nbsp;
+  <img
+    src="https://img.shields.io/badge/nodejs-~14.0.0_||_^16.14.2-darkgreen?style=flat-square"
+    alt="nodejs engine"
+  />
+  &nbsp;
+  <img
+    src="https://img.shields.io/badge/npm->=7.5.6-darkgreen?style=flat-square"
+    alt="npm engine"
+  />
+  &nbsp;
+  <img
+    src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"
+    alt="license"
+  />
+</p>
+
+<br />
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -33,13 +65,73 @@
   </ol>
 </details>
 
+<br />
+
 <!-- ABOUT THE PROJECT -->
 
-## About
+## 📖 About
 
-The aim of this library is ease NodeJS environment variable handling, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with powerfull features and extensibility for adding custom providers (as plugins) for load, pull and push the variables.
+The aim of this library is ease NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with <b>powerfull features and extensibility</b> for adding custom providers (as plugins) for <u>load</u>, <u>pull</u> and <u>push</u> the variables from different stores.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+## ⚡️ Quick start
+
+```bash
+npm install @calvear/env
+```
+
+> 🔔 Make sure that you have [NodeJS 14+](https://nodejs.org/) installed on your computer.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## 📌 Requirements
+
+First, [download](https://nodejs.org/) and install **NodeJS**. Version `14` or higher is required.
+
+Validate installed versions of node and npm with:
+
+```bash
+> node -v
+v16.14.2
+
+> npm -v
+8.3.0
+```
+
+You can initialize a new npm project using:
+
+```bash
+> npm init
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## ⚙️ Commands & Options
+
+### **[>_] `env`**
+
+Load your environment variables into a subcommand.
+
+```bash
+env [OPTION]
+```
+
+| Option | Description | Type   | Default | Required? |
+| ------ | ----------- | ------ | ------- | --------- |
+| `-t`   | dem.        | `bool` | `false` | No        |
+
+### `deploy`
+
+CLI command for deploy Docker containers with your project via Ansible to the remote server.
+
+```bash
+ts deploy [OPTION]
+```
+
+| Option | Description                                                                                            | Type   | Default | Required? |
+| ------ | ------------------------------------------------------------------------------------------------------ | ------ | ------- | --------- |
+| `-k`   | Prompt you to provide the remote user sudo password (_a standard Ansible `--ask-become-pass` option_). | `bool` | `false` | No        |
 
 ### Built With
 
