@@ -86,7 +86,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'string',
         default: 'merge',
         choices: ['merge', 'override'],
-        describe: 'Generates a JSON schema from variables'
+        describe: 'Whether merges new schema or override'
     },
     nullable: {
         group: GROUPS.JSON_SCHEMA_WORKSPACE,

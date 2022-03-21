@@ -1,12 +1,12 @@
-<h2 align="center">
+<div align="center">
   <img alt="logo" src="assets/logo.png" width="256px"/>
   <br/>
-  <strong styles="with=800px">env</strong>
-</h2>
+  <span style="font-size:48px;font-weight:bolder">env</span>
+</div>
 
-<h3 align="center">
-  ¡Environment variables handler made easy!
-</h3>
+<h2 align="center">
+  ¡Environment variables made easy!
+</h2>
 
 <br />
 
@@ -69,13 +69,16 @@
 
 <!-- ABOUT THE PROJECT -->
 
-## 📖 About
+## 📖 **About**
 
-The aim of this library is ease NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with <b>powerfull features and extensibility</b> for adding custom providers (as plugins) for <u>load</u>, <u>pull</u> and <u>push</u> the variables from different stores.
+Eases NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with <b>powerfull features and extensibility</b> for adding custom providers (as plugins) for <u>load</u>, <u>pull</u> and <u>push</u> the variables from different stores.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
 
-## ⚡️ Quick start
+## ⚡️ **Quick start**
+
+> 🔔 Make sure that you have [NodeJS 14+](https://nodejs.org/) installed on your computer.
 
 -   Installs the package:
 
@@ -87,8 +90,6 @@ The aim of this library is ease NodeJS <b>environment variable handling</b>, lik
   found 0 vulnerabilities
 > _
 ```
-
-> 🔔 Make sure that you have [NodeJS 14+](https://nodejs.org/) installed on your computer.
 
 -   Executes binary directly:
 
@@ -105,19 +106,24 @@ The aim of this library is ease NodeJS <b>environment variable handling</b>, lik
 > _
 ```
 
--   Add desired commands in your **npm script** in `package.json`:
+-   Or add desired commands in your **npm script** in `package.json`:
 
 ```json
 {
   ...,
   "scripts": {
+    // starts project injecting "dev" environment variables and debug log level
     "start:dev": "env -e dev -m debug : node dist/main.js : --log debug",
+    // starts project injecting "prod" environment variables
     "start:prod": "env -e prod -m debug : node dist/main.js",
     ...,
-    "build:prod": "env -e prod -m build : node dist/main.js",
+    // builds project injecting "prod" environment variables
+    "build:prod": "env -e prod -m build : tsc",
     ...,
     "env:schema": "env schema -e dev",
+    // uploads environment "dev" variables
     "env:push:dev": "env push -e dev",
+    // downloads environment "dev" variables
     "env:pull:dev": "env pull -e dev"
   },
   ...
@@ -158,8 +164,9 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+&nbsp;
 
-## 📌 Requirements
+## 📌 **Requirements**
 
 First, [download](https://nodejs.org/) and install **NodeJS**. Version `14` or higher is required.
 
@@ -181,31 +188,127 @@ You can initialize a new npm project using:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## ⚙️ Commands & Options
+## ⚙️ **Commands & Options**
 
-### **[>_] `env`**
+Options handling has the ability of **replace arguments itself**, using `[[` and `]]` as delimiters.
+So, in example for define your config file path, you must use your _root_ argument,
+supposing root has the value of "config", this definition _`[[root]]/any-config-file.json`_ will be
+_`config/any-config-file.json`_, or if your _env_ argument is "dev", this definition
+_`[[root]]/config-file.[[env]].json`_ will be _`config/config-file.dev.json`_.
 
-Load your environment variables into a subcommand.
+<div align="center">
+  <span style="font-size:20px;font-weight:bold" align="center">Options</span>
+</div>
+
+### Global options
+
+| Option                             | Description                            | Type       | Default | Required? |
+| ---------------------------------- | -------------------------------------- | ---------- | ------- | --------- |
+| `--help`                           | Shows help                             | `boolean`  |         | No        |
+| `--e, --env`                       | Environment for load                   | `string`   |         | Yes       |
+| `-m, --modes`                      | Execution modes                        | `string[]` | `[]`    | No        |
+| `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten    | `string`   | `__`    | No        |
+| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays | `boolean`  | `false` | No        |
+
+</br>
+
+### Workspace options
+
+| Option             | Description                       | Type     | Default                    | Required? |
+| ------------------ | --------------------------------- | -------- | -------------------------- | --------- |
+| `--root`           | Default environment folder path   | `string` | `env`                      | No        |
+| `-c, --configFile` | Config JSON file path             | `string` | `[[root]]/env.config.json` | No        |
+| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/env.schema.json` | No        |
+
+### JSON Schema options
+
+| Option                 | Description                                                | Type              | Default | Required? |
+| ---------------------- | ---------------------------------------------------------- | ----------------- | ------- | --------- |
+| `-r, --resolve`        | Whether merges new schema or override                      | `merge, override` | `merge` | No        |
+| `--null, --nullable`   | Whether variables are nullable by default                  | `boolean`         | `true`  | No        |
+| `--df, --detectFormat` | Whether format of strings variables are included in schema | `boolean`         | `true`  | No        |
+
+### Logger options
+
+| Option              | Description | Type                                     | Default | Required? |
+| ------------------- | ----------- | ---------------------------------------- | ------- | --------- |
+| `--log, --logLevel` | Log level   | `silly, trace, debug, info, warn, error` | `info`  | No        |
+
+<div align="center">
+  <span style="font-size:20px;font-weight:bold" align="center">Commands</span>
+</div>
+
+-   ## **`env`**
+
+Inject your environment variables into `process.env` and executes a command.
 
 ```bash
-env [OPTION]
+env -e [env] [options..] [: subcmd [:]] [options..]
 ```
 
-| Option | Description | Type   | Default | Required? |
-| ------ | ----------- | ------ | ------- | --------- |
-| `-t`   | dem.        | `bool` | `false` | No        |
-
-### `deploy`
-
-CLI command for deploy Docker containers with your project via Ansible to the remote server.
+Examples:
 
 ```bash
-ts deploy [OPTION]
+> env -e dev -m test unit : npm test
 ```
 
-| Option | Description                                                                                            | Type   | Default | Required? |
-| ------ | ------------------------------------------------------------------------------------------------------ | ------ | ------- | --------- |
-| `-k`   | Prompt you to provide the remote user sudo password (_a standard Ansible `--ask-become-pass` option_). | `bool` | `false` | No        |
+```bash
+> env -e dev -m debug : npm start : -c [[root]]/[[env]].env.json
+```
+
+```bash
+> env -e prod -m build optimize : npm build
+```
+
+-   ## **`pull`**
+
+Pulls environment variables from providers stores.
+
+```bash
+env pull -e [env] [options..]
+```
+
+| Option            | Description               | Type      | Default | Required? |
+| ----------------- | ------------------------- | --------- | ------- | --------- |
+| `-o, --overwrite` | Overwrite local variables | `boolean` | `false` | No        |
+
+Examples:
+
+```bash
+> env pull -e dev
+```
+
+-   ## **`push`**
+
+Pushes environment variables to providers stores.
+
+```bash
+env push -e [env] [options..]
+```
+
+| Option        | Description                          | Type      | Default | Required? |
+| ------------- | ------------------------------------ | --------- | ------- | --------- |
+| `-f, --force` | Force push for secrets (replace all) | `boolean` | `false` | No        |
+
+Examples:
+
+```bash
+> env push -e dev
+```
+
+-   ## **`schema`**
+
+Generates validation schema from providers output variables.
+
+```bash
+env schema -e [env] -m [modes] [options..]
+```
+
+Examples:
+
+```bash
+> env schema -e dev -m build
+```
 
 ### Built With
 
