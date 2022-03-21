@@ -77,11 +77,85 @@ The aim of this library is ease NodeJS <b>environment variable handling</b>, lik
 
 ## ⚡️ Quick start
 
+-   Installs the package:
+
 ```bash
-npm install @calvear/env
+> npm install @calvear/env
+
+  added 1 packages, and audited 1 packages in 1s
+
+  found 0 vulnerabilities
+> _
 ```
 
 > 🔔 Make sure that you have [NodeJS 14+](https://nodejs.org/) installed on your computer.
+
+-   Executes binary directly:
+
+```bash
+> node_modules/.bin/env --help
+
+  Usage: env [command] [options..] [: subcmd [:]] [options..]
+
+  Commands:
+    env [options..] [: <subcmd> :]
+    env pull [options..]
+    env push [options..]
+    env schema [options..]
+> _
+```
+
+-   Add desired commands in your **npm script** in `package.json`:
+
+```json
+{
+  ...,
+  "scripts": {
+    "start:dev": "env -e dev -m debug : node dist/main.js : --log debug",
+    "start:prod": "env -e prod -m debug : node dist/main.js",
+    ...,
+    "build:prod": "env -e prod -m build : node dist/main.js",
+    ...,
+    "env:schema": "env schema -e dev",
+    "env:push:dev": "env push -e dev",
+    "env:pull:dev": "env pull -e dev"
+  },
+  ...
+}
+```
+
+-   Execs your command:
+
+**file**: _dist/main.js_
+
+```javascript
+console.log(`My environment loaded is: ${process.env.ENV}`);
+```
+
+```bash
+> npm run start:dev
+
+  13:31:59.865 INFO  loading dev environment in debug mode
+  13:31:59.911 DEBUG using package-json provider
+  13:31:59.912 DEBUG using app-settings provider
+  13:31:59.914 DEBUG using secrets provider
+  13:32:00.109 DEBUG environment loaded:
+  {
+    NODE_ENV: 'development',
+    ENV: 'dev',
+    VERSION: '1.0.0',
+    NAME: '@my-app',
+    VAR1: true,
+    VAR2: true,
+    GROUP1__VAR1: 'G1V2',
+    ARR1: '1,val,true',
+    SECRET: '***'
+  }
+  13:32:00.116 INFO  executing command > node dist/main.js
+  My environment loaded is: dev
+  13:32:00.232 INFO  process finished successfully
+> _
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

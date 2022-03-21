@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import { TLogLevelName } from 'tslog';
 import yargsParser from 'yargs-parser';
 import yargs, { Arguments } from 'yargs';
 import { IntegratedProviders } from './providers';

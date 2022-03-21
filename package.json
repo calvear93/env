@@ -1,7 +1,7 @@
 {
-    "version": "0.0.2",
+    "version": "1.0.0",
     "project": "common",
-    "name": "@calvear/demo-env",
+    "name": "@calvear/env",
     "title": "Environment Variables CLI Tool",
     "description": "Extensible environment variables handler for NodeJS apps",
     "author": "Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>",
@@ -26,6 +26,7 @@
     "dependencies": {
         "ajv": "^8.10.0",
         "ajv-formats": "^2.1.1",
+        "chalk": "^4.1.2",
         "merge-deep": "^3.0.3",
         "subslate": "^1.0.0",
         "to-json-schema": "^0.2.5",

@@ -8,6 +8,7 @@ function validateEnv(...vars) {
 }
 
 validateEnv(
+    'NODE_ENV',
     'ENV',
     'VERSION',
     'PROJECT',
@@ -22,7 +23,6 @@ validateEnv(
     'GROUP1__VAR2',
     'GROUP1__VAR3',
     'GROUP1__GROUP2__VAR1',
-    'NODE_ENV',
     'VAR2',
     'VAR3',
     'VAR4',

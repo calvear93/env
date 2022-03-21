@@ -3,6 +3,14 @@ import { execEnv, execDebugEnv } from './exec';
 const subcmd = ': node src/__tests__/run.js';
 
 describe('env command', () => {
+    test('show helps', () => {
+        const response = execEnv('--help');
+
+        console.log(response);
+
+        expect(response).toMatch(/usage: env/i);
+    });
+
     test('load env into run.js', () => {
         const response = execEnv('-e dev', '--m debug', subcmd);
 

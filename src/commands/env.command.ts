@@ -70,7 +70,10 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
     handler: async ({ providers, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
-        let env = merge({}, ...flatAndValidateResults(results, argv));
+        let env = merge(
+            { NODE_ENV: 'development' },
+            ...flatAndValidateResults(results, argv)
+        );
 
         // results normalization merging
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);

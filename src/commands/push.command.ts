@@ -20,7 +20,7 @@ export const pushCommand: CommandModule<any, PushCommandArguments> = {
         builder
             .options({
                 force: {
-                    alias: 'o',
+                    alias: 'f',
                     type: 'boolean',
                     default: false,
                     describe: 'Force push for secrets (replace all)'
