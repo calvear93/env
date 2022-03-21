@@ -1,7 +1,7 @@
 {
-    "version": "1.0.0",
+    "version": "0.0.2",
     "project": "common",
-    "name": "@calvear/env",
+    "name": "@calvear/demo-env",
     "title": "Environment Variables CLI Tool",
     "description": "Extensible environment variables handler for NodeJS apps",
     "author": "Alvear Candia, Cristopher Alejandro <calvear93@gmail.com>",
@@ -16,13 +16,12 @@
     ],
     "scripts": {
         "build": "tsc --p tsconfig.build.json",
-        "upload": "npm run build && npm login && cd dist && npm publish --access public",
+        "pub": "npm run build && npm login && cd dist && npm publish --access public",
         "lint": "eslint --ext .ts src/",
         "lint:fix": "eslint --fix --ext .ts, src/",
         "test": "jest --watchAll=false --verbose",
         "prebuild": "rimraf dist/**",
-        "postbuild": "copyfiles package.json README.md LICENSE.md CHANGELOG.md assets/* dist",
-        "exec": "npm run build && node dist/main.js -e dev --mode debug : npx nodemon test.js"
+        "postbuild": "copyfiles package.json README.md LICENSE.md CHANGELOG.md assets/* dist"
     },
     "dependencies": {
         "ajv": "^8.10.0",
