@@ -1,8 +1,14 @@
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { logger, readJson } from '../utils';
+import { logger, readJson, writeJson } from '../utils';
 
 const KEY = 'app-settings';
+
+const APP_SETTINGS_DEFAULT = {
+    '|DEFAULT|': {},
+    '|MODE|': {},
+    '|ENV|': {}
+};
 
 interface AppSettingsCommandArguments extends CommandArguments {
     envFile: string;
@@ -35,12 +41,14 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
     },
 
     load: async ({ env, modes = [], envFile, sectionPrefix }) => {
-        const [appsettings, wasFound] = await readJson(envFile);
+        const [appsettings = APP_SETTINGS_DEFAULT, wasFound] = await readJson(
+            envFile
+        );
 
         if (!wasFound) {
-            logger.error(`${envFile} not found`);
+            logger.warn(`${envFile} not found`);
 
-            process.exit(0);
+            await writeJson(envFile, APP_SETTINGS_DEFAULT);
         }
 
         return [

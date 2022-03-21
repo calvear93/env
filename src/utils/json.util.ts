@@ -56,8 +56,6 @@ export async function writeJson(
 
     if (exists && !overwrite) return false;
 
-    !overwrite && mkdirSync(path);
-
     await writeFile(path, JSON.stringify(content, undefined, 4), 'utf8');
 
     return true;
