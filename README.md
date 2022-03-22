@@ -426,6 +426,32 @@ Secrets loader for `env/secrets/[[env]].env.json` and `env/secrets/[[env]].local
 | `--sf, --secretFile`       | Secret variables file path       | `string` | `[[root]]/secrets/[[env]].env.json`       | No        |
 | `--lsf, --localSecretFile` | Local secret variables file path | `string` | `[[root]]/secrets/[[env]].local.env.json` | No        |
 
+-   ## **`package-json`**
+
+Load some info from your project `package.json`.
+
+Info read is:
+
+```json
+{
+    "version": "1.0.0",
+    "project": "project-name",
+    "name": "@package-name",
+    "title": "app-name",
+    "description": "any description"
+}
+```
+
+| Option              | Description                 | Type     | Default | Required? |
+| ------------------- | --------------------------- | -------- | ------- | --------- |
+| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
+
+Examples:
+
+```bash
+> env -e dev -m build : react-script build : --vp REACT_APP_
+```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- PROVIDERS -->
@@ -504,101 +530,6 @@ export const MyProvider: EnvProvider<MyProviderCommandArguments> = {
     },
 };
 ```
-
--   ## **`package-json`**
-
-Load some info from your project `package.json`.
-
-Info read is:
-
-```json
-{
-    "version": "1.0.0",
-    "project": "project-name",
-    "name": "@package-name",
-    "title": "app-name",
-    "description": "any description"
-}
-```
-
-| Option              | Description                 | Type     | Default | Required? |
-| ------------------- | --------------------------- | -------- | ------- | --------- |
-| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
-
-Examples:
-
-```bash
-> env -e dev -m build : react-script build : --vp REACT_APP_
-```
-
-</br>
-
--   ## **`app-settings`**
-
-Non secrets loader for `appsettings.json`.
-
-`appsettings.json` file has the format below:
-
-```json
-{
-    "|DEFAULT|": {},
-    "|MODE|": {},
-    "|ENV|": {}
-}
-```
-
-In example:
-
-```json
-{
-    "|DEFAULT|": {
-        "VAR1": "v1_default"
-    },
-    "|MODE|": {
-        "::build": {
-            "NODE_ENV": "production"
-        },
-        "::debug": {
-            "NODE_ENV": "development"
-        },
-        "::test": {
-            "NODE_ENV": "test"
-        }
-    },
-    "|ENV|": {
-        "::dev": {
-            "C1": "V1",
-            "C2": "V2",
-            "C3": 3,
-            "GROUP1": {
-                "VAR1": null,
-                "VAR2": "G1V2",
-                "VAR3": true,
-                "GROUP2": {
-                    "VAR1": "G1G2V1"
-                }
-            },
-            "C4": "23"
-        }
-    }
-}
-```
-
-| Option                  | Description                          | Type     | Default                     | Required? |
-| ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
-| `--ef, --envFile`       | Environment variables file path      | `string` | `[[root]]/appsettings.json` | No        |
-| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `::`                        | No        |
-
-</br>
-
--   ## **`secrets`**
-
-Secrets loader for `env/secrets/[[env]].env.json` and `env/secrets/[[env]].local.env.json`.
-
-| Option                     | Description                      | Type     | Default                                   | Required? |
-| -------------------------- | -------------------------------- | -------- | ----------------------------------------- | --------- |
-| `--sf, --secretFile`       | Secret variables file path       | `string` | `[[root]]/secrets/[[env]].env.json`       | No        |
-| `--lsf, --localSecretFile` | Local secret variables file path | `string` | `[[root]]/secrets/[[env]].local.env.json` | No        |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
