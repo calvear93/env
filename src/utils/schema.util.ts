@@ -1,0 +1,85 @@
+import Ajv, { Format, ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
+import toJsonSchema, { Options } from 'to-json-schema';
+
+const FORMAT_REGEXPS: Record<string, Format> = {
+    'ip-address':
+        /^(?:(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})$/,
+
+    color: /^(#?([\dA-Fa-f]{3}){1,2}\b|aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|yellow|(rgb\(\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*\))|(rgb\(\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*\)))$/,
+
+    hostname:
+        /^(?=.{1,255}$)[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?(?:\.[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?)*\.?$/,
+
+    alphanumeric: /^[\dA-Za-z]+$/,
+
+    'utc-millisec': (input: string) => !Number.isNaN(+input),
+
+    alpha: /^[A-Za-z]+$/,
+
+    style: /\s*(.+?):\s*([^;]+);?/g,
+
+    phone: /^\+(?:\d ?){6,14}\d$/
+};
+
+/**
+ * Generates JSON schema from JSON template/object.
+ *
+ * @export
+ * @param {Record<string, unknown>} json json object
+ * @param {Options} [options]
+ *
+ * @returns {*}  {Record<string, unknown>}
+ */
+export function schemaFrom(
+    json: Record<string, unknown>,
+    options?: Options & { nullable?: boolean }
+): Record<string, unknown> {
+    return toJsonSchema(json, {
+        required: false,
+        ...options,
+        postProcessFnc: (type, schema, value, defaultFunc) => {
+            if (value !== json) {
+                schema.type = [type];
+                schema.nullable = options?.nullable ?? false;
+            }
+
+            return defaultFunc(type, schema, value);
+        }
+    });
+}
+
+/**
+ * Creates a JSON schema validator lookup using AJV.
+ *
+ * @see https://ajv.js.org/
+ *
+ * @export
+ * @param {Record<string, object>} createValidators json schema by provider
+ * @param {boolean} enableFormats whether formats are enabled
+ *
+ * @returns {Record<string, ValidateFunction>} validators lookup
+ */
+export function createValidators(
+    schemaLookup: Record<string, object>,
+    enableFormats = true
+): Record<string, ValidateFunction> {
+    const ajv = new Ajv({
+        allErrors: true,
+        allowUnionTypes: true
+    });
+
+    if (enableFormats) {
+        addFormats(ajv, { mode: 'fast' });
+
+        for (const key in FORMAT_REGEXPS)
+            ajv.addFormat(key, FORMAT_REGEXPS[key]);
+    }
+
+    const validators: Record<string, ValidateFunction> = {};
+
+    for (const key in schemaLookup)
+        validators[key] = ajv.compile(schemaLookup[key]);
+
+    return validators;
+}
