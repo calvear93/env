@@ -72,7 +72,6 @@
 Eases NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.npmjs.com/package/env-cmd) or [dotenv](https://www.npmjs.com/package/dotenv), but with <b>powerfull features and extensibility</b> for adding custom providers (as plugins) for <u>load</u>, <u>pull</u> and <u>push</u> the variables from different stores.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- QUICK START -->
 
@@ -164,7 +163,6 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- REQUIREMENTS -->
 
@@ -189,7 +187,6 @@ You can initialize a new npm project using:
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- COMMANDS AND OPTIONS -->
 
@@ -315,6 +312,8 @@ Examples:
 > env schema -e dev -m build
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 <!-- PROVIDERS -->
 
 ## 📡 **Providers**
@@ -418,7 +417,6 @@ Secrets loader for `env/secrets/[[env]].env.json` and `env/secrets/[[env]].local
 | `--lsf, --localSecretFile` | Local secret variables file path | `string` | `[[root]]/secrets/[[env]].local.env.json` | No        |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- CONFIG -->
 
@@ -480,7 +478,6 @@ You can configure any config argument inside you config file, but commonly provi
 -   [ ] Programatic module
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 ## 🧿 **Linting**
 
@@ -491,7 +488,6 @@ Project uses ESLint, for code formatting and code styling normalizing.
 For correct interpretation of linters, is recommended to use [Visual Studio Code](https://code.visualstudio.com/) as IDE and install the plugins in .vscode folder at 'extensions.json', as well as use the config provided in 'settings.json'
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- CHANGELOG -->
 
@@ -500,7 +496,6 @@ For correct interpretation of linters, is recommended to use [Visual Studio Code
 For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- BUILT WITH -->
 
@@ -514,7 +509,6 @@ For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
 -   [to-json-schema](https://www.npmjs.com/package/to-json-schema)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 <!-- LICENSE -->
 
@@ -523,7 +517,6 @@ For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
 This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) file for details.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-&nbsp;
 
 ---
 
