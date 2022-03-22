@@ -45,10 +45,10 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         ]);
 
         if (!secretsWasFound)
-            logger.warn(`${chalk.magenta(secretFile)} not found`);
+            logger.warn(`${chalk.blue(secretFile)} not found`);
 
         if (!localSecretsWasFound)
-            logger.warn(`${chalk.magenta(localSecretsWasFound)} not found`);
+            logger.warn(`${chalk.blue(localSecretsWasFound)} not found`);
 
         return [secrets, localSecrets];
     }

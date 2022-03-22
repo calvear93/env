@@ -47,9 +47,9 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         );
 
         if (!wasFound) {
-            logger.warn(`${chalk.magenta(envFile)} not found`);
+            logger.warn(`${chalk.blue(envFile)} not found`);
 
-            logger.debug(`creating default ${chalk.magenta(envFile)} file`);
+            logger.debug(`creating default ${chalk.blue(envFile)} file`);
 
             await writeJson(envFile, APP_SETTINGS_DEFAULT);
         }
