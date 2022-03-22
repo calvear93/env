@@ -1,5 +1,5 @@
 <div id="top" align="center">
-  <h2><b>env</b></h2>
+  <h1><b>env</b></h1>
   <h3>¡Environment variables made easy!</h3>
 </div>
 
