@@ -1,6 +1,6 @@
 <div id="top" align="center">
   <h1><b>env</b></h1>
-  <h3>¡Environment variables made easy!</h3>
+  <h4>¡Environment variables made easy!</h4>
 </div>
 
 <br />
