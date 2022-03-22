@@ -1,10 +1,7 @@
-<div id="top" align="center" style="font-size:48px;font-weight:bolder">
-  env
+<div id="top" align="center">
+  <h2><b>env</b></h2>
+  <h3>¡Environment variables made easy!</h3>
 </div>
-
-<h2 align="center">
-  ¡Environment variables made easy!
-</h2>
 
 <br />
 
