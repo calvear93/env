@@ -1,5 +1,5 @@
-<div align="center">
-  <span style="font-size:48px;font-weight:bolder">env</span>
+<div align="center" style="font-size:48px;font-weight:bolder">
+  env
 </div>
 
 <h2 align="center">
