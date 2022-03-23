@@ -40,5 +40,6 @@ debug.log
 .vscode - test
 
 # local testing
+.env
 /env
 /*.js

@@ -60,3 +60,36 @@ export async function writeJson(
 
     return true;
 }
+
+/**
+ * Saves a JSON into a file as dotenv.
+ *
+ * @export
+ * @param {string} path
+ * @param {unknown} content
+ * @param {false} overwrite
+ *
+ * @returns {Promise<boolean>}
+ */
+export async function writeEnvFromJson(
+    path: string,
+    content: Record<string, unknown>,
+    overwrite = false
+): Promise<boolean | never> {
+    const exists = existsSync(path);
+
+    if (exists && !overwrite) return false;
+
+    let data = '';
+
+    for (const key in content) {
+        let value = content[key];
+        if (typeof value === 'string') value = `"${value}"`;
+
+        data += `${key}=${value}\n`;
+    }
+
+    await writeFile(path, data, 'utf8');
+
+    return true;
+}

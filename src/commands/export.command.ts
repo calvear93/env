@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import merge from 'merge-deep';
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
@@ -6,12 +5,15 @@ import {
     flatAndValidateResults,
     loadVariablesFromProviders,
     logger,
-    normalize
+    normalize,
+    writeEnvFromJson,
+    writeJson
 } from '../utils';
 
 export interface ExportCommandArguments extends CommandArguments {
-    // dotenv, json
-    format: string;
+    format: 'json' | 'dotenv';
+
+    uri: string;
 }
 
 /**
@@ -63,8 +65,20 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 
         logger.debug('environment loaded:', env);
-        logger.debug('environment loaded:', argv);
 
-        // TODO: implement
+        const { format, uri } = argv;
+
+        switch (format) {
+            case 'dotenv':
+                await writeEnvFromJson(uri, env, true);
+                break;
+
+            case 'json':
+                await writeJson(uri, env, true);
+                break;
+
+            default:
+                logger.error(`format ${format} not recognized`);
+        }
     }
 };

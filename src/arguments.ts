@@ -106,7 +106,7 @@ export const args: Record<keyof CommandArguments, Options> = {
         group: GROUPS.LOG_WORKSPACE,
         alias: 'log',
         type: 'string',
-        default: 'debug',
+        default: 'info',
         choices: ['silly', 'trace', 'debug', 'info', 'warn', 'error']
     },
     logMaskAnyRegEx: {
