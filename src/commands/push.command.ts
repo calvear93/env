@@ -23,7 +23,7 @@ export const pushCommand: CommandModule<any, PushCommandArguments> = {
                     alias: 'f',
                     type: 'boolean',
                     default: false,
-                    describe: 'Force push for secrets (replace all)'
+                    describe: 'Force push for secrets'
                 }
             })
             .example('env push -e dev', 'Download "dev" environment secrets');

@@ -7,6 +7,7 @@ import { IntegratedProviders } from './providers';
 import { args, CommandArguments } from './arguments';
 import {
     envCommand,
+    exportCommand,
     pullCommand,
     pushCommand,
     schemaCommand
@@ -206,6 +207,7 @@ function build(
 
     // integrated commands builder
     builder.command(envCommand);
+    builder.command(exportCommand);
     builder.command(pullCommand);
     builder.command(pushCommand);
     builder.command(schemaCommand);

@@ -1,15 +1,14 @@
 import chalk from 'chalk';
 import merge from 'merge-deep';
 import { spawn } from 'child_process';
-import { Arguments, CommandModule } from 'yargs';
+import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import {
-    createValidators,
+    flatAndValidateResults,
     loadVariablesFromProviders,
     logger,
     normalize
 } from '../utils';
-import { EnvProviderResult } from 'interfaces';
 
 export interface EnvCommandArguments extends CommandArguments {
     // Command for execute after inject environment variables.
@@ -105,36 +104,3 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         });
     }
 };
-
-/**
- * Flattern and validates environment provider results.
- *
- * @param {EnvProviderResult[]} results
- * @param {Partial<Arguments<EnvCommandArguments>>} argv
- *
- * @throws {Error} on schema validation failed
- * @returns {EnvProviderResult[]}
- */
-function flatAndValidateResults(
-    results: EnvProviderResult[],
-    argv: Partial<Arguments<EnvCommandArguments>>
-): EnvProviderResult[] | never {
-    if (!argv.schemaValidate) return results.flatMap(({ value }) => value);
-
-    const validators = createValidators(argv.schema!, argv.detectFormat);
-
-    return results.flatMap(({ key, value }) => {
-        if (Array.isArray(value)) value = merge({}, ...value);
-
-        const validator = validators![key];
-
-        if (validator(value)) return value;
-
-        logger.error(
-            `schema validation failed for ${chalk.yellow(key)}`,
-            validator.errors
-        );
-
-        throw new Error(`schema validation failed for ${key}`);
-    });
-}

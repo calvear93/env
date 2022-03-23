@@ -4,7 +4,14 @@ import { Arguments } from 'yargs';
 import { CommandArguments } from 'arguments';
 import { EnvCommandArguments } from 'commands/env.command';
 import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
-import { interpolate, logger, readJson, schemaFrom, writeJson } from '../utils';
+import {
+    createValidators,
+    interpolate,
+    logger,
+    readJson,
+    schemaFrom,
+    writeJson
+} from '../utils';
 
 /**
  * Injects config to command arguments from file.
@@ -132,6 +139,46 @@ export function loadVariablesFromProviders(
             }
         })
     );
+}
+
+/**
+ * Flattern and validates environment provider results.
+ *
+ * @param {EnvProviderResult[]} results
+ * @param {Partial<Arguments<EnvCommandArguments>>} argv
+ *
+ * @throws {Error} on schema validation failed
+ *
+ * @returns {EnvProviderResult[]}
+ */
+export function flatAndValidateResults(
+    results: EnvProviderResult[],
+    argv: Partial<Arguments<EnvCommandArguments>>
+): EnvProviderResult[] | never {
+    if (!argv.schemaValidate) {
+        return results.flatMap(({ value }) => {
+            if (Array.isArray(value)) value = merge({}, ...value);
+
+            return value;
+        });
+    }
+
+    const validators = createValidators(argv.schema!, argv.detectFormat);
+
+    return results.flatMap(({ key, value }) => {
+        if (Array.isArray(value)) value = merge({}, ...value);
+
+        const validator = validators![key];
+
+        if (validator(value)) return value;
+
+        logger.error(
+            `schema validation failed for ${chalk.yellow(key)}`,
+            validator.errors
+        );
+
+        throw new Error(`schema validation failed for ${key}`);
+    });
 }
 
 /**
