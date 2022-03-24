@@ -108,7 +108,7 @@ You can initialize a new npm project using:
 
 -   Or add desired commands in your **npm script** in `package.json`:
 
-```json
+```javascript
 {
   ...,
   "scripts": {
@@ -169,9 +169,9 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 
 ```bash
 ├── src/
-│   ├── __tests__/
 │   ├── commands/ # lib commands handlers
 │   │   ├── env.command.ts
+│   │   ├── export.command.ts
 │   │   ├── pull.command.ts
 │   │   ├── push.command.ts
 │   │   └── schema.command.ts
@@ -190,6 +190,7 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 │   ├── arguments.ts # global arguments
 │   ├── exec.ts # initialization logic (load config, commands, etc.)
 │   └── main.ts
+├── tests/ # e2e tests
 ├── .eslintrc.json
 ├── jest.config.json
 ├── tsconfig.build.json
@@ -320,6 +321,25 @@ Examples:
 
 ```bash
 > env schema -e dev -m build
+```
+
+-   ## **`export`**
+
+Export unified environment variables to a file from providers.
+
+```bash
+env export -e [env] -m [modes] [options..]
+```
+
+| Option          | Description                        | Type     | Default  | Required? |
+| --------------- | ---------------------------------- | -------- | -------- | --------- |
+| `-u, -p, --uri` | Uri for export file with variables | `string` | `.env`   | No        |
+| `-f, --format`  | Format for export variables        | `string` | `dotenv` | No        |
+
+Examples:
+
+```bash
+> env export -e dev -m build -f json --uri [[env]].env.json
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -539,7 +559,7 @@ export const MyProvider: EnvProvider<MyProviderCommandArguments> = {
 
 You can configure any config argument inside you config file, but commonly providers are designed for this purpose.
 
-```json
+```javascript
 {
     "log": "silly",
     // will hide values of keys SECRET and MY_API_KEY in logging
@@ -585,8 +605,9 @@ You can configure any config argument inside you config file, but commonly provi
     -   [x] `push` executes a pushing action over every providers
     -   [x] `pull` executes a pulling action over every providers
     -   [x] `schema` regenerates JSON schema using providers output
+    -   [x] `export` exports environment variables in json or dotenv format
     -   [ ] `prepare` prepares environment (creates folder and files required)
--   [ ] Improves documentation
+-   [ ] Improve documentation
 -   [ ] Providers pull history
 -   [ ] Providers pull and push difference calc and prompts
 -   [ ] Providers dependsOn option
