@@ -30,7 +30,7 @@ export async function loadConfigFile(
         if (success) {
             for (const key in config) argv[key] ??= config[key];
         } else {
-            logger.warn(
+            logger.silly(
                 `config file ${chalk.underline.yellow(
                     path
                 )} not found, using defaults`
