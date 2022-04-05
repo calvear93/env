@@ -36,12 +36,14 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     },
 
     load: async ({ secretFile, localSecretFile }) => {
+        const ci = process.env.NODE_ENV === 'production';
+
         const [
             [secrets, secretsWasFound],
             [localSecrets, localSecretsWasFound]
         ] = await Promise.all([
             await readJson(secretFile),
-            await readJson(localSecretFile)
+            await (ci ? readJson(localSecretFile) : Promise.resolve([{}, true]))
         ]);
 
         if (!secretsWasFound)

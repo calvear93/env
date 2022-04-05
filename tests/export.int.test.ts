@@ -1,6 +1,6 @@
 import { execEnv } from './exec';
 
-describe('e2e export commands', () => {
+describe('export commands', () => {
     test('export', () => {
         const response = execEnv('export', '-e dev', '-m debug');
 

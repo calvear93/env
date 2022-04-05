@@ -190,7 +190,7 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 │   ├── arguments.ts # global arguments
 │   ├── exec.ts # initialization logic (load config, commands, etc.)
 │   └── main.ts
-├── tests/ # e2e tests
+├── tests/ # integration tests
 ├── .eslintrc.json
 ├── jest.config.json
 ├── tsconfig.build.json

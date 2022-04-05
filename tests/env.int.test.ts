@@ -2,7 +2,7 @@ import { execEnv, execDebugEnv } from './exec';
 
 const subcmd = ': node tests/run.js';
 
-describe('e2e env command', () => {
+describe('env command', () => {
     test('show helps', () => {
         const response = execEnv('--help');
 

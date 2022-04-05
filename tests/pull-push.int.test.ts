@@ -1,6 +1,6 @@
 import { execEnv } from './exec';
 
-describe('e2e pull & push commands', () => {
+describe('pull & push commands', () => {
     test('pull', () => {
         const response = execEnv('pull', '-e dev');
 
