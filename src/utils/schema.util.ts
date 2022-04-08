@@ -1,4 +1,4 @@
-import Ajv, { Format, ValidateFunction } from 'ajv';
+import Ajv, { Format, JSONSchemaType, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import toJsonSchema, { Options } from 'to-json-schema';
 
@@ -47,6 +47,45 @@ export function schemaFrom(
             return defaultFunc(type, schema, value);
         }
     });
+}
+
+/**
+ * Validates if a object is a JSON schema.
+ *
+ * @export
+ * @param {Record<string, unknown>} schema
+ *
+ * @returns {boolean} if is a JSON schema
+ */
+export function isJsonSchemaObject(
+    schema: Record<string, unknown>
+): schema is JSONSchemaType<object> {
+    if (schema.type === 'object') return true;
+
+    return Array.isArray(schema.type) && schema.type.includes('object');
+}
+
+/**
+ * Converts a JSON schema to JSON template.
+ *
+ * @export
+ * @param {Record<string, unknown>} schema JSON schema
+ * @param {Record<string, any>} [container] template container
+ *
+ * @returns {unknown} object or default value
+ */
+export function schemaToJson(
+    schema: Record<string, unknown>,
+    container: Record<string, any> = {}
+): unknown {
+    if (isJsonSchemaObject(schema)) {
+        for (const key in schema.properties)
+            container[key] = schemaToJson(schema.properties[key]);
+
+        return container;
+    } else {
+        return schema.default ?? (schema.nullable ? null : undefined);
+    }
 }
 
 /**
