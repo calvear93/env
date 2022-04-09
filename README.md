@@ -54,7 +54,7 @@ Eases NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.np
 
 ## 📌 **Requirements**
 
-First, [download](https://nodejs.org/) and install **NodeJS**. Version `14` or higher is required.
+First, [download](https://nodejs.org/) and install **NodeJS**. Version `16` or higher is required.
 
 Validate installed versions of node and npm with:
 
@@ -88,6 +88,7 @@ You can initialize a new npm project using:
   added 1 packages, and audited 1 packages in 1s
 
   found 0 vulnerabilities
+
 > _
 ```
 
@@ -103,6 +104,7 @@ You can initialize a new npm project using:
     env pull [options..]
     env push [options..]
     env schema [options..]
+
 > _
 ```
 
@@ -160,6 +162,7 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
   13:32:00.116 INFO  executing command > node dist/main.js
   My environment loaded is: dev
   13:32:00.232 INFO  process finished successfully
+
 > _
 ```
 
