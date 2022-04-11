@@ -404,18 +404,18 @@ In example:
         "VAR1": "v1_default"
     },
     "|MODE|": {
-        "::build": {
+        "build": {
             "NODE_ENV": "production"
         },
-        "::debug": {
+        "debug": {
             "NODE_ENV": "development"
         },
-        "::test": {
+        "test": {
             "NODE_ENV": "test"
         }
     },
     "|ENV|": {
-        "::dev": {
+        "dev": {
             "C1": "V1",
             "C2": "V2",
             "C3": 3,
@@ -436,7 +436,7 @@ In example:
 | Option                  | Description                          | Type     | Default                     | Required? |
 | ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
 | `--ef, --envFile`       | Environment variables file path      | `string` | `[[root]]/appsettings.json` | No        |
-| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `::`                        | No        |
+| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | ``                        | No        |
 
 </br>
 

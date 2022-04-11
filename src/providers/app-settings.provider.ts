@@ -35,7 +35,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
                 group: KEY,
                 alias: 'sp',
                 type: 'string',
-                default: '::',
+                default: '',
                 describe: 'Prefix for env and modes in env file'
             }
         });
