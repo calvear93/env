@@ -4,7 +4,10 @@ import { spawn } from 'child_process';
 import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import {
-    flatAndValidateResults,
+    createValidator,
+    flatResults,
+    flatSchema,
+    flatten,
     loadVariablesFromProviders,
     logger,
     normalize
@@ -66,15 +69,40 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: async ({ providers, ...argv }) => {
+    handler: async ({ providers, schemaValidate, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
-        let env = merge(
-            { NODE_ENV: 'development' },
-            ...flatAndValidateResults(results, argv)
-        );
+        let env = merge({ NODE_ENV: 'development' }, ...flatResults(results));
+        env = flatten(env, argv.nestingDelimiter);
 
-        // results normalization merging
+        if (schemaValidate) {
+            let schema = {};
+
+            for (const {
+                handler: { key }
+            } of providers) {
+                const providerSchema = argv.schema?.[key];
+
+                if (providerSchema) {
+                    schema = Object.assign(
+                        schema,
+                        flatSchema(providerSchema, '', argv.nestingDelimiter)
+                    );
+                }
+            }
+
+            const validator = createValidator({
+                type: 'object',
+                properties: schema
+            });
+
+            if (!validator(env)) {
+                logger.error('schema validation failed', validator.errors);
+
+                process.exit(1);
+            }
+        }
+
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 
         logger.debug('environment loaded:', env);

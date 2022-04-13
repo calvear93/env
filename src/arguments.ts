@@ -1,3 +1,4 @@
+import { JSONSchemaType } from 'ajv';
 import { Arguments, Options } from 'yargs';
 import { EnvProviderConfig } from './interfaces';
 import { IntegratedProviderConfig } from './providers';
@@ -12,7 +13,7 @@ export interface CommandArguments extends Arguments {
     env: string;
     modes?: string[];
     app?: Record<string, unknown>;
-    schema?: Record<string, object>;
+    schema?: Record<string, JSONSchemaType<object>>;
     providers: EnvProviderConfig[];
     nestingDelimiter: string;
     arrayDescomposition: boolean;

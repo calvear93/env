@@ -89,12 +89,79 @@ export function schemaToJson(
 }
 
 /**
+ * Flatten a JSON schema.
+ *
+ * @export
+ * @param {Record<string, unknown>} schema JSON schema
+ * @param {string} [parentKey] previous level key
+ * @param {string} [nestingDelimiter] char for delimit nesting levels
+ * @param {Record<string, any>} [container] result container
+ *
+ * @returns {Record<string, unknown>} flattened schema
+ */
+export function flatSchema(
+    schema: Record<string, unknown>,
+    parentKey = '',
+    nestingDelimiter = '__',
+    container: Record<string, any> = {}
+): Record<string, unknown> {
+    if (isJsonSchemaObject(schema)) {
+        for (const key in schema.properties) {
+            if (key[0] === '#') continue;
+
+            // global property, but prefix removed for injection
+            const subKey =
+                parentKey + (parentKey ? nestingDelimiter : '') + key;
+
+            container = {
+                ...container,
+                ...flatSchema(schema.properties[key], subKey)
+            };
+        }
+
+        return container;
+    } else {
+        return { [parentKey]: schema };
+    }
+}
+
+/**
+ * Creates a JSON schema validator using AJV.
+ *
+ * @see https://ajv.js.org/
+ *
+ * @export
+ * @param {Record<string, object>} schema json schema by provider
+ * @param {boolean} enableFormats whether formats are enabled
+ *
+ * @returns {ValidateFunction} validator
+ */
+export function createValidator(
+    schema: Record<string, unknown>,
+    enableFormats = true
+): ValidateFunction {
+    const ajv = new Ajv({
+        allErrors: true,
+        allowUnionTypes: true
+    });
+
+    if (enableFormats) {
+        addFormats(ajv, { mode: 'fast' });
+
+        for (const key in FORMAT_REGEXPS)
+            ajv.addFormat(key, FORMAT_REGEXPS[key]);
+    }
+
+    return ajv.compile(schema);
+}
+
+/**
  * Creates a JSON schema validator lookup using AJV.
  *
  * @see https://ajv.js.org/
  *
  * @export
- * @param {Record<string, object>} createValidators json schema by provider
+ * @param {Record<string, object>} schemaLookup json schema by provider
  * @param {boolean} enableFormats whether formats are enabled
  *
  * @returns {Record<string, ValidateFunction>} validators lookup

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2022-04-13
+
+-   schema validation refactor
+
 ## [1.0.1] - 2022-04-05
 
 -   No config file message log level changed from warning to silly

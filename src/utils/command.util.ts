@@ -142,6 +142,26 @@ export function loadVariablesFromProviders(
 }
 
 /**
+ * Flattern environment provider results.
+ *
+ * @param {EnvProviderResult[]} results
+ * @param {Partial<Arguments<EnvCommandArguments>>} argv
+ *
+ * @throws {Error} on schema validation failed
+ *
+ * @returns {EnvProviderResult[]} flatten results
+ */
+export function flatResults(
+    results: EnvProviderResult[]
+): EnvProviderResult[] | never {
+    return results.flatMap(({ value }) => {
+        if (Array.isArray(value)) value = merge({}, ...value);
+
+        return value;
+    });
+}
+
+/**
  * Flattern and validates environment provider results.
  *
  * @param {EnvProviderResult[]} results
@@ -155,13 +175,7 @@ export function flatAndValidateResults(
     results: EnvProviderResult[],
     argv: Partial<Arguments<EnvCommandArguments>>
 ): EnvProviderResult[] | never {
-    if (!argv.schemaValidate) {
-        return results.flatMap(({ value }) => {
-            if (Array.isArray(value)) value = merge({}, ...value);
-
-            return value;
-        });
-    }
+    if (!argv.schemaValidate) return flatResults(results);
 
     const validators = createValidators(argv.schema!, argv.detectFormat);
 
