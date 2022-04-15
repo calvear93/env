@@ -8,6 +8,7 @@ import {
     flatResults,
     flatSchema,
     flatten,
+    interpolate,
     loadVariablesFromProviders,
     logger,
     normalize
@@ -69,7 +70,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 
         return builder;
     },
-    handler: async ({ providers, schemaValidate, ...argv }) => {
+    handler: async ({ providers, schemaValidate, expand, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
         let env = merge({ NODE_ENV: 'development' }, ...flatResults(results));
@@ -104,6 +105,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
         }
 
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
+        if (expand) env = interpolate(env, env);
 
         logger.debug('environment loaded:', env);
 

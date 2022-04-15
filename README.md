@@ -218,13 +218,14 @@ _`[[root]]/config-file.[[env]].json`_ will be _`config/config-file.dev.json`_.
 
 ### Global options
 
-| Option                             | Description                            | Type       | Default | Required? |
-| ---------------------------------- | -------------------------------------- | ---------- | ------- | --------- |
-| `--help`                           | Shows help                             | `boolean`  |         | No        |
-| `--e, --env`                       | Environment for load                   | `string`   |         | Yes       |
-| `-m, --modes`                      | Execution modes                        | `string[]` | `[]`    | No        |
-| `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten    | `string`   | `__`    | No        |
-| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays | `boolean`  | `false` | No        |
+| Option                             | Description                                     | Type       | Default | Required? |
+| ---------------------------------- | ----------------------------------------------- | ---------- | ------- | --------- |
+| `--help`                           | Shows help                                      | `boolean`  |         | No        |
+| `--e, --env`                       | Environment for load                            | `string`   |         | Yes       |
+| `-m, --modes`                      | Execution modes                                 | `string[]` | `[]`    | No        |
+| `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten             | `string`   | `__`    | No        |
+| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays          | `boolean`  | `false` | No        |
+| `-x, --expand`                     | Interpolates environment variables using itself | `boolean`  | `false` | No        |
 
 </br>
 
@@ -436,7 +437,7 @@ In example:
 | Option                  | Description                          | Type     | Default                     | Required? |
 | ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
 | `--ef, --envFile`       | Environment variables file path      | `string` | `[[root]]/appsettings.json` | No        |
-| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | ``                        | No        |
+| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `` | No                     |
 
 </br>
 

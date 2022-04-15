@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2022-04-15
+
+-   expand options for interpolate env vars
+
 ## [1.1.0] - 2022-04-13
 
 -   schema validation refactor

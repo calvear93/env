@@ -17,6 +17,7 @@ export interface CommandArguments extends Arguments {
     providers: EnvProviderConfig[];
     nestingDelimiter: string;
     arrayDescomposition: boolean;
+    expand: boolean;
     root: string;
     configFile: string;
     schemaFile: string;
@@ -60,6 +61,12 @@ export const args: Record<keyof CommandArguments, Options> = {
         type: 'boolean',
         default: false,
         describe: 'Whether serialize or break down arrays'
+    },
+    expand: {
+        alias: 'x',
+        type: 'boolean',
+        default: false,
+        describe: 'Interpolates environment variables using itself'
     },
     root: {
         group: GROUPS.GROUP_WORKSPACE,

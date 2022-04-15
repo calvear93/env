@@ -4,6 +4,7 @@ import { CommandArguments } from '../arguments';
 import {
     flatAndValidateResults,
     flatten,
+    interpolate,
     loadVariablesFromProviders,
     logger,
     normalize,
@@ -54,7 +55,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 
         return builder;
     },
-    handler: async ({ providers, ...argv }) => {
+    handler: async ({ providers, expand, ...argv }) => {
         const results = await loadVariablesFromProviders(providers, argv);
 
         let env = merge(
@@ -65,6 +66,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
         // results normalization merging
         env = flatten(env, argv.nestingDelimiter);
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
+        if (expand) env = interpolate(env, env);
 
         logger.debug('environment loaded:', env);
 
