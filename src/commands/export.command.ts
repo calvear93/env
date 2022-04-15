@@ -3,6 +3,7 @@ import { CommandModule } from 'yargs';
 import { CommandArguments } from '../arguments';
 import {
     flatAndValidateResults,
+    flatten,
     loadVariablesFromProviders,
     logger,
     normalize,
@@ -62,6 +63,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
         );
 
         // results normalization merging
+        env = flatten(env, argv.nestingDelimiter);
         env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 
         logger.debug('environment loaded:', env);
