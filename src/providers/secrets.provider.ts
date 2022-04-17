@@ -43,21 +43,10 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     },
 
     load: async ({ secretFile, localSecretFile }) => {
-        const ci = process.env.NODE_ENV === 'production';
-
-        const [
-            [secrets, secretsWasFound],
-            [localSecrets, localSecretsWasFound]
-        ] = await Promise.all([
+        const [[secrets], [localSecrets]] = await Promise.all([
             await readJson(secretFile),
-            await (ci ? readJson(localSecretFile) : Promise.resolve([{}, true]))
+            await readJson(localSecretFile)
         ]);
-
-        if (!secretsWasFound)
-            logger.warn(`${chalk.blue(secretFile)} not found`);
-
-        if (!localSecretsWasFound)
-            logger.warn(`${chalk.blue(localSecretsWasFound)} not found`);
 
         return [secrets, localSecrets];
     }

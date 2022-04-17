@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2022-04-17
+
+-   secrets provider fix
+
 ## [1.2.0] - 2022-04-15
 
 -   expand options for interpolate env vars
