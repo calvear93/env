@@ -1,4 +1,3 @@
-import { existsSync } from 'fs';
 import { exec, execEnv } from './exec';
 
 /**
@@ -6,7 +5,7 @@ import { exec, execEnv } from './exec';
  */
 function setup(): void {
     // builds application
-    if (!existsSync('dist')) exec('npm run build');
+    exec('npm run build');
     // generates schema from environment variables
     execEnv('schema', '-e dev', '-m debug');
 }

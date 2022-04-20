@@ -115,7 +115,7 @@ export function flatSchema(
 
             container = {
                 ...container,
-                ...flatSchema(schema.properties[key], subKey)
+                ...flatSchema(schema.properties[key], subKey, nestingDelimiter)
             };
         }
 
