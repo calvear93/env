@@ -4,6 +4,17 @@ import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 
 /**
+ * Replaces undefined by null in JSON.stringify()
+ *
+ * @param {string} _ property key
+ * @param {any} value property value
+ *
+ * @returns {any} value
+ */
+const replacer = (_: string, value: any): typeof value | null =>
+    value === undefined ? null : value;
+
+/**
  * Resolve a relative path for os.
  *
  * @export
@@ -44,19 +55,29 @@ export async function readJson<T = Record<string, any>>(
  * @param {string} path
  * @param {unknown} content
  * @param {false} overwrite
+ * @param {false} undefinedAsNull replaces undefined by null
  *
  * @returns {Promise<boolean>}
  */
 export async function writeJson(
     path: string,
     content: Record<string, unknown>,
-    overwrite = false
+    overwrite = false,
+    undefinedAsNull = false
 ): Promise<boolean | never> {
     const exists = existsSync(path);
 
     if (exists && !overwrite) return false;
 
-    await writeFile(path, `${JSON.stringify(content, undefined, 4)}\n`, 'utf8');
+    await writeFile(
+        path,
+        `${JSON.stringify(
+            content,
+            undefinedAsNull ? replacer : undefined,
+            4
+        )}\n`,
+        'utf8'
+    );
 
     return true;
 }
