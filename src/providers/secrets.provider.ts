@@ -1,7 +1,6 @@
-import chalk from 'chalk';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { logger, readJson } from '../utils';
+import { readJson } from '../utils';
 
 const KEY = 'secrets';
 
@@ -42,10 +41,11 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         });
     },
 
-    load: async ({ secretFile, localSecretFile }) => {
+    load: async ({ secretFile, localSecretFile, local }) => {
         const [[secrets], [localSecrets]] = await Promise.all([
             await readJson(secretFile),
-            await readJson(localSecretFile)
+            // loads local variables only on load env cmd
+            local ? await readJson(localSecretFile) : Promise.resolve([{}])
         ]);
 
         return [secrets, localSecrets];

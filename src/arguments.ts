@@ -15,6 +15,7 @@ export interface CommandArguments extends Arguments {
     app?: Record<string, unknown>;
     schema?: Record<string, JSONSchemaType<object>>;
     providers: EnvProviderConfig[];
+    local: boolean;
     nestingDelimiter: string;
     arrayDescomposition: boolean;
     expand: boolean;
@@ -48,6 +49,12 @@ export const args: Record<keyof CommandArguments, Options> = {
         hidden: true,
         default: IntegratedProviderConfig,
         describe: 'Providers handling variables loading'
+    },
+    local: {
+        alias: 'l',
+        type: 'string',
+        default: false,
+        describe: 'Whether loads local environment in providers'
     },
     nestingDelimiter: {
         alias: 'nd',

@@ -8,7 +8,8 @@ const KEY = 'app-settings';
 const APP_SETTINGS_DEFAULT = {
     '|DEFAULT|': {},
     '|MODE|': {},
-    '|ENV|': {}
+    '|ENV|': {},
+    '|LOCAL|': {}
 };
 
 interface AppSettingsCommandArguments extends CommandArguments {
@@ -41,7 +42,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         });
     },
 
-    load: async ({ env, modes = [], envFile, sectionPrefix }) => {
+    load: async ({ env, modes = [], envFile, sectionPrefix, local }) => {
         const [appsettings = APP_SETTINGS_DEFAULT, wasFound] = await readJson(
             envFile
         );
@@ -54,6 +55,9 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
             await writeJson(envFile, APP_SETTINGS_DEFAULT);
         }
 
+        // only load local in env load cmd
+        if (!local) appsettings['|LOCAL|'] = null;
+
         return [
             appsettings['|DEFAULT|'],
 
@@ -61,7 +65,9 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 
             ...modes.map(
                 (mode) => appsettings['|MODE|']?.[`${sectionPrefix}${mode}`]
-            )
+            ),
+
+            appsettings['|LOCAL|']?.[`${sectionPrefix}${env}`]
         ];
     }
 };

@@ -393,7 +393,8 @@ Non secrets loader for `appsettings.json`.
 {
     "|DEFAULT|": {},
     "|MODE|": {},
-    "|ENV|": {}
+    "|ENV|": {},
+    "|LOCAL|": {}
 }
 ```
 
@@ -429,6 +430,11 @@ In example:
                 }
             },
             "C4": "23"
+        }
+    },
+    "|LOCAL|": {
+        "dev": {
+            "C1": "LOCAL V1"
         }
     }
 }

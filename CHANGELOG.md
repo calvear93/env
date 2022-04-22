@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2022-04-22
+
+-   fix local secrets was loading on schema generation
+
 ## [1.2.2] - 2022-04-20
 
 -   fix nesting delimiter in flatSchema
