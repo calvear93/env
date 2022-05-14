@@ -46,10 +46,10 @@ export interface EnvProvider<
     load: (argv: Arguments<A>, config?: C) => EnvResult | never;
 
     // pulls vars
-    pull?: (argv: Arguments<A>, config?: Record<string, any>) => void;
+    pull?: (argv: Arguments<A>, config?: C) => void;
 
     // push vars
-    push?: (argv: Arguments<A>, config?: Record<string, any>) => void;
+    push?: (argv: Arguments<A>, config?: C) => void;
 }
 
 /**

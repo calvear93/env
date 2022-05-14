@@ -118,7 +118,7 @@ export async function exec(rawArgv: string[]) {
         try {
             logger.debug(`using ${chalk.yellow(provider.path)} provider`);
 
-            if (provider.type === 'integrated') {
+            if (!provider.type || provider.type === 'integrated') {
                 provider.handler = IntegratedProviders[provider.path];
             } else {
                 const { default: module } = await import(
