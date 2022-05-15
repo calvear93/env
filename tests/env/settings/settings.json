@@ -12,6 +12,10 @@
         {
             "path": "secrets",
             "type": "integrated"
+        },
+        {
+            "path": "local",
+            "type": "integrated"
         }
     ]
 }

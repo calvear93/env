@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2022-05-15
+
+-   reworked file paths
+-   separated local var provider from secrets provider
+
 ## [1.2.3] - 2022-05-14
 
 -   loader interface tweaks

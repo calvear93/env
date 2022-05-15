@@ -196,5 +196,44 @@
                 "nullable": true
             }
         }
+    },
+    "local": {
+        "type": "object",
+        "properties": {
+            "VAR4": {
+                "type": [
+                    "string"
+                ],
+                "nullable": true
+            },
+            "GROUP1": {
+                "type": [
+                    "object"
+                ],
+                "properties": {
+                    "VAR1": {
+                        "type": [
+                            "null"
+                        ],
+                        "nullable": true
+                    }
+                },
+                "nullable": true
+            },
+            "GROUP2": {
+                "type": [
+                    "object"
+                ],
+                "properties": {
+                    "VAR2": {
+                        "type": [
+                            "string"
+                        ],
+                        "nullable": true
+                    }
+                },
+                "nullable": true
+            }
+        }
     }
 }

@@ -7,11 +7,10 @@ const KEY = 'secrets';
 interface SecretsCommandArguments extends CommandArguments {
     secretsFolder: string;
     secretFile: string;
-    localSecretFile: string;
 }
 
 /**
- * Loads secrets from env files in env/secrets folder.
+ * Loads secrets from env files in env folder.
  */
 export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
     key: KEY,
@@ -21,7 +20,7 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
             secretsFolder: {
                 group: KEY,
                 type: 'string',
-                default: '[[root]]/secrets',
+                default: '[[root]]',
                 describe: 'Secret variables file path'
             },
             secretFile: {
@@ -30,24 +29,13 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
                 type: 'string',
                 default: '[[secretsFolder]]/[[env]].env.json',
                 describe: 'Secret variables file path'
-            },
-            localSecretFile: {
-                group: KEY,
-                alias: 'lsf',
-                type: 'string',
-                default: '[[secretsFolder]]/[[env]].local.env.json',
-                describe: 'Local secret variables file path'
             }
         });
     },
 
-    load: async ({ secretFile, localSecretFile, local }) => {
-        const [[secrets], [localSecrets]] = await Promise.all([
-            await readJson(secretFile),
-            // loads local variables only on load env cmd
-            local ? await readJson(localSecretFile) : Promise.resolve([{}])
-        ]);
+    load: async ({ secretFile }) => {
+        const [secrets] = await readJson(secretFile);
 
-        return [secrets, localSecrets];
+        return [secrets];
     }
 };

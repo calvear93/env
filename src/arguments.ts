@@ -15,7 +15,7 @@ export interface CommandArguments extends Arguments {
     app?: Record<string, unknown>;
     schema?: Record<string, JSONSchemaType<object>>;
     providers: EnvProviderConfig[];
-    local: boolean;
+    ci: boolean;
     nestingDelimiter: string;
     arrayDescomposition: boolean;
     expand: boolean;
@@ -50,11 +50,11 @@ export const args: Record<keyof CommandArguments, Options> = {
         default: IntegratedProviderConfig,
         describe: 'Providers handling variables loading'
     },
-    local: {
-        alias: 'l',
-        type: 'string',
+    ci: {
+        alias: 'ci',
+        type: 'boolean',
         default: false,
-        describe: 'Whether loads local environment in providers'
+        describe: 'Whether providers executes in continuous integration mode'
     },
     nestingDelimiter: {
         alias: 'nd',
@@ -85,14 +85,14 @@ export const args: Record<keyof CommandArguments, Options> = {
         group: GROUPS.GROUP_WORKSPACE,
         alias: 'c',
         type: 'string',
-        default: '[[root]]/env.config.json',
+        default: '[[root]]/settings/settings.json',
         describe: 'Config JSON file path'
     },
     schemaFile: {
         group: GROUPS.GROUP_WORKSPACE,
         alias: ['s', 'schema'],
         type: 'string',
-        default: '[[root]]/env.schema.json',
+        default: '[[root]]/settings/schema.json',
         describe: 'Environment Schema JSON file path'
     },
     resolve: {
