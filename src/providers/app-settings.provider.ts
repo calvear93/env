@@ -8,8 +8,7 @@ const KEY = 'app-settings';
 const APP_SETTINGS_DEFAULT = {
     '|DEFAULT|': {},
     '|MODE|': {},
-    '|ENV|': {},
-    '|LOCAL|': {}
+    '|ENV|': {}
 };
 
 interface AppSettingsCommandArguments extends CommandArguments {
@@ -65,9 +64,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 
             ...modes.map(
                 (mode) => appsettings['|MODE|']?.[`${sectionPrefix}${mode}`]
-            ),
-
-            appsettings['|LOCAL|']?.[`${sectionPrefix}${env}`]
+            )
         ];
     }
 };

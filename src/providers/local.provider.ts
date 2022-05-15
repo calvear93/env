@@ -6,7 +6,6 @@ import { readJson, writeJson } from '../utils';
 const KEY = 'local';
 
 interface LocalCommandArguments extends CommandArguments {
-    secretsFolder: string;
     localFile: string;
 }
 
@@ -18,17 +17,11 @@ export const LocalProvider: EnvProvider<LocalCommandArguments> = {
 
     builder: (builder) => {
         builder.options({
-            localFolder: {
-                group: KEY,
-                type: 'string',
-                default: '[[root]]',
-                describe: 'Secret variables file path'
-            },
             localFile: {
                 group: KEY,
                 alias: 'lf',
                 type: 'string',
-                default: '[[localFolder]]/[[env]].local.env.json',
+                default: '[[root]]/[[env]].local.env.json',
                 describe: 'Local secret variables file path'
             }
         });

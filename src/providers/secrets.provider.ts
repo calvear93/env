@@ -5,8 +5,7 @@ import { readJson } from '../utils';
 const KEY = 'secrets';
 
 interface SecretsCommandArguments extends CommandArguments {
-    secretsFolder: string;
-    secretFile: string;
+    secretsFile: string;
 }
 
 /**
@@ -17,24 +16,18 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
 
     builder: (builder) => {
         builder.options({
-            secretsFolder: {
-                group: KEY,
-                type: 'string',
-                default: '[[root]]',
-                describe: 'Secret variables file path'
-            },
-            secretFile: {
+            secretsFile: {
                 group: KEY,
                 alias: 'sf',
                 type: 'string',
-                default: '[[secretsFolder]]/[[env]].env.json',
+                default: '[[root]]/[[env]].env.json',
                 describe: 'Secret variables file path'
             }
         });
     },
 
-    load: async ({ secretFile }) => {
-        const [secrets] = await readJson(secretFile);
+    load: async ({ secretsFile }) => {
+        const [secrets] = await readJson(secretsFile);
 
         return [secrets];
     }

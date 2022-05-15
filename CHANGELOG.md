@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2022-05-15
+
+-   docs and minor tweaks
+
 ## [2.0.0] - 2022-05-15
 
 -   reworked file paths

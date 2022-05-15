@@ -122,7 +122,7 @@ You can initialize a new npm project using:
     // builds project injecting "prod" environment variables
     "build:prod": "env -e prod -m build : tsc",
     ...,
-    "env:schema": "env schema -e dev",
+    "env:schema": "env schema -e dev --ci",
     // uploads environment "dev" variables
     "env:push:dev": "env push -e dev",
     // downloads environment "dev" variables
@@ -182,7 +182,8 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 │   ├── providers/ # integrated providers
 │   │   ├── package-json.provider.ts
 │   │   ├── app-settings.provider.ts
-│   │   └── secrets.provider.ts
+│   │   ├── secrets.provider.ts
+│   │   └── local.provider.ts
 │   ├── utils/
 │   │   ├── command.util.ts
 │   │   ├── interpolate.util.ts
@@ -226,16 +227,17 @@ _`[[root]]/config-file.[[env]].json`_ will be _`config/config-file.dev.json`_.
 | `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten             | `string`   | `__`    | No        |
 | `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays          | `boolean`  | `false` | No        |
 | `-x, --expand`                     | Interpolates environment variables using itself | `boolean`  | `false` | No        |
+| `-ci`                              | Continuous Integration mode                     | `boolean`  | `false` | No        |
 
 </br>
 
 ### Workspace options
 
-| Option             | Description                       | Type     | Default                    | Required? |
-| ------------------ | --------------------------------- | -------- | -------------------------- | --------- |
-| `--root`           | Default environment folder path   | `string` | `env`                      | No        |
-| `-c, --configFile` | Config JSON file path             | `string` | `[[root]]/env.config.json` | No        |
-| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/env.schema.json` | No        |
+| Option             | Description                       | Type     | Default                           | Required? |
+| ------------------ | --------------------------------- | -------- | --------------------------------- | --------- |
+| `--root`           | Default environment folder path   | `string` | `env`                             | No        |
+| `-c, --configFile` | Config JSON file path             | `string` | `[[root]]/settings/settings.json` | No        |
+| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/settings/schema.json`   | No        |
 
 ### JSON Schema options
 
@@ -270,7 +272,7 @@ Examples:
 ```
 
 ```bash
-> env -e dev -m debug : npm start : -c [[root]]/[[env]].env.json
+> env -e dev -m debug : npm start : -c [[root]]/[[env]].settings.json
 ```
 
 ```bash
@@ -353,7 +355,7 @@ Examples:
 ## 📡 **Providers**
 
 Main feature of this library is using providers for get and set environment variables.
-So, you cand define your own provider, but lib came with 3 integrated providers:
+So, you can define your own provider, but lib came with 3 integrated providers:
 
 -   ## **`package-json`**
 
@@ -393,8 +395,7 @@ Non secrets loader for `appsettings.json`.
 {
     "|DEFAULT|": {},
     "|MODE|": {},
-    "|ENV|": {},
-    "|LOCAL|": {}
+    "|ENV|": {}
 }
 ```
 
@@ -431,11 +432,6 @@ In example:
             },
             "C4": "23"
         }
-    },
-    "|LOCAL|": {
-        "dev": {
-            "C1": "LOCAL V1"
-        }
     }
 }
 ```
@@ -449,12 +445,19 @@ In example:
 
 -   ## **`secrets`**
 
-Secrets loader for `env/secrets/[[env]].env.json` and `env/secrets/[[env]].local.env.json`.
+Secrets loader for `env/[[env]].env.json`.
 
-| Option                     | Description                      | Type     | Default                                   | Required? |
-| -------------------------- | -------------------------------- | -------- | ----------------------------------------- | --------- |
-| `--sf, --secretFile`       | Secret variables file path       | `string` | `[[root]]/secrets/[[env]].env.json`       | No        |
-| `--lsf, --localSecretFile` | Local secret variables file path | `string` | `[[root]]/secrets/[[env]].local.env.json` | No        |
+| Option                | Description                | Type     | Default                     | Required? |
+| --------------------- | -------------------------- | -------- | --------------------------- | --------- |
+| `--sf, --secretsFile` | Secret variables file path | `string` | `[[root]]/[[env]].env.json` | No        |
+
+-   ## **`local`**
+
+Local variables loader for `env/[[env]].local.env.json`.
+
+| Option              | Description               | Type     | Default                           | Required? |
+| ------------------- | ------------------------- | -------- | --------------------------------- | --------- |
+| `--lf, --localFile` | Local variables file path | `string` | `[[root]]/[[env]].local.env.json` | No        |
 
 -   ## **`package-json`**
 
@@ -537,6 +540,7 @@ export const MyProvider: EnvProvider<MyProviderCommandArguments> = {
         return [
             {
                 NODE_ENV: 'production',
+                ANY_VAR: 'ABC', // will be replaced by value below
             },
             {
                 ANY_VAR: 'ANY_VALUE',
@@ -586,6 +590,10 @@ You can configure any config argument inside you config file, but commonly provi
         },
         {
             "path": "secrets",
+            "type": "integrated"
+        },
+        {
+            "path": "local",
             "type": "integrated"
         },
         {
