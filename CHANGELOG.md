@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2022-09-15
+
+-   packages updated
+
 ## [2.1.0] - 2022-07-09
 
 -   packages updated
