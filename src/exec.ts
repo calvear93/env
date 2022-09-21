@@ -108,10 +108,12 @@ export async function exec(rawArgv: string[]) {
         throw new Error('no providers found');
     }
 
-    logger.info(
-        `loading ${chalk.bold.underline.green(env)} environment` +
-            (modes ? ` in ${chalk.bold.magenta(modes.join('+'))} mode` : '')
-    );
+    const envMsg = env ? ` ${chalk.bold.underline.green(env)} environment` : '';
+    const modesMsg = modes
+        ? ` ${chalk.bold.magenta(modes.join('+'))} mode`
+        : '';
+
+    logger.info(`loading${envMsg}${env && modes ? ' in' : ''}${modesMsg}`);
 
     // read loaders from config
     for (const provider of providers!) {

@@ -1,9 +1,14 @@
+import chalk from 'chalk';
 import { existsSync } from 'fs';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { readJson, writeJson } from '../utils';
+import { logger as globalLogger, readJson, writeJson } from '../utils';
 
 const KEY = 'local';
+
+const logger = globalLogger.getChildLogger({
+    prefix: [chalk.bold.blue(`[${KEY}]`)]
+});
 
 interface LocalCommandArguments extends CommandArguments {
     localFile: string;
@@ -27,9 +32,15 @@ export const LocalProvider: EnvProvider<LocalCommandArguments> = {
         });
     },
 
-    load: async ({ localFile, ci }) => {
+    load: async ({ env, localFile, ci }) => {
         // ci mode doesn't load local vars
         if (ci) return [];
+
+        if (!env) {
+            logger.silly('no env, provider skipped');
+
+            return [];
+        }
 
         if (!existsSync(localFile)) {
             await writeJson(localFile, {});

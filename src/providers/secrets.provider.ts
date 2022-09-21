@@ -1,8 +1,13 @@
+import chalk from 'chalk';
 import { CommandArguments } from '../arguments';
 import { EnvProvider } from '../interfaces';
-import { readJson } from '../utils';
+import { logger as globalLogger, readJson } from '../utils';
 
 const KEY = 'secrets';
+
+const logger = globalLogger.getChildLogger({
+    prefix: [chalk.bold.blue(`[${KEY}]`)]
+});
 
 interface SecretsCommandArguments extends CommandArguments {
     secretsFile: string;
@@ -26,7 +31,13 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
         });
     },
 
-    load: async ({ secretsFile }) => {
+    load: async ({ env, secretsFile }) => {
+        if (!env) {
+            logger.silly('no env, provider skipped');
+
+            return [];
+        }
+
         const [secrets] = await readJson(secretsFile);
 
         return [secrets];

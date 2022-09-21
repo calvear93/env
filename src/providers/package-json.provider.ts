@@ -25,7 +25,7 @@ export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
         });
     },
 
-    load: ({ env, app, varPrefix }) => {
+    load: ({ env = 'development', app, varPrefix }) => {
         return {
             [`${varPrefix}ENV`]: env,
 

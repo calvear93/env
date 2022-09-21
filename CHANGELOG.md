@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2022-09-1521
+
+-   env not required
+-   messages tweaks
+-   provider that require env are skipped if not present
+
 ## [2.1.1] - 2022-09-15
 
 -   packages updated

@@ -35,8 +35,6 @@ export const args: Record<keyof CommandArguments, Options> = {
     env: {
         alias: 'e',
         type: 'string',
-        requiresArg: true,
-        demandOption: true,
         describe: 'Environment for load, i.e. dev, prod'
     },
     modes: {
