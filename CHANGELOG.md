@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.2.0] - 2022-09-1521
+## [2.2.1] - 2022-09-21
+
+-   validation for no env or mode
+
+## [2.2.0] - 2022-09-21
 
 -   env not required
 -   messages tweaks
