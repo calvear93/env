@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2022-10-21
+
+-   migrated to PNPM
+-   ci recognition
+
 ## [2.2.1] - 2022-09-21
 
 -   validation for no env or mode

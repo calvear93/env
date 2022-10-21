@@ -41,7 +41,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         });
     },
 
-    load: async ({ env, modes = [], envFile, sectionPrefix, local }) => {
+    load: async ({ env, modes = [], envFile, sectionPrefix, ci }) => {
         const [appsettings = APP_SETTINGS_DEFAULT, wasFound] = await readJson(
             envFile
         );
@@ -55,7 +55,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
         }
 
         // only load local in env load cmd
-        if (!local) appsettings['|LOCAL|'] = null;
+        if (ci) appsettings['|LOCAL|'] = null;
 
         return [
             appsettings['|DEFAULT|'],

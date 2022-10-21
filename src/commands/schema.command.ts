@@ -21,6 +21,8 @@ export const schemaCommand: CommandModule<any, CommandArguments> = {
         );
     },
     handler: async (argv) => {
+        argv.ci = true;
+
         const results = await loadVariablesFromProviders(argv.providers, argv);
 
         const schema = await generateSchemaFrom(results, argv);
