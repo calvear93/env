@@ -4,36 +4,36 @@ import { EnvProvider } from '../interfaces';
 const KEY = 'package-json';
 
 interface PackageJsonCommandArguments extends CommandArguments {
-    varPrefix: string;
+	packageInfoPrefix: string;
 }
 
 /**
  * Loads project info from package.json.
  */
 export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
-    key: KEY,
+	key: KEY,
 
-    builder: (builder) => {
-        builder.options({
-            varPrefix: {
-                group: KEY,
-                alias: 'vp',
-                type: 'string',
-                default: '',
-                describe: 'Prefix for loaded variables'
-            }
-        });
-    },
+	builder: (builder) => {
+		builder.options({
+			packageInfoPrefix: {
+				group: KEY,
+				alias: 'vp',
+				type: 'string',
+				default: '',
+				describe: 'Prefix for loaded variables'
+			}
+		});
+	},
 
-    load: ({ env = 'development', app, varPrefix }) => {
-        return {
-            [`${varPrefix}ENV`]: env,
+	load: ({ env = 'development', app, packageInfoPrefix }) => {
+		return {
+			[`${packageInfoPrefix}ENV`]: env,
 
-            [`${varPrefix}VERSION`]: app?.version,
-            [`${varPrefix}PROJECT`]: app?.project,
-            [`${varPrefix}NAME`]: app?.name,
-            [`${varPrefix}TITLE`]: app?.title,
-            [`${varPrefix}DESCRIPTION`]: app?.description
-        };
-    }
+			[`${packageInfoPrefix}VERSION`]: app?.version,
+			[`${packageInfoPrefix}PROJECT`]: app?.project,
+			[`${packageInfoPrefix}NAME`]: app?.name,
+			[`${packageInfoPrefix}TITLE`]: app?.title,
+			[`${packageInfoPrefix}DESCRIPTION`]: app?.description
+		};
+	}
 };

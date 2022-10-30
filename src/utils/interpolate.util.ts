@@ -8,9 +8,9 @@ import subslate from 'subslate';
  * @returns {*}  {obj is Record<string, unknown>}
  */
 export function isRecord(obj: unknown): obj is Record<string, unknown> {
-    if (!obj || typeof obj !== 'object') return false;
+	if (!obj || typeof obj !== 'object') return false;
 
-    return Object.keys(obj).length > 0;
+	return Object.keys(obj).length > 0;
 }
 
 /**
@@ -25,22 +25,22 @@ export function isRecord(obj: unknown): obj is Record<string, unknown> {
  * @returns {T} mutated value
  */
 export function interpolate<T extends string | unknown>(
-    value: T,
-    args: Record<string, unknown>,
-    delimiters: [string, string] = ['[[', ']]']
+	value: T,
+	args: Record<string, unknown>,
+	delimiters: [string, string] = ['[[', ']]']
 ): T {
-    if (typeof value === 'string') {
-        return subslate(value, args, {
-            startStopPairs: delimiters
-        }) as T;
-    }
+	if (typeof value === 'string') {
+		return subslate(value, args, {
+			startStopPairs: delimiters
+		}) as T;
+	}
 
-    if (Array.isArray(value))
-        return value.map((a) => interpolate(a, args, delimiters)) as T;
+	if (Array.isArray(value))
+		return value.map((a) => interpolate(a, args, delimiters)) as T;
 
-    if (isRecord(value)) return interpolateJson(value, args, delimiters) as T;
+	if (isRecord(value)) return interpolateJson(value, args, delimiters) as T;
 
-    return value;
+	return value;
 }
 
 /**
@@ -54,12 +54,12 @@ export function interpolate<T extends string | unknown>(
  * @returns {Record<string, unknown>} mutated args
  */
 export function interpolateJson(
-    values: Record<string, unknown>,
-    args: Record<string, unknown>,
-    delimiters: [string, string] = ['[[', ']]']
+	values: Record<string, unknown>,
+	args: Record<string, unknown>,
+	delimiters: [string, string] = ['[[', ']]']
 ): Record<string, unknown> {
-    for (const key in values)
-        values[key] = interpolate(values[key], args, delimiters);
+	for (const key in values)
+		values[key] = interpolate(values[key], args, delimiters);
 
-    return values;
+	return values;
 }

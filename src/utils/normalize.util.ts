@@ -11,35 +11,35 @@
  * @returns {Record<string, string>} flattended object
  */
 export function flatten(
-    obj: Record<string, any>,
-    nestingDelimiter = '__',
-    pkey = ''
+	obj: Record<string, any>,
+	nestingDelimiter = '__',
+	pkey = ''
 ): Record<string, string> {
-    const flattened: Record<string, string> = {};
+	const flattened: Record<string, string> = {};
 
-    for (let key in obj) {
-        const value = obj[key];
-        const type = typeof value;
+	for (let key in obj) {
+		const value = obj[key];
+		const type = typeof value;
 
-        if (value === undefined || type === 'function') continue;
+		if (value === undefined || type === 'function') continue;
 
-        // skipped property
-        if (key[0] === '#') continue;
-        key = pkey + key;
+		// skipped property
+		if (key[0] === '#') continue;
+		key = pkey + key;
 
-        if (value === null || type !== 'object' || Array.isArray(value)) {
-            flattened[key] = value;
+		if (value === null || type !== 'object' || Array.isArray(value)) {
+			flattened[key] = value;
 
-            continue;
-        }
+			continue;
+		}
 
-        Object.assign(
-            flattened,
-            flatten(value, nestingDelimiter, `${key}${nestingDelimiter}`)
-        );
-    }
+		Object.assign(
+			flattened,
+			flatten(value, nestingDelimiter, `${key}${nestingDelimiter}`)
+		);
+	}
 
-    return flattened;
+	return flattened;
 }
 
 /**
@@ -55,51 +55,51 @@ export function flatten(
  * @returns {Record<string, string>} normalized object
  */
 export function normalize(
-    obj: Record<string, any>,
-    nestingDelimiter = '__',
-    arrayDescomposition = false,
-    pkey = ''
+	obj: Record<string, any>,
+	nestingDelimiter = '__',
+	arrayDescomposition = false,
+	pkey = ''
 ): Record<string, string> {
-    const flattened: Record<string, string> = {};
+	const flattened: Record<string, string> = {};
 
-    for (let key in obj) {
-        const value = obj[key];
-        const type = typeof value;
+	for (let key in obj) {
+		const value = obj[key];
+		const type = typeof value;
 
-        if (value === null || value === undefined || type === 'function')
-            continue;
+		if (value === null || value === undefined || type === 'function')
+			continue;
 
-        // global property, but prefix removed for injection
-        key = pkey + key.replace('$', '');
+		// global property, but prefix removed for injection
+		key = pkey + key.replace('$', '');
 
-        if (type !== 'object') {
-            flattened[key] = value;
+		if (type !== 'object') {
+			flattened[key] = value;
 
-            continue;
-        }
+			continue;
+		}
 
-        if (Array.isArray(value)) {
-            normalizeArray(
-                flattened,
-                key,
-                value,
-                nestingDelimiter,
-                arrayDescomposition
-            );
-        } else {
-            Object.assign(
-                flattened,
-                normalize(
-                    value,
-                    nestingDelimiter,
-                    arrayDescomposition,
-                    `${key}${nestingDelimiter}`
-                )
-            );
-        }
-    }
+		if (Array.isArray(value)) {
+			normalizeArray(
+				flattened,
+				key,
+				value,
+				nestingDelimiter,
+				arrayDescomposition
+			);
+		} else {
+			Object.assign(
+				flattened,
+				normalize(
+					value,
+					nestingDelimiter,
+					arrayDescomposition,
+					`${key}${nestingDelimiter}`
+				)
+			);
+		}
+	}
 
-    return flattened;
+	return flattened;
 }
 
 /**
@@ -112,31 +112,31 @@ export function normalize(
  * @param {boolean} [arrayDescomposition=false]
  */
 function normalizeArray(
-    flattened: Record<string, string>,
-    key: string,
-    value: any[],
-    nestingDelimiter = '__',
-    arrayDescomposition = false
+	flattened: Record<string, string>,
+	key: string,
+	value: any[],
+	nestingDelimiter = '__',
+	arrayDescomposition = false
 ): void {
-    if (arrayDescomposition) {
-        key = `${key}${nestingDelimiter}`;
+	if (arrayDescomposition) {
+		key = `${key}${nestingDelimiter}`;
 
-        for (let i = 0; i < value.length; i++) {
-            if (typeof value[i] === 'object') {
-                Object.assign(
-                    flattened,
-                    normalize(
-                        value[i],
-                        nestingDelimiter,
-                        arrayDescomposition,
-                        `${key}${i}${nestingDelimiter}`
-                    )
-                );
-            } else {
-                flattened[`${key}${i}`] = value[i];
-            }
-        }
-    } else {
-        flattened[key] = value.filter((v) => typeof v !== 'object').join(',');
-    }
+		for (let i = 0; i < value.length; i++) {
+			if (typeof value[i] === 'object') {
+				Object.assign(
+					flattened,
+					normalize(
+						value[i],
+						nestingDelimiter,
+						arrayDescomposition,
+						`${key}${i}${nestingDelimiter}`
+					)
+				);
+			} else {
+				flattened[`${key}${i}`] = value[i];
+			}
+		}
+	} else {
+		flattened[key] = value.filter((v) => typeof v !== 'object').join(',');
+	}
 }

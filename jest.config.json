@@ -1,28 +1,28 @@
 {
-    "rootDir": ".",
-    "roots": ["src", "tests"],
-    "testEnvironment": "node",
-    "globalSetup": "./tests/setup.ts",
-    "bail": 1,
-    "verbose": true,
-    "clearMocks": true,
-    "testTimeout": 30000,
-    "slowTestThreshold": 10,
-    "moduleDirectories": ["node_modules", "src"],
-    "moduleFileExtensions": ["js", "json", "ts"],
-    "testRegex": ".*\\.(spec|test)\\.ts$",
-    "transform": {
-        "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": ["src/**/*.(t|j)s"],
-    "coverageDirectory": "__reports__/coverage",
-    "coveragePathIgnorePatterns": [
-        "index.ts",
-        "main.ts",
-        ".d.ts",
-        "tests",
-        "__reports__",
-        "__tests__",
-        "__mocks__"
-    ]
+	"rootDir": ".",
+	"roots": ["src", "tests"],
+	"testEnvironment": "node",
+	"globalSetup": "./tests/setup.ts",
+	"bail": 1,
+	"verbose": true,
+	"clearMocks": true,
+	"testTimeout": 30000,
+	"slowTestThreshold": 10,
+	"moduleDirectories": ["node_modules", "src"],
+	"moduleFileExtensions": ["js", "json", "ts"],
+	"testRegex": ".*\\.(spec|test)\\.ts$",
+	"transform": {
+		"^.+\\.(t|j)s$": "ts-jest"
+	},
+	"collectCoverageFrom": ["src/**/*.(t|j)s"],
+	"coverageDirectory": "__reports__/coverage",
+	"coveragePathIgnorePatterns": [
+		"index.ts",
+		"main.ts",
+		".d.ts",
+		"tests",
+		"__reports__",
+		"__tests__",
+		"__mocks__"
+	]
 }

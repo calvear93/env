@@ -1,8 +1,8 @@
 <div id="top" align="center">
   <img
-    alt="logo"
-    src="https://nodejs.org/static/images/logo.svg"
-    width="256px"
+	alt="logo"
+	src="https://nodejs.org/static/images/logo.svg"
+	width="256px"
   />
 
   </br>
@@ -15,28 +15,28 @@
 
 <p align="center">
   <img
-    src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square"
-    alt="version"
+	src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square"
+	alt="version"
   />
   &nbsp;
   <img
-    src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white"
-    alt="typescript"
+	src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white"
+	alt="typescript"
   />
   &nbsp;
   <img
-    src="https://img.shields.io/badge/nodejs-~14.0.0_||_^16.14.2-darkgreen?style=flat-square"
-    alt="nodejs engine"
+	src="https://img.shields.io/badge/nodejs-~14.0.0_||_^16.14.2-darkgreen?style=flat-square"
+	alt="nodejs engine"
   />
   &nbsp;
   <img
-    src="https://img.shields.io/badge/npm->=7.5.6-darkgreen?style=flat-square"
-    alt="npm engine"
+	src="https://img.shields.io/badge/npm->=7.5.6-darkgreen?style=flat-square"
+	alt="npm engine"
   />
   &nbsp;
   <img
-    src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"
-    alt="license"
+	src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"
+	alt="license"
   />
 </p>
 
@@ -100,10 +100,10 @@ You can initialize a new npm project using:
   Usage: env [command] [options..] [: subcmd [:]] [options..]
 
   Commands:
-    env [options..] [: <subcmd> :]
-    env pull [options..]
-    env push [options..]
-    env schema [options..]
+	env [options..] [: <subcmd> :]
+	env pull [options..]
+	env push [options..]
+	env schema [options..]
 
 > _
 ```
@@ -114,19 +114,19 @@ You can initialize a new npm project using:
 {
   ...,
   "scripts": {
-    // starts project injecting "dev" environment variables and debug log level
-    "start:dev": "env -e dev -m debug : node dist/main.js : --log debug",
-    // starts project injecting "prod" environment variables
-    "start:prod": "env -e prod -m debug : node dist/main.js",
-    ...,
-    // builds project injecting "prod" environment variables
-    "build:prod": "env -e prod -m build : tsc",
-    ...,
-    "env:schema": "env schema -e dev --ci",
-    // uploads environment "dev" variables
-    "env:push:dev": "env push -e dev",
-    // downloads environment "dev" variables
-    "env:pull:dev": "env pull -e dev"
+	// starts project injecting "dev" environment variables and debug log level
+	"start:dev": "env -e dev -m debug : node dist/main.js : --log debug",
+	// starts project injecting "prod" environment variables
+	"start:prod": "env -e prod -m debug : node dist/main.js",
+	...,
+	// builds project injecting "prod" environment variables
+	"build:prod": "env -e prod -m build : tsc",
+	...,
+	"env:schema": "env schema -e dev --ci",
+	// uploads environment "dev" variables
+	"env:push:dev": "env push -e dev",
+	// downloads environment "dev" variables
+	"env:pull:dev": "env pull -e dev"
   },
   ...
 }
@@ -149,15 +149,15 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
   13:31:59.914 DEBUG using secrets provider
   13:32:00.109 DEBUG environment loaded:
   {
-    NODE_ENV: 'development',
-    ENV: 'dev',
-    VERSION: '1.0.0',
-    NAME: '@my-app',
-    VAR1: true,
-    VAR2: true,
-    GROUP1__VAR1: 'G1V2',
-    ARR1: '1,val,true',
-    SECRET: '***'
+	NODE_ENV: 'development',
+	ENV: 'dev',
+	VERSION: '1.0.0',
+	NAME: '@my-app',
+	VAR1: true,
+	VAR2: true,
+	GROUP1__VAR1: 'G1V2',
+	ARR1: '1,val,true',
+	SECRET: '***'
   }
   13:32:00.116 INFO  executing command > node dist/main.js
   My environment loaded is: dev
@@ -219,39 +219,39 @@ _`[[root]]/config-file.[[env]].json`_ will be _`config/config-file.dev.json`_.
 
 ### Global options
 
-| Option                             | Description                                     | Type       | Default | Required? |
+| Option							 | Description									 | Type	   | Default | Required? |
 | ---------------------------------- | ----------------------------------------------- | ---------- | ------- | --------- |
-| `--help`                           | Shows help                                      | `boolean`  |         | No        |
-| `--e, --env`                       | Environment for load                            | `string`   |         | Yes       |
-| `-m, --modes`                      | Execution modes                                 | `string[]` | `[]`    | No        |
-| `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten             | `string`   | `__`    | No        |
-| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays          | `boolean`  | `false` | No        |
-| `-x, --expand`                     | Interpolates environment variables using itself | `boolean`  | `false` | No        |
-| `-ci`                              | Continuous Integration mode                     | `boolean`  | `false` | No        |
+| `--help`						   | Shows help									  | `boolean`  |		 | No		|
+| `--e, --env`					   | Environment for load							| `string`   |		 | Yes	   |
+| `-m, --modes`					  | Execution modes								 | `string[]` | `[]`	| No		|
+| `--nd, --nestingDelimiter`		 | Nesting level delimiter for flatten			 | `string`   | `__`	| No		|
+| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays		  | `boolean`  | `false` | No		|
+| `-x, --expand`					 | Interpolates environment variables using itself | `boolean`  | `false` | No		|
+| `-ci`							  | Continuous Integration mode					 | `boolean`  | `false` | No		|
 
 </br>
 
 ### Workspace options
 
-| Option             | Description                       | Type     | Default                           | Required? |
+| Option			 | Description					   | Type	 | Default						   | Required? |
 | ------------------ | --------------------------------- | -------- | --------------------------------- | --------- |
-| `--root`           | Default environment folder path   | `string` | `env`                             | No        |
-| `-c, --configFile` | Config JSON file path             | `string` | `[[root]]/settings/settings.json` | No        |
-| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/settings/schema.json`   | No        |
+| `--root`		   | Default environment folder path   | `string` | `env`							 | No		|
+| `-c, --configFile` | Config JSON file path			 | `string` | `[[root]]/settings/settings.json` | No		|
+| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/settings/schema.json`   | No		|
 
 ### JSON Schema options
 
-| Option                 | Description                                                | Type              | Default | Required? |
+| Option				 | Description												| Type			  | Default | Required? |
 | ---------------------- | ---------------------------------------------------------- | ----------------- | ------- | --------- |
-| `-r, --resolve`        | Whether merges new schema or override                      | `merge, override` | `merge` | No        |
-| `--null, --nullable`   | Whether variables are nullable by default                  | `boolean`         | `true`  | No        |
-| `--df, --detectFormat` | Whether format of strings variables are included in schema | `boolean`         | `true`  | No        |
+| `-r, --resolve`		| Whether merges new schema or override					  | `merge, override` | `merge` | No		|
+| `--null, --nullable`   | Whether variables are nullable by default				  | `boolean`		 | `true`  | No		|
+| `--df, --detectFormat` | Whether format of strings variables are included in schema | `boolean`		 | `true`  | No		|
 
 ### Logger options
 
-| Option              | Description | Type                                     | Default | Required? |
+| Option			  | Description | Type									 | Default | Required? |
 | ------------------- | ----------- | ---------------------------------------- | ------- | --------- |
-| `--log, --logLevel` | Log level   | `silly, trace, debug, info, warn, error` | `info`  | No        |
+| `--log, --logLevel` | Log level   | `silly, trace, debug, info, warn, error` | `info`  | No		|
 
 <div align="center">
   <span style="font-size:20px;font-weight:bold" align="center">Commands</span>
@@ -287,9 +287,9 @@ Pulls environment variables from providers stores.
 env pull -e [env] [options..]
 ```
 
-| Option            | Description               | Type      | Default | Required? |
+| Option			| Description			   | Type	  | Default | Required? |
 | ----------------- | ------------------------- | --------- | ------- | --------- |
-| `-o, --overwrite` | Overwrite local variables | `boolean` | `false` | No        |
+| `-o, --overwrite` | Overwrite local variables | `boolean` | `false` | No		|
 
 Examples:
 
@@ -305,9 +305,9 @@ Pushes environment variables to providers stores.
 env push -e [env] [options..]
 ```
 
-| Option        | Description                          | Type      | Default | Required? |
+| Option		| Description						  | Type	  | Default | Required? |
 | ------------- | ------------------------------------ | --------- | ------- | --------- |
-| `-f, --force` | Force push for secrets (replace all) | `boolean` | `false` | No        |
+| `-f, --force` | Force push for secrets (replace all) | `boolean` | `false` | No		|
 
 Examples:
 
@@ -337,10 +337,10 @@ Export unified environment variables to a file from providers.
 env export -e [env] -m [modes] [options..]
 ```
 
-| Option          | Description                        | Type     | Default  | Required? |
+| Option		  | Description						| Type	 | Default  | Required? |
 | --------------- | ---------------------------------- | -------- | -------- | --------- |
-| `-u, -p, --uri` | Uri for export file with variables | `string` | `.env`   | No        |
-| `-f, --format`  | Format for export variables        | `string` | `dotenv` | No        |
+| `-u, -p, --uri` | Uri for export file with variables | `string` | `.env`   | No		|
+| `-f, --format`  | Format for export variables		| `string` | `dotenv` | No		|
 
 Examples:
 
@@ -365,17 +365,17 @@ Info read is:
 
 ```json
 {
-    "version": "1.0.0",
-    "project": "project-name",
-    "name": "@package-name",
-    "title": "app-name",
-    "description": "any description"
+	"version": "1.0.0",
+	"project": "project-name",
+	"name": "@package-name",
+	"title": "app-name",
+	"description": "any description"
 }
 ```
 
-| Option              | Description                 | Type     | Default | Required? |
+| Option			  | Description				 | Type	 | Default | Required? |
 | ------------------- | --------------------------- | -------- | ------- | --------- |
-| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
+| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`	| No		|
 
 Examples:
 
@@ -393,9 +393,9 @@ Non secrets loader for `appsettings.json`.
 
 ```json
 {
-    "|DEFAULT|": {},
-    "|MODE|": {},
-    "|ENV|": {}
+	"|DEFAULT|": {},
+	"|MODE|": {},
+	"|ENV|": {}
 }
 ```
 
@@ -403,43 +403,43 @@ In example:
 
 ```json
 {
-    "|DEFAULT|": {
-        "VAR1": "v1_default"
-    },
-    "|MODE|": {
-        "build": {
-            "NODE_ENV": "production"
-        },
-        "debug": {
-            "NODE_ENV": "development"
-        },
-        "test": {
-            "NODE_ENV": "test"
-        }
-    },
-    "|ENV|": {
-        "dev": {
-            "C1": "V1",
-            "C2": "V2",
-            "C3": 3,
-            "GROUP1": {
-                "VAR1": null,
-                "VAR2": "G1V2",
-                "VAR3": true,
-                "GROUP2": {
-                    "VAR1": "G1G2V1"
-                }
-            },
-            "C4": "23"
-        }
-    }
+	"|DEFAULT|": {
+		"VAR1": "v1_default"
+	},
+	"|MODE|": {
+		"build": {
+			"NODE_ENV": "production"
+		},
+		"debug": {
+			"NODE_ENV": "development"
+		},
+		"test": {
+			"NODE_ENV": "test"
+		}
+	},
+	"|ENV|": {
+		"dev": {
+			"C1": "V1",
+			"C2": "V2",
+			"C3": 3,
+			"GROUP1": {
+				"VAR1": null,
+				"VAR2": "G1V2",
+				"VAR3": true,
+				"GROUP2": {
+					"VAR1": "G1G2V1"
+				}
+			},
+			"C4": "23"
+		}
+	}
 }
 ```
 
-| Option                  | Description                          | Type     | Default                     | Required? |
+| Option				  | Description						  | Type	 | Default					 | Required? |
 | ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
-| `--ef, --envFile`       | Environment variables file path      | `string` | `[[root]]/appsettings.json` | No        |
-| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `` | No                     |
+| `--ef, --envFile`	   | Environment variables file path	  | `string` | `[[root]]/appsettings.json` | No		|
+| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `` | No					 |
 
 </br>
 
@@ -447,17 +447,17 @@ In example:
 
 Secrets loader for `env/[[env]].env.json`.
 
-| Option                | Description                | Type     | Default                     | Required? |
+| Option				| Description				| Type	 | Default					 | Required? |
 | --------------------- | -------------------------- | -------- | --------------------------- | --------- |
-| `--sf, --secretsFile` | Secret variables file path | `string` | `[[root]]/[[env]].env.json` | No        |
+| `--sf, --secretsFile` | Secret variables file path | `string` | `[[root]]/[[env]].env.json` | No		|
 
 -   ## **`local`**
 
 Local variables loader for `env/[[env]].local.env.json`.
 
-| Option              | Description               | Type     | Default                           | Required? |
+| Option			  | Description			   | Type	 | Default						   | Required? |
 | ------------------- | ------------------------- | -------- | --------------------------------- | --------- |
-| `--lf, --localFile` | Local variables file path | `string` | `[[root]]/[[env]].local.env.json` | No        |
+| `--lf, --localFile` | Local variables file path | `string` | `[[root]]/[[env]].local.env.json` | No		|
 
 -   ## **`package-json`**
 
@@ -467,17 +467,17 @@ Info read is:
 
 ```json
 {
-    "version": "1.0.0",
-    "project": "project-name",
-    "name": "@package-name",
-    "title": "app-name",
-    "description": "any description"
+	"version": "1.0.0",
+	"project": "project-name",
+	"name": "@package-name",
+	"title": "app-name",
+	"description": "any description"
 }
 ```
 
-| Option              | Description                 | Type     | Default | Required? |
+| Option			  | Description				 | Type	 | Default | Required? |
 | ------------------- | --------------------------- | -------- | ------- | --------- |
-| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
+| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`	| No		|
 
 Examples:
 
@@ -507,61 +507,61 @@ import { logger, readJson, writeJson } from '@calvear/env/utils';
 const KEY = 'my-unique-provider-key';
 
 interface MyProviderCommandArguments extends CommandArguments {
-    anyExtraOption: boolean;
+	anyExtraOption: boolean;
 }
 
 export const MyProvider: EnvProvider<MyProviderCommandArguments> = {
-    // unique identifier for provider
-    key: KEY,
+	// unique identifier for provider
+	key: KEY,
 
-    // (optional) allows to provider adds new arguments/options
-    // to commands using yargs for builder
-    builder: (builder) => {
-        builder.options({
-            anyExtraOption: {
-                group: KEY,
-                alias: ['a', 'aeo'],
-                type: 'boolean',
-                default: false,
-                describe: 'Any option description',
-            },
-        });
-    },
+	// (optional) allows to provider adds new arguments/options
+	// to commands using yargs for builder
+	builder: (builder) => {
+		builder.options({
+			anyExtraOption: {
+				group: KEY,
+				alias: ['a', 'aeo'],
+				type: 'boolean',
+				default: false,
+				describe: 'Any option description',
+			},
+		});
+	},
 
-    // call on environment variables loading,
-    // may be a Promise
-    load: ({ env, modes, ...options }) => {
-        if (env === 'dev')
-            return {
-                NODE_ENV: 'development',
-            };
+	// call on environment variables loading,
+	// may be a Promise
+	load: ({ env, modes, ...options }) => {
+		if (env === 'dev')
+			return {
+				NODE_ENV: 'development',
+			};
 
-        // you can return a list of JSON environment variables for merge
-        return [
-            {
-                NODE_ENV: 'production',
-                ANY_VAR: 'ABC', // will be replaced by value below
-            },
-            {
-                ANY_VAR: 'ANY_VALUE',
-                ANY_GROUP: {
-                    INNER_VAR: 12,
-                },
-            },
-        ];
-    },
+		// you can return a list of JSON environment variables for merge
+		return [
+			{
+				NODE_ENV: 'production',
+				ANY_VAR: 'ABC', // will be replaced by value below
+			},
+			{
+				ANY_VAR: 'ANY_VALUE',
+				ANY_GROUP: {
+					INNER_VAR: 12,
+				},
+			},
+		];
+	},
 
-    // (optional) call on pulling variables from provider store,
-    // config may pass in your config file
-    pull: ({ env, modes, ...options }, config) => {
-        // anyway you want for pulling variables to cache
-    },
+	// (optional) call on pulling variables from provider store,
+	// config may pass in your config file
+	pull: ({ env, modes, ...options }, config) => {
+		// anyway you want for pulling variables to cache
+	},
 
-    // (optional) call on pushing/updating variables to provider store,
-    // config may pass in your config file
-    push: ({ env, modes, ...options }, config) => {
-        // anyway you should do for pushing or updating your variables
-    },
+	// (optional) call on pushing/updating variables to provider store,
+	// config may pass in your config file
+	push: ({ env, modes, ...options }, config) => {
+		// anyway you should do for pushing or updating your variables
+	},
 };
 ```
 
@@ -575,41 +575,41 @@ You can configure any config argument inside you config file, but commonly provi
 
 ```javascript
 {
-    "log": "silly",
-    // will hide values of keys SECRET and MY_API_KEY in logging
-    "logMaskValuesOfKeys": ["SECRET", "MY_API_KEY"],
-    // integrated providers and custom providers together
-    "providers": [
-        {
-            "path": "package-json",
-            "type": "integrated"
-        },
-        {
-            "path": "app-settings",
-            "type": "integrated"
-        },
-        {
-            "path": "secrets",
-            "type": "integrated"
-        },
-        {
-            "path": "local",
-            "type": "integrated"
-        },
-        {
-            // custom NPM package
-            "path": "@npm-package",
-            "type": "module",
-            "config": {
-                "any-config": "any value"
-            }
-        },
-        {
-            // custom script inside project
-            "path": "scripts/custom-loader.js",
-            "type": "script"
-        }
-    ]
+	"log": "silly",
+	// will hide values of keys SECRET and MY_API_KEY in logging
+	"logMaskValuesOfKeys": ["SECRET", "MY_API_KEY"],
+	// integrated providers and custom providers together
+	"providers": [
+		{
+			"path": "package-json",
+			"type": "integrated"
+		},
+		{
+			"path": "app-settings",
+			"type": "integrated"
+		},
+		{
+			"path": "secrets",
+			"type": "integrated"
+		},
+		{
+			"path": "local",
+			"type": "integrated"
+		},
+		{
+			// custom NPM package
+			"path": "@npm-package",
+			"type": "module",
+			"config": {
+				"any-config": "any value"
+			}
+		},
+		{
+			// custom script inside project
+			"path": "scripts/custom-loader.js",
+			"type": "script"
+		}
+	]
 }
 ```
 
@@ -620,11 +620,11 @@ You can configure any config argument inside you config file, but commonly provi
 -   [x] Environment injection handling
 -   [x] Customizable variables store providers
 -   [x] Commands
-    -   [x] `push` executes a pushing action over every providers
-    -   [x] `pull` executes a pulling action over every providers
-    -   [x] `schema` regenerates JSON schema using providers output
-    -   [x] `export` exports environment variables in json or dotenv format
-    -   [ ] `prepare` prepares environment (creates folder and files required)
+	-   [x] `push` executes a pushing action over every providers
+	-   [x] `pull` executes a pulling action over every providers
+	-   [x] `schema` regenerates JSON schema using providers output
+	-   [x] `export` exports environment variables in json or dotenv format
+	-   [ ] `prepare` prepares environment (creates folder and files required)
 -   [ ] Improve documentation
 -   [ ] Providers pull history
 -   [ ] Providers pull and push difference calc and prompts

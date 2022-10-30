@@ -7,10 +7,10 @@ import { Arguments, Argv } from 'yargs';
  * @type EnvResult
  */
 export type EnvResult =
-    | Record<string, unknown>
-    | Record<string, unknown>[]
-    | Promise<Record<string, unknown>>
-    | Promise<Record<string, unknown>[]>;
+	| Record<string, unknown>
+	| Record<string, unknown>[]
+	| Promise<Record<string, unknown>>
+	| Promise<Record<string, unknown>[]>;
 
 /**
  * Wrapped provider result for inject to env.
@@ -19,9 +19,9 @@ export type EnvResult =
  * @interface EnvProviderResult
  */
 export interface EnvProviderResult {
-    key: string;
-    config?: Record<string, unknown>;
-    value: Record<string, any> | Record<string, any>[];
+	key: string;
+	config?: Record<string, unknown>;
+	value: Record<string, any> | Record<string, any>[];
 }
 
 /**
@@ -33,23 +33,23 @@ export interface EnvProviderResult {
  * @template C define config used by provider
  */
 export interface EnvProvider<
-    A,
-    C extends Record<string, any> | undefined = undefined
+	A,
+	C extends Record<string, any> | undefined = undefined
 > {
-    // unique key
-    key: string;
+	// unique key
+	key: string;
 
-    // modifies command building (adds or modifies commands, options .etc)
-    builder?: (builder: Argv<unknown>) => void;
+	// modifies command building (adds or modifies commands, options .etc)
+	builder?: (builder: Argv<unknown>) => void;
 
-    // loads environment variables.
-    load: (argv: Arguments<A>, config?: C) => EnvResult | never;
+	// loads environment variables.
+	load: (argv: Arguments<A>, config?: C) => EnvResult | never;
 
-    // pulls vars
-    pull?: (argv: Arguments<A>, config?: C) => void;
+	// pulls vars
+	pull?: (argv: Arguments<A>, config?: C) => void;
 
-    // push vars
-    push?: (argv: Arguments<A>, config?: C) => void;
+	// push vars
+	push?: (argv: Arguments<A>, config?: C) => void;
 }
 
 /**
@@ -59,8 +59,8 @@ export interface EnvProvider<
  * @interface EnvProviderConfig
  */
 export interface EnvProviderConfig {
-    path: string;
-    type: 'integrated' | 'module' | 'script';
-    handler: EnvProvider<any, any>;
-    config?: Record<string, unknown>;
+	path: string;
+	type: 'integrated' | 'module' | 'script';
+	handler: EnvProvider<any, any>;
+	config?: Record<string, unknown>;
 }

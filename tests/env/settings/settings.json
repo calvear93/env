@@ -1,21 +1,21 @@
 {
-    "logMaskValuesOfKeys": ["SECRET"],
-    "providers": [
-        {
-            "path": "package-json",
-            "type": "integrated"
-        },
-        {
-            "path": "app-settings",
-            "type": "integrated"
-        },
-        {
-            "path": "secrets",
-            "type": "integrated"
-        },
-        {
-            "path": "local",
-            "type": "integrated"
-        }
-    ]
+	"logMaskValuesOfKeys": ["SECRET"],
+	"providers": [
+		{
+			"path": "package-json",
+			"type": "integrated"
+		},
+		{
+			"path": "app-settings",
+			"type": "integrated"
+		},
+		{
+			"path": "secrets",
+			"type": "integrated"
+		},
+		{
+			"path": "local",
+			"type": "integrated"
+		}
+	]
 }

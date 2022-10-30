@@ -12,7 +12,7 @@ import { readFile, writeFile } from 'fs/promises';
  * @returns {any} value
  */
 const replacer = (_: string, value: any): typeof value | null =>
-    value === undefined ? null : value;
+	value === undefined ? null : value;
 
 /**
  * Resolve a relative path for os.
@@ -23,12 +23,12 @@ const replacer = (_: string, value: any): typeof value | null =>
  * @returns {string} path
  */
 export function resolvePath(filePath: string): string {
-    const home = os.homedir();
+	const home = os.homedir();
 
-    if (home !== undefined)
-        filePath = filePath.replace(/^~($|\/|\\)/, `${home}$1`);
+	if (home !== undefined)
+		filePath = filePath.replace(/^~($|\/|\\)/, `${home}$1`);
 
-    return path.resolve(process.cwd(), filePath);
+	return path.resolve(process.cwd(), filePath);
 }
 
 /**
@@ -41,11 +41,11 @@ export function resolvePath(filePath: string): string {
  * @returns {Promise<[Record<string, any>, boolean]>}
  */
 export async function readJson<T = Record<string, any>>(
-    path: string
+	path: string
 ): Promise<[T | Record<string, any>, boolean] | never> {
-    if (!existsSync(path)) return [{}, false];
+	if (!existsSync(path)) return [{}, false];
 
-    return [JSON.parse(await readFile(path, 'utf8')), true];
+	return [JSON.parse(await readFile(path, 'utf8')), true];
 }
 
 /**
@@ -60,26 +60,26 @@ export async function readJson<T = Record<string, any>>(
  * @returns {Promise<boolean>}
  */
 export async function writeJson(
-    path: string,
-    content: Record<string, unknown>,
-    overwrite = false,
-    undefinedAsNull = false
+	path: string,
+	content: Record<string, unknown>,
+	overwrite = false,
+	undefinedAsNull = false
 ): Promise<boolean | never> {
-    const exists = existsSync(path);
+	const exists = existsSync(path);
 
-    if (exists && !overwrite) return false;
+	if (exists && !overwrite) return false;
 
-    await writeFile(
-        path,
-        `${JSON.stringify(
-            content,
-            undefinedAsNull ? replacer : undefined,
-            4
-        )}\n`,
-        'utf8'
-    );
+	await writeFile(
+		path,
+		`${JSON.stringify(
+			content,
+			undefinedAsNull ? replacer : undefined,
+			4
+		)}\n`,
+		'utf8'
+	);
 
-    return true;
+	return true;
 }
 
 /**
@@ -93,24 +93,24 @@ export async function writeJson(
  * @returns {Promise<boolean>}
  */
 export async function writeEnvFromJson(
-    path: string,
-    content: Record<string, unknown>,
-    overwrite = false
+	path: string,
+	content: Record<string, unknown>,
+	overwrite = false
 ): Promise<boolean | never> {
-    const exists = existsSync(path);
+	const exists = existsSync(path);
 
-    if (exists && !overwrite) return false;
+	if (exists && !overwrite) return false;
 
-    let data = '';
+	let data = '';
 
-    for (const key in content) {
-        let value = content[key];
-        if (typeof value === 'string') value = `"${value}"`;
+	for (const key in content) {
+		let value = content[key];
+		if (typeof value === 'string') value = `"${value}"`;
 
-        data += `${key}=${value}\n`;
-    }
+		data += `${key}=${value}\n`;
+	}
 
-    await writeFile(path, data, 'utf8');
+	await writeFile(path, data, 'utf8');
 
-    return true;
+	return true;
 }
