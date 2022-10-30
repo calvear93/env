@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2022-10-30
+
+-   updates
+
 ## [2.3.0] - 2022-10-21
 
 -   migrated to PNPM
