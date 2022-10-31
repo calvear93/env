@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import merge from 'merge-deep';
+import { join } from 'node:path';
 import { Arguments } from 'yargs';
 import { CommandArguments } from 'arguments';
 import { EnvCommandArguments } from 'commands/env.command';
@@ -94,17 +95,17 @@ export async function loadSchemaFile(
  * @export
  * @returns {Promise<Record<string, unknown>> | never}
  */
-export async function loadProjectInfo(): Promise<
-	Record<string, unknown> | undefined
-> {
+export async function loadProjectInfo(
+	relativePath = ''
+): Promise<Record<string, unknown>> {
 	try {
-		return await import(`${process.cwd()}/package.json`);
+		return await import(join(process.cwd(), relativePath, 'package.json'));
 	} catch {
 		logger.warn(
 			`project file ${chalk.underline.yellow('package.json')} not found`
 		);
 
-		return undefined;
+		return {};
 	}
 }
 

@@ -194,8 +194,8 @@ function build(
 
 			// loads environment JSON schema if exists
 			// and current project info from package.json
-			[argv.app, argv.schema] = await Promise.all([
-				loadProjectInfo(),
+			[argv.projectInfo, argv.schema] = await Promise.all([
+				loadProjectInfo((argv.packageJson ?? argv.pkg) as string),
 				loadSchemaFile(argv, config.delimiters.template)
 			]);
 

@@ -25,15 +25,17 @@ export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
 		});
 	},
 
-	load: ({ env = 'development', app, packageInfoPrefix }) => {
+	load: ({ env = 'development', projectInfo, packageInfoPrefix }) => {
+		const { version, project, name, title, description } = projectInfo;
+
 		return {
 			[`${packageInfoPrefix}ENV`]: env,
 
-			[`${packageInfoPrefix}VERSION`]: app?.version,
-			[`${packageInfoPrefix}PROJECT`]: app?.project,
-			[`${packageInfoPrefix}NAME`]: app?.name,
-			[`${packageInfoPrefix}TITLE`]: app?.title,
-			[`${packageInfoPrefix}DESCRIPTION`]: app?.description
+			[`${packageInfoPrefix}VERSION`]: version,
+			[`${packageInfoPrefix}PROJECT`]: project,
+			[`${packageInfoPrefix}NAME`]: name,
+			[`${packageInfoPrefix}TITLE`]: title,
+			[`${packageInfoPrefix}DESCRIPTION`]: description
 		};
 	}
 };

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0] - 2022-10-31
+
+-   package.json pah param
+
 ## [2.3.0] - 2022-10-30
 
 -   updates

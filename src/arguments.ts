@@ -13,7 +13,7 @@ const GROUPS = {
 export interface CommandArguments extends Arguments {
 	env: string;
 	modes?: string[];
-	app?: Record<string, unknown>;
+	projectInfo: Record<string, unknown>;
 	schema?: Record<string, JSONSchemaType<object>>;
 	providers: EnvProviderConfig[];
 	ci: boolean;
@@ -23,6 +23,7 @@ export interface CommandArguments extends Arguments {
 	root: string;
 	configFile: string;
 	schemaFile: string;
+	packageJson: string;
 	resolve: 'merge' | 'override';
 	nullable: boolean;
 	detectFormat: boolean;
@@ -93,6 +94,13 @@ export const args: Record<keyof CommandArguments, Options> = {
 		type: 'string',
 		default: '[[root]]/settings/schema.json',
 		describe: 'Environment Schema JSON file path'
+	},
+	packageJson: {
+		group: GROUPS.GROUP_WORKSPACE,
+		alias: ['pkg'],
+		type: 'string',
+		default: '',
+		describe: 'package.json path'
 	},
 	resolve: {
 		group: GROUPS.JSON_SCHEMA_WORKSPACE,
