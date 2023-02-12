@@ -5,7 +5,7 @@ import { exec, execEnv } from './exec';
  */
 function setup(): void {
 	// builds application
-	exec('npm run build');
+	exec('pnpm build');
 	// generates schema from environment variables
 	execEnv('schema', '-e dev', '-m debug');
 }
