@@ -104,8 +104,8 @@ export async function writeEnvFromJson(
 	let data = '';
 
 	for (const key in content) {
-		let value = content[key];
-		if (typeof value === 'string') value = `"${value}"`;
+		const value = content[key];
+		// if (typeof value === 'string') value = `"${value}"`;
 
 		data += `${key}=${value}\n`;
 	}

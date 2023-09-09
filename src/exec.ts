@@ -187,8 +187,17 @@ function build(
 				)
 			);
 
+			const subcmdAux = argv.subcmd as string[];
 			// applies string templating with current vars
 			interpolateJson(argv, argv, config.delimiters.template);
+
+			if (Array.isArray(argv.subcmd)) {
+				// fix for argv interpolation pre env interpolation for subcommand
+				for (const index in argv.subcmd) {
+					if (argv.subcmd[index]?.includes('undefined'))
+						argv.subcmd[index] = subcmdAux[index];
+				}
+			}
 
 			logger.silly('config loaded:', argv);
 

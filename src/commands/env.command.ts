@@ -105,7 +105,10 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 		}
 
 		env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
-		if (expand) env = interpolate(env, env);
+		if (expand) {
+			env = interpolate(env, env);
+			argv.subcmd = interpolate(argv.subcmd, env);
+		}
 
 		logger.debug('environment loaded:', env);
 
