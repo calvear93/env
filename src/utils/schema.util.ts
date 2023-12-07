@@ -44,6 +44,8 @@ export function schemaFrom(
 				schema.nullable = options?.nullable ?? false;
 			}
 
+			if (value === null || value === undefined) schema.nullable = true;
+
 			return defaultFunc(type, schema, value);
 		}
 	});
