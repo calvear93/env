@@ -1,4 +1,4 @@
-import isCi from '@npmcli/ci-detect';
+import ci from 'ci-info';
 import { JSONSchemaType } from 'ajv';
 import { Arguments, Options } from 'yargs';
 import { EnvProviderConfig } from './interfaces';
@@ -53,7 +53,7 @@ export const args: Record<keyof CommandArguments, Options> = {
 	ci: {
 		alias: 'ci',
 		type: 'boolean',
-		default: isCi(),
+		default: ci.isCI,
 		describe: 'Whether providers executes in continuous integration mode'
 	},
 	nestingDelimiter: {
