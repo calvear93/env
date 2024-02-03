@@ -113,10 +113,7 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 		logger.debug('environment loaded:', env);
 
 		// loads env vars to process.env
-		process.env = {
-			...process.env,
-			...env
-		};
+		for (const varname in env) process.env[varname] = env[varname];
 
 		logger.info(
 			'executing command >',

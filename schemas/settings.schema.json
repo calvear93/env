@@ -1,0 +1,122 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "EnvSettings Schema",
+	"description": "settings.json schema definition.",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"description": "Environment Lib settings schema definition",
+			"type": "string"
+		},
+		"providers": {
+			"description": "Providers handling variables loading",
+			"title": "Environment providers",
+			"additionalProperties": false,
+			"type": "array",
+			"default": [
+				{
+					"path": "package-json"
+				},
+				{
+					"path": "app-settings"
+				},
+				{
+					"path": "local"
+				}
+			],
+			"items": {
+				"type": "object",
+				"properties": {
+					"path": {
+						"type": "string"
+					},
+					"config": {
+						"description": "Provider config.",
+						"title": "Provider config",
+						"additionalProperties": true,
+						"type": "object",
+						"default": {}
+					}
+				},
+				"required": ["path"]
+			}
+		},
+		"nullable": {
+			"description": "Whether variables are nullable",
+			"type": "boolean",
+			"default": true
+		},
+		"schemaValidate": {
+			"description": "Whether validates variables using JSON schema",
+			"type": "boolean",
+			"default": true
+		},
+		"nestingDelimiter": {
+			"description": "Nesting level delimiter for flatten, i.e. { l1: { l2: \"value\" } } turns into { l1__l2: \"value\" }",
+			"type": "string",
+			"default": "__"
+		},
+		"arrayDescomposition": {
+			"description": "Whether serialize or break down arrays",
+			"type": "boolean",
+			"default": false
+		},
+		"schemaFile": {
+			"description": "Environment Schema JSON file path",
+			"type": "string",
+			"default": "[[root]]/settings/schema.json"
+		},
+		"packageJson": {
+			"description": "package.json path",
+			"type": "string",
+			"default": ""
+		},
+		"resolve": {
+			"description": "Whether merges new schema or override",
+			"type": "string",
+			"enum": ["merge", "override"],
+			"default": "merge"
+		},
+		"detectFormat": {
+			"description": "Whether variables are nullable",
+			"type": "boolean",
+			"default": false
+		},
+		"logLevel": {
+			"description": "Log level",
+			"enum": ["silly", "trace", "debug", "info", "warn", "error"],
+			"type": "string",
+			"default": "info"
+		},
+		"logMaskAnyRegEx": {
+			"description": "Regex for hide sensitive information matching by it's key.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"default": []
+		},
+		"logMaskValuesOfKeys": {
+			"description": "Keys for hide sensitive information",
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"default": []
+		},
+		"exportIgnoreKeys": {
+			"description": "Ignored keys values on export command.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"default": []
+		},
+		"expand": {
+			"description": ".",
+			"type": "boolean",
+			"default": true
+		}
+	}
+}

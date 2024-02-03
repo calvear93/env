@@ -55,7 +55,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 
 		return builder;
 	},
-	handler: async ({ providers, expand, ...argv }) => {
+	handler: async ({ providers, expand, exportIgnoreKeys, ...argv }) => {
 		const results = await loadVariablesFromProviders(providers, argv);
 
 		let env = merge(
@@ -67,6 +67,10 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 		env = flatten(env, argv.nestingDelimiter);
 		env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 		if (expand) env = interpolate(env, env);
+		if (exportIgnoreKeys) {
+			logger.silly('ignoring:', exportIgnoreKeys);
+			for (const keyname of exportIgnoreKeys) delete env[keyname];
+		}
 
 		logger.debug('environment loaded:', env);
 

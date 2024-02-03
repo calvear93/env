@@ -30,6 +30,7 @@ export interface CommandArguments extends Arguments {
 	logLevel?: 'silly' | 'trace' | 'debug' | 'info' | 'warn' | 'error';
 	logMaskAnyRegEx?: string[];
 	logMaskValuesOfKeys?: string[];
+	exportIgnoreKeys?: string[];
 }
 
 // common CLI arguments
@@ -141,6 +142,13 @@ export const args: Record<keyof CommandArguments, Options> = {
 	logMaskValuesOfKeys: {
 		group: GROUPS.LOG_WORKSPACE,
 		alias: 'mvk',
+		type: 'array',
+		hidden: true,
+		default: []
+	},
+	exportIgnoreKeys: {
+		group: GROUPS.JSON_SCHEMA_WORKSPACE,
+		alias: 'iek',
 		type: 'array',
 		hidden: true,
 		default: []
