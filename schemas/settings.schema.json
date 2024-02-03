@@ -81,7 +81,7 @@
 		"detectFormat": {
 			"description": "Whether variables are nullable",
 			"type": "boolean",
-			"default": false
+			"default": true
 		},
 		"logLevel": {
 			"description": "Log level",
