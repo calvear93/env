@@ -185,7 +185,7 @@ export function flatAndValidateResults(
 
 		const validator = validators![key];
 
-		if (validator?.(value)) return value;
+		if (!validator || validator?.(value)) return value;
 
 		logger.error(
 			`schema validation failed for ${chalk.yellow(key)}`,
