@@ -124,7 +124,13 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 			stdio: 'inherit',
 			shell: true
 		}).on('exit', (code) => {
-			logger.info('process finished');
+			if (code === 0) {
+				logger.info('process finished successfully');
+			} else if (code === 1) {
+				logger.error('process finished with error');
+
+				process.exit(code);
+			}
 		});
 	}
 };
