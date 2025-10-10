@@ -64,7 +64,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 		);
 
 		// results normalization merging
-		env = flatten(env, argv.nestingDelimiter);
+		// env = flatten(env, argv.nestingDelimiter);
 		env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 		if (expand) env = interpolate(env, env);
 		if (exportIgnoreKeys) {

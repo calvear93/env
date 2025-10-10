@@ -185,11 +185,20 @@ export function flatAndValidateResults(
 	const validators = createValidators(argv.schema!, argv.detectFormat);
 
 	return results.flatMap(({ key, value }) => {
-		if (Array.isArray(value)) value = merge({}, ...value);
+		let baseValue = value;
+		if (Array.isArray(value)) {
+			value = merge({}, ...value);
+			baseValue = merge(
+				{},
+				...baseValue.map((v: any) => flatten(v, argv.nestingDelimiter))
+			);
+		} else {
+			baseValue = flatten(value, argv.nestingDelimiter);
+		}
 
 		const validator = validators![key];
 
-		if (!validator || validator?.(value)) return value;
+		if (!validator || validator?.(value)) return baseValue;
 
 		logger.error(
 			`schema validation failed for ${chalk.yellow(key)}`,
