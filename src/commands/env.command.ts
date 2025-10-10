@@ -73,8 +73,11 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 	handler: async ({ providers, schemaValidate, expand, ...argv }) => {
 		const results = await loadVariablesFromProviders(providers, argv);
 
-		let env = merge({ NODE_ENV: 'development' }, ...flatResults(results));
-		env = flatten(env, argv.nestingDelimiter);
+		let env = merge(
+			{ NODE_ENV: 'development' },
+			...flatResults(results, argv.nestingDelimiter)
+		);
+		// env = flatten(env, argv.nestingDelimiter);
 
 		if (schemaValidate) {
 			let schema = {};

@@ -7,6 +7,7 @@ import { EnvCommandArguments } from 'commands/env.command';
 import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
 import {
 	createValidators,
+	flatten,
 	interpolate,
 	logger,
 	readJson,
@@ -153,10 +154,12 @@ export function loadVariablesFromProviders(
  * @returns {EnvProviderResult[]} flatten results
  */
 export function flatResults(
-	results: EnvProviderResult[]
+	results: EnvProviderResult[],
+	nestingDelimiter = '__'
 ): EnvProviderResult[] | never {
 	return results.flatMap(({ value }) => {
-		if (Array.isArray(value)) value = merge({}, ...value);
+		if (Array.isArray(value))
+			return merge({}, ...value.map((v) => flatten(v, nestingDelimiter)));
 
 		return value;
 	});
@@ -176,7 +179,8 @@ export function flatAndValidateResults(
 	results: EnvProviderResult[],
 	argv: Partial<Arguments<EnvCommandArguments>>
 ): EnvProviderResult[] | never {
-	if (!argv.schemaValidate) return flatResults(results);
+	if (!argv.schemaValidate)
+		return flatResults(results, argv.nestingDelimiter);
 
 	const validators = createValidators(argv.schema!, argv.detectFormat);
 
@@ -213,16 +217,19 @@ export async function generateSchemaFrom(
 	const { resolve, nullable, detectFormat, schemaFile } = argv;
 
 	// generates schemas from proviers results
-	let schema = env.reduce((schema, { key, value }) => {
-		const env = Array.isArray(value) ? merge({}, ...value) : value;
+	let schema = env.reduce(
+		(schema, { key, value }) => {
+			const env = Array.isArray(value) ? merge({}, ...value) : value;
 
-		schema[key] = schemaFrom(env, {
-			nullable,
-			strings: { detectFormat }
-		});
+			schema[key] = schemaFrom(env, {
+				nullable,
+				strings: { detectFormat }
+			});
 
-		return schema;
-	}, {} as Record<string, unknown>);
+			return schema;
+		},
+		{} as Record<string, unknown>
+	);
 
 	if (resolve === 'merge') schema = merge(argv.schema, schema);
 
