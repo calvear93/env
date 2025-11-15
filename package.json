@@ -1,5 +1,5 @@
 {
-	"version": "2.10.5",
+	"version": "2.10.6",
 	"project": "common",
 	"name": "@calvear/env",
 	"title": "Environment Variables CLI Tool",

@@ -123,7 +123,8 @@ export const envCommand: CommandModule<any, EnvCommandArguments> = {
 			chalk.bold.yellow(argv.subcmd.join(' '))
 		);
 
-		spawn(argv.subcmd[0], argv.subcmd.slice(1), {
+		const cmdProcess = argv.subcmd.join(' ');
+		spawn(cmdProcess, {
 			stdio: 'inherit',
 			shell: true
 		}).on('exit', (code) => {
