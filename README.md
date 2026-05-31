@@ -1,5 +1,5 @@
 <div id="top" align="center">
-  <img alt="@calvear/env logo" src="https://cdn.jsdelivr.net/npm/@calvear/env@^3.0.0/assets/logo.svg" width="150" />
+  <img alt="@calvear/env logo" src="assets/logo.svg" width="150" />
 
   <h1 align="center"><b>env</b></h1>
   <h4 align="center">Environment variables made easy — load, validate, inject.</h4>
