@@ -21,10 +21,6 @@ const isExternal = (id: string): boolean =>
 
 export default {
 	clearScreen: false,
-	// vite 8 resolves tsconfig `paths` natively (replaces vite-tsconfig-paths)
-	resolve: {
-		tsconfigPaths: true,
-	},
 	build: {
 		sourcemap: compilerOptions.sourceMap,
 		target: compilerOptions.target,
@@ -54,4 +50,8 @@ export default {
 			include: ['src'],
 		}),
 	],
+	// vite 8 resolves tsconfig `paths` natively (replaces vite-tsconfig-paths)
+	resolve: {
+		tsconfigPaths: true,
+	},
 } satisfies UserConfigExport;
