@@ -1,20 +1,16 @@
-import chalk from 'chalk';
-import { CommandArguments } from '../arguments';
-import { EnvProvider } from '../interfaces';
-import { logger, readJson, writeJson } from '../utils';
+import pc from 'picocolors';
+import type { CommandArguments } from '../arguments.js';
+import type { EnvProvider } from '../interfaces/index.js';
+import { logger as globalLogger, readJson } from '../utils/index.js';
 
 const KEY = 'app-settings';
 
-const APP_SETTINGS_DEFAULT = {
-	'|DEFAULT|': {},
-	'|MODE|': {},
-	'|ENV|': {},
-	'|LOCAL|': {}
-};
+const logger = globalLogger.getSubLogger({
+	prefix: [pc.bold(pc.blue(`[${KEY}]`))],
+});
 
 interface AppSettingsCommandArguments extends CommandArguments {
 	envFile: string;
-	sectionPrefix: string;
 }
 
 /**
@@ -26,48 +22,55 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 	builder: (builder) => {
 		builder.options({
 			envFile: {
-				group: KEY,
 				alias: 'ef',
-				type: 'string',
 				default: '[[root]]/appsettings.json',
-				describe: 'Environment variables file path (non secrets)'
-			},
-			sectionPrefix: {
+				describe: 'Environment variables file path (non secrets)',
 				group: KEY,
-				alias: 'sp',
 				type: 'string',
-				default: '',
-				describe: 'Prefix for env and modes in env file'
-			}
+			},
 		});
 	},
 
-	load: async ({ env, modes = [], envFile, sectionPrefix, ci }) => {
-		const [appsettings = APP_SETTINGS_DEFAULT, wasFound] = await readJson(
-			envFile
-		);
+	load: async ({ ci, env, envFile, modes = [], root }) => {
+		const [appsettings = {}, wasFound] = await readJson(envFile);
 
-		if (!wasFound) {
-			logger.warn(`${chalk.blue(envFile)} not found`);
+		if (!wasFound) logger.warn(`${pc.blue(envFile)} not found`);
 
-			logger.debug(`creating default ${chalk.blue(envFile)} file`);
+		const composite =
+			appsettings['|DEFAULT|'] ||
+			appsettings['|ENV|'] ||
+			appsettings['|MODE|'] ||
+			appsettings['|LOCAL|'];
 
-			await writeJson(envFile, APP_SETTINGS_DEFAULT);
-		}
+		const unitary = await Promise.all([
+			readJson(`${root}/appsettings.${env}.json`).then(
+				([settings]) => settings,
+			),
+			readJson(`${root}/appsettings.${env}.local.json`).then(
+				([settings]) => (ci ? {} : settings),
+			),
+			...modes.map((mode) =>
+				readJson(`${root}/appsettings.${mode}.json`).then(
+					([settings]) => settings,
+				),
+			),
+		]);
 
 		// only load local in env load cmd
 		if (ci) appsettings['|LOCAL|'] = null;
 
 		return [
+			composite ? {} : appsettings,
+
 			appsettings['|DEFAULT|'],
 
-			appsettings['|ENV|']?.[`${sectionPrefix}${env}`],
+			appsettings['|ENV|']?.[env],
 
-			...modes.map(
-				(mode) => appsettings['|MODE|']?.[`${sectionPrefix}${mode}`]
-			),
+			...modes.map((mode) => appsettings['|MODE|']?.[mode]),
 
-			appsettings['|LOCAL|']?.[`${sectionPrefix}${env}`]
+			appsettings['|LOCAL|']?.[env],
+
+			...unitary,
 		];
-	}
+	},
 };

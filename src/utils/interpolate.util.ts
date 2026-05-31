@@ -24,14 +24,16 @@ export function isRecord(obj: unknown): obj is Record<string, unknown> {
  *
  * @returns {T} mutated value
  */
-export function interpolate<T extends string | unknown>(
+export function interpolate<T>(
 	value: T,
 	args: Record<string, unknown>,
-	delimiters: [string, string] = ['[[', ']]']
+	delimiters: [string, string] = ['[[', ']]'],
 ): T {
 	if (typeof value === 'string') {
+		if (!value.includes(delimiters[0])) return value as T;
+
 		return subslate(value, args, {
-			startStopPairs: delimiters
+			startStopPairs: delimiters,
 		}) as T;
 	}
 
@@ -56,7 +58,7 @@ export function interpolate<T extends string | unknown>(
 export function interpolateJson(
 	values: Record<string, unknown>,
 	args: Record<string, unknown>,
-	delimiters: [string, string] = ['[[', ']]']
+	delimiters: [string, string] = ['[[', ']]'],
 ): Record<string, unknown> {
 	for (const key in values)
 		values[key] = interpolate(values[key], args, delimiters);

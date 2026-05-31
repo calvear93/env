@@ -1,13 +1,13 @@
-import chalk from 'chalk';
-import { existsSync } from 'fs';
-import { CommandArguments } from '../arguments';
-import { EnvProvider } from '../interfaces';
-import { logger as globalLogger, readJson, writeJson } from '../utils';
+import { existsSync } from 'node:fs';
+import pc from 'picocolors';
+import type { CommandArguments } from '../arguments.js';
+import type { EnvProvider } from '../interfaces/index.js';
+import { logger as globalLogger, readJson, writeJson } from '../utils/index.js';
 
 const KEY = 'local';
 
-const logger = globalLogger.getChildLogger({
-	prefix: [chalk.bold.blue(`[${KEY}]`)]
+const logger = globalLogger.getSubLogger({
+	prefix: [pc.bold(pc.blue(`[${KEY}]`))],
 });
 
 interface LocalCommandArguments extends CommandArguments {
@@ -23,21 +23,21 @@ export const LocalProvider: EnvProvider<LocalCommandArguments> = {
 	builder: (builder) => {
 		builder.options({
 			localFile: {
-				group: KEY,
 				alias: 'lf',
-				type: 'string',
 				default: '[[root]]/[[env]].local.env.json',
-				describe: 'Local secret variables file path'
-			}
+				describe: 'Local secret variables file path',
+				group: KEY,
+				type: 'string',
+			},
 		});
 	},
 
-	load: async ({ env, localFile, ci }) => {
+	load: async ({ ci, env, localFile }) => {
 		// ci mode doesn't load local vars
 		if (ci) return [];
 
 		if (!env) {
-			logger.silly('no env, provider skipped');
+			logger.silly('no env, so skipping provider');
 
 			return [];
 		}
@@ -51,5 +51,5 @@ export const LocalProvider: EnvProvider<LocalCommandArguments> = {
 		const [vars] = await readJson(localFile);
 
 		return [vars];
-	}
+	},
 };

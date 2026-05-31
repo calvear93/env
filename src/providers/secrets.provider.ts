@@ -1,12 +1,12 @@
-import chalk from 'chalk';
-import { CommandArguments } from '../arguments';
-import { EnvProvider } from '../interfaces';
-import { logger as globalLogger, readJson } from '../utils';
+import pc from 'picocolors';
+import type { CommandArguments } from '../arguments.js';
+import type { EnvProvider } from '../interfaces/index.js';
+import { logger as globalLogger, readJson } from '../utils/index.js';
 
 const KEY = 'secrets';
 
-const logger = globalLogger.getChildLogger({
-	prefix: [chalk.bold.blue(`[${KEY}]`)]
+const logger = globalLogger.getSubLogger({
+	prefix: [pc.bold(pc.blue(`[${KEY}]`))],
 });
 
 interface SecretsCommandArguments extends CommandArguments {
@@ -22,12 +22,12 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
 	builder: (builder) => {
 		builder.options({
 			secretsFile: {
-				group: KEY,
 				alias: 'sf',
-				type: 'string',
 				default: '[[root]]/[[env]].env.json',
-				describe: 'Secret variables file path'
-			}
+				describe: 'Secret variables file path',
+				group: KEY,
+				type: 'string',
+			},
 		});
 	},
 
@@ -41,5 +41,5 @@ export const SecretsProvider: EnvProvider<SecretsCommandArguments> = {
 		const [secrets] = await readJson(secretsFile);
 
 		return [secrets];
-	}
+	},
 };

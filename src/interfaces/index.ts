@@ -1,1 +1,1 @@
-export * from './loader.interface';
+export * from './loader.interface.js';

@@ -4,18 +4,16 @@
  *
  * @param {Record<string, any>} obj
  * @param {string} nestingDelimiter char for delimit nesting levels
- * @param {boolean} arrayDescomposition serialize or break down arrays
- * @param {boolean} clearNull if null should removed from object
  * @param {string} pkey first level key
  *
- * @returns {Record<string, string>} flattended object
+ * @returns {Record<string, unknown>} flattened object
  */
 export function flatten(
 	obj: Record<string, any>,
 	nestingDelimiter = '__',
-	pkey = ''
-): Record<string, string> {
-	const flattened: Record<string, string> = {};
+	pkey = '',
+): Record<string, unknown> {
+	const flattened: Record<string, unknown> = {};
 
 	for (let key in obj) {
 		const value = obj[key];
@@ -35,7 +33,7 @@ export function flatten(
 
 		Object.assign(
 			flattened,
-			flatten(value, nestingDelimiter, `${key}${nestingDelimiter}`)
+			flatten(value, nestingDelimiter, `${key}${nestingDelimiter}`),
 		);
 	}
 
@@ -52,15 +50,15 @@ export function flatten(
  * @param {boolean} arrayDescomposition serialize or break down arrays
  * @param {string} pkey first level key
  *
- * @returns {Record<string, string>} normalized object
+ * @returns {Record<string, unknown>} normalized object
  */
 export function normalize(
 	obj: Record<string, any>,
 	nestingDelimiter = '__',
 	arrayDescomposition = false,
-	pkey = ''
-): Record<string, string> {
-	const flattened: Record<string, string> = {};
+	pkey = '',
+): Record<string, unknown> {
+	const flattened: Record<string, unknown> = {};
 
 	for (let key in obj) {
 		const value = obj[key];
@@ -69,8 +67,8 @@ export function normalize(
 		if (value === null || value === undefined || type === 'function')
 			continue;
 
-		// global property, but prefix removed for injection
-		key = pkey + key.replace('$', '');
+		// shared/global keys are prefixed with `$`; strip it for injection
+		key = pkey + (key[0] === '$' ? key.slice(1) : key);
 
 		if (type !== 'object') {
 			flattened[key] = value;
@@ -84,7 +82,7 @@ export function normalize(
 				key,
 				value,
 				nestingDelimiter,
-				arrayDescomposition
+				arrayDescomposition,
 			);
 		} else {
 			Object.assign(
@@ -93,8 +91,8 @@ export function normalize(
 					value,
 					nestingDelimiter,
 					arrayDescomposition,
-					`${key}${nestingDelimiter}`
-				)
+					`${key}${nestingDelimiter}`,
+				),
 			);
 		}
 	}
@@ -105,35 +103,35 @@ export function normalize(
 /**
  * Flatten and normalizes an array.
  *
- * @param {Record<string, string>} flattened
+ * @param {Record<string, unknown>} flattened
  * @param {string} key
  * @param {any[]} value
  * @param {string} [nestingDelimiter='__']
  * @param {boolean} [arrayDescomposition=false]
  */
 function normalizeArray(
-	flattened: Record<string, string>,
+	flattened: Record<string, unknown>,
 	key: string,
 	value: any[],
 	nestingDelimiter = '__',
-	arrayDescomposition = false
+	arrayDescomposition = false,
 ): void {
 	if (arrayDescomposition) {
 		key = `${key}${nestingDelimiter}`;
 
-		for (let i = 0; i < value.length; i++) {
-			if (typeof value[i] === 'object') {
+		for (const [i, item] of value.entries()) {
+			if (typeof item === 'object') {
 				Object.assign(
 					flattened,
 					normalize(
-						value[i],
+						item,
 						nestingDelimiter,
 						arrayDescomposition,
-						`${key}${i}${nestingDelimiter}`
-					)
+						`${key}${i}${nestingDelimiter}`,
+					),
 				);
 			} else {
-				flattened[`${key}${i}`] = value[i];
+				flattened[`${key}${i}`] = item;
 			}
 		}
 	} else {

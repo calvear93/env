@@ -1,10 +1,11 @@
-import { CommandModule } from 'yargs';
-import { CommandArguments } from '../arguments';
+import type { CommandModule } from 'yargs';
+import type { CommandArguments } from '../arguments.js';
 import {
 	generateSchemaFrom,
 	loadVariablesFromProviders,
-	logger
-} from '../utils';
+	logger,
+	ui,
+} from '../utils/index.js';
 
 /**
  * Generates validation schema from providers environment variables.
@@ -13,11 +14,11 @@ import {
  */
 export const schemaCommand: CommandModule<any, CommandArguments> = {
 	command: 'schema [options..]',
-	describe: 'Generates validation schema from providers',
+	describe: 'Generate the JSON validation schema from providers',
 	builder: (builder) => {
 		return builder.example(
 			'env schema --generate -e dev -m debug unit',
-			'Updates JSON schema'
+			'Updates JSON schema',
 		);
 	},
 	handler: async (argv) => {
@@ -28,6 +29,6 @@ export const schemaCommand: CommandModule<any, CommandArguments> = {
 		const schema = await generateSchemaFrom(results, argv);
 
 		logger.silly('schema:', schema);
-		logger.info('schema updated successfully');
-	}
+		ui.action('📐', `schema updated → ${argv.schemaFile}`);
+	},
 };

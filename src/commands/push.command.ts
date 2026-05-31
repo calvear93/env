@@ -1,7 +1,7 @@
-import chalk from 'chalk';
-import { CommandModule } from 'yargs';
-import { CommandArguments } from '../arguments';
-import { logger } from '../utils';
+import pc from 'picocolors';
+import type { CommandModule } from 'yargs';
+import type { CommandArguments } from '../arguments.js';
+import { logger, ui } from '../utils/index.js';
 
 export interface PushCommandArguments extends CommandArguments {
 	// forces to push in case of conflict
@@ -15,34 +15,35 @@ export interface PushCommandArguments extends CommandArguments {
  */
 export const pushCommand: CommandModule<any, PushCommandArguments> = {
 	command: 'push [options..]',
-	describe: 'Pushes environment variables to providers store',
+	describe: 'Push environment variables to provider stores',
 	builder: (builder) => {
 		builder
 			.options({
 				force: {
 					alias: 'f',
-					type: 'boolean',
 					default: false,
-					describe: 'Force push for secrets'
-				}
+					describe: 'Force push for secrets',
+					type: 'boolean',
+				},
 			})
 			.example('env push -e dev', 'Download "dev" environment secrets');
 
 		return builder;
 	},
 	handler: async ({ providers, ...argv }) => {
+		const pushProviders = providers.filter(
+			({ handler: { push } }) => !!push,
+		);
 		const promises = await Promise.all(
-			providers
-				.filter(({ handler: { push } }) => !!push)
-				.map(({ handler: { key, push }, config }) => {
-					logger.silly(`pushing to ${chalk.yellow(key)} provider`);
+			pushProviders.map(({ config, handler: { key, push } }) => {
+				logger.debug(`pushing to ${pc.yellow(key)} provider`);
 
-					return push!(argv, config);
-				})
+				return push!(argv, config);
+			}),
 		);
 
 		if (promises.length > 0)
-			logger.info('environment variables pushed successfully');
+			ui.action('⬆️', `pushed to ${promises.length} provider(s)`);
 		else logger.warn('no providers for push variables');
-	}
+	},
 };

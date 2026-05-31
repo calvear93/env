@@ -1,5 +1,5 @@
-export { envCommand } from './env.command';
-export { exportCommand } from './export.command';
-export { pullCommand } from './pull.command';
-export { pushCommand } from './push.command';
-export { schemaCommand } from './schema.command';
+export { envCommand } from './env.command.js';
+export { exportCommand } from './export.command.js';
+export { pullCommand } from './pull.command.js';
+export { pushCommand } from './push.command.js';
+export { schemaCommand } from './schema.command.js';

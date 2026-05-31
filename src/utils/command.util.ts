@@ -1,10 +1,14 @@
-import chalk from 'chalk';
 import merge from 'merge-deep';
-import { join } from 'node:path';
-import { Arguments } from 'yargs';
-import { CommandArguments } from 'arguments';
-import { EnvCommandArguments } from 'commands/env.command';
-import { EnvProviderConfig, EnvProviderResult } from '../interfaces';
+import { readFileSync } from 'node:fs';
+import Path from 'node:path';
+import pc from 'picocolors';
+import type { Arguments } from 'yargs';
+import type { CommandArguments } from '../arguments.js';
+import type { EnvCommandArguments } from '../commands/env.command.js';
+import type {
+	EnvProviderConfig,
+	EnvProviderResult,
+} from '../interfaces/index.js';
 import {
 	createValidators,
 	flatten,
@@ -12,8 +16,8 @@ import {
 	logger,
 	readJson,
 	schemaFrom,
-	writeJson
-} from '../utils';
+	writeJson,
+} from './index.js';
 
 /**
  * Injects config to command arguments from file.
@@ -23,21 +27,13 @@ import {
  */
 export async function loadConfigFile(
 	argv: Record<string, unknown>,
-	delimiters: [string, string]
+	delimiters: [string, string],
 ): Promise<void> {
 	if (typeof argv.configFile === 'string') {
 		const path = interpolate(argv.configFile, argv, delimiters);
 		const [config, success] = await readJson(path);
 
-		if (success) {
-			for (const key in config) argv[key] ??= config[key];
-		} else {
-			logger.silly(
-				`config file ${chalk.underline.yellow(
-					path
-				)} not found, using defaults`
-			);
-		}
+		if (success) for (const key in config) argv[key] ??= config[key];
 	}
 }
 
@@ -54,7 +50,9 @@ export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
 	let subcommand: string[] = [];
 
 	// subcommand delimiter indexes
+
 	const begin = rawArgv.indexOf(delimiters[0]);
+
 	const count = rawArgv.lastIndexOf(delimiters[1]) - begin;
 
 	// calculates subcommand surrounded by delimiters
@@ -78,7 +76,7 @@ export function getSubcommand(rawArgv: string[], delimiters: [string, string]) {
  */
 export async function loadSchemaFile(
 	argv: Record<string, unknown>,
-	delimiters: [string, string]
+	delimiters: [string, string],
 ): Promise<Record<string, unknown> | undefined> {
 	if (typeof argv.schemaFile === 'string') {
 		const path = interpolate(argv.schemaFile, argv, delimiters);
@@ -96,17 +94,24 @@ export async function loadSchemaFile(
  * @export
  * @returns {Promise<Record<string, unknown>> | never}
  */
-export async function loadProjectInfo(
-	relativePath = ''
+export function loadProjectInfo(
+	relativePath = '',
 ): Promise<Record<string, unknown>> {
 	try {
-		return await import(join(process.cwd(), relativePath, 'package.json'));
+		const filePath = Path.join(process.cwd(), relativePath, 'package.json');
+
+		return Promise.resolve(
+			JSON.parse(readFileSync(filePath, 'utf8')) as Record<
+				string,
+				unknown
+			>,
+		);
 	} catch {
 		logger.warn(
-			`project file ${chalk.underline.yellow('package.json')} not found`
+			`project file ${pc.underline(pc.yellow('package.json'))} not found`,
 		);
 
-		return {};
+		return Promise.resolve({});
 	}
 }
 
@@ -120,26 +125,18 @@ export async function loadProjectInfo(
  */
 export function loadVariablesFromProviders(
 	providers: EnvProviderConfig[],
-	argv: Partial<Arguments<EnvCommandArguments>>
+	argv: Partial<Arguments<EnvCommandArguments>>,
 ): Promise<EnvProviderResult[]> {
 	if (!providers) return Promise.resolve([]) as Promise<EnvProviderResult[]>;
 
 	return Promise.all(
-		providers.map(({ handler: { key, load }, config }) => {
-			logger.silly(`executing ${chalk.yellow(key)} provider`);
+		providers.map(async ({ config, handler: { key, load } }) => {
+			logger.silly(`executing ${pc.yellow(key)} provider`);
 
-			const value = load(argv, config);
+			const value = await load(argv, config);
 
-			if (value instanceof Promise) {
-				return value.then((value) => ({
-					key,
-					config,
-					value
-				}));
-			} else {
-				return { key, config, value };
-			}
-		})
+			return { config, key, value };
+		}),
 	);
 }
 
@@ -155,13 +152,13 @@ export function loadVariablesFromProviders(
  */
 export function flatResults(
 	results: EnvProviderResult[],
-	nestingDelimiter = '__'
+	nestingDelimiter = '__',
 ): EnvProviderResult[] | never {
 	return results.flatMap(({ value }) => {
 		if (Array.isArray(value))
 			return merge({}, ...value.map((v) => flatten(v, nestingDelimiter)));
 
-		return value;
+		return flatten(value, nestingDelimiter);
 	});
 }
 
@@ -175,14 +172,14 @@ export function flatResults(
  *
  * @returns {EnvProviderResult[]}
  */
-export function flatAndValidateResults(
+export async function flatAndValidateResults(
 	results: EnvProviderResult[],
-	argv: Partial<Arguments<EnvCommandArguments>>
-): EnvProviderResult[] | never {
+	argv: Partial<Arguments<EnvCommandArguments>>,
+): Promise<EnvProviderResult[]> {
 	if (!argv.schemaValidate)
 		return flatResults(results, argv.nestingDelimiter);
 
-	const validators = createValidators(argv.schema!, argv.detectFormat);
+	const validators = await createValidators(argv.schema!, argv.detectFormat);
 
 	return results.flatMap(({ key, value }) => {
 		let baseValue = value;
@@ -190,7 +187,7 @@ export function flatAndValidateResults(
 			value = merge({}, ...value);
 			baseValue = merge(
 				{},
-				...baseValue.map((v: any) => flatten(v, argv.nestingDelimiter))
+				...baseValue.map((v: any) => flatten(v, argv.nestingDelimiter)),
 			);
 		} else {
 			baseValue = flatten(value, argv.nestingDelimiter);
@@ -201,8 +198,8 @@ export function flatAndValidateResults(
 		if (!validator || validator?.(value)) return baseValue;
 
 		logger.error(
-			`schema validation failed for ${chalk.yellow(key)}`,
-			validator.errors
+			`schema validation failed for ${pc.yellow(key)}`,
+			validator?.errors,
 		);
 
 		throw new Error(`schema validation failed for ${key}`);
@@ -221,24 +218,22 @@ export function flatAndValidateResults(
  */
 export async function generateSchemaFrom(
 	env: EnvProviderResult[],
-	argv: Arguments<CommandArguments>
+	argv: Arguments<CommandArguments>,
 ): Promise<object> {
-	const { resolve, nullable, detectFormat, schemaFile } = argv;
+	const { detectFormat, nullable, resolve, schemaFile } = argv;
 
-	// generates schemas from proviers results
-	let schema = env.reduce(
-		(schema, { key, value }) => {
-			const env = Array.isArray(value) ? merge({}, ...value) : value;
+	// generates schemas from providers results
+	const schemaEntries: Record<string, unknown> = {};
+	for (const { key, value } of env) {
+		const merged = Array.isArray(value) ? merge({}, ...value) : value;
 
-			schema[key] = schemaFrom(env, {
-				nullable,
-				strings: { detectFormat }
-			});
+		schemaEntries[key] = await schemaFrom(merged, {
+			nullable,
+			strings: { detectFormat },
+		});
+	}
 
-			return schema;
-		},
-		{} as Record<string, unknown>
-	);
+	let schema: Record<string, unknown> = schemaEntries;
 
 	if (resolve === 'merge') schema = merge(argv.schema, schema);
 

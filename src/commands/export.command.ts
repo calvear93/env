@@ -1,21 +1,23 @@
 import merge from 'merge-deep';
-import { CommandModule } from 'yargs';
-import { CommandArguments } from '../arguments';
+import type { CommandModule } from 'yargs';
+import type { CommandArguments } from '../arguments.js';
 import {
 	flatAndValidateResults,
-	flatten,
 	interpolate,
 	loadVariablesFromProviders,
 	logger,
 	normalize,
+	ui,
 	writeEnvFromJson,
-	writeJson
-} from '../utils';
+	writeJson,
+} from '../utils/index.js';
 
 export interface ExportCommandArguments extends CommandArguments {
-	format: 'json' | 'dotenv';
+	format: 'dotenv' | 'json';
 
 	uri: string;
+
+	exportQuotes: boolean;
 }
 
 /**
@@ -30,46 +32,60 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 	builder: (builder) => {
 		builder
 			.options({
-				uri: {
-					alias: ['u', 'p', 'path'],
-					type: 'string',
-					default: '.env',
-					describe: 'Uri for export file with variables'
+				exportQuotes: {
+					alias: ['quotes', 'q'],
+					default: false,
+					describe: 'Wraps values in quotes',
+					type: 'boolean',
 				},
 				format: {
 					alias: 'f',
-					type: 'string',
-					default: 'dotenv',
 					choices: ['json', 'dotenv'],
-					describe: 'Format for export variables'
-				}
+					default: 'dotenv',
+					describe: 'Format for export variables',
+					type: 'string',
+				},
+				uri: {
+					alias: ['u', 'p', 'path'],
+					default: '.env',
+					describe: 'Uri for export file with variables',
+					type: 'string',
+				},
 			})
 			.example(
 				'env export -e dev -m build',
-				'Exports "dev" variables to a dotenv file at root as ".env"'
+				'Exports "dev" variables to a dotenv file at root as ".env"',
 			)
 			.example(
 				'env export -e prod -m build -f json --uri [[env]].env.json',
-				'Exports "prod" variables to a json file at root as "prod.env.json"'
+				'Exports "prod" variables to a json file at root as "prod.env.json"',
 			);
 
 		return builder;
 	},
-	handler: async ({ providers, expand, exportIgnoreKeys, ...argv }) => {
+	handler: async ({
+		expand,
+		exportIgnoreKeys,
+		exportQuotes,
+		providers,
+		...argv
+	}) => {
 		const results = await loadVariablesFromProviders(providers, argv);
 
 		let env = merge(
 			{ NODE_ENV: 'development' },
-			...flatAndValidateResults(results, argv)
+			...(await flatAndValidateResults(results, argv)),
 		);
 
-		// results normalization merging
-		// env = flatten(env, argv.nestingDelimiter);
 		env = normalize(env, argv.nestingDelimiter, argv.arrayDescomposition);
 		if (expand) env = interpolate(env, env);
 		if (exportIgnoreKeys) {
 			logger.silly('ignoring:', exportIgnoreKeys);
-			for (const keyname of exportIgnoreKeys) delete env[keyname];
+			env = Object.fromEntries(
+				Object.entries(env).filter(
+					([k]) => !exportIgnoreKeys.includes(k),
+				),
+			);
 		}
 
 		logger.debug('environment loaded:', env);
@@ -77,16 +93,27 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 		const { format, uri } = argv;
 
 		switch (format) {
-			case 'dotenv':
-				await writeEnvFromJson(uri, env, true);
+			case 'dotenv': {
+				await writeEnvFromJson(uri, env, true, exportQuotes);
+				ui.action(
+					'📤',
+					`exported ${Object.keys(env).length} variables → ${uri} (${format})`,
+				);
 				break;
+			}
 
-			case 'json':
+			case 'json': {
 				await writeJson(uri, env, true);
+				ui.action(
+					'📤',
+					`exported ${Object.keys(env).length} variables → ${uri} (${format})`,
+				);
 				break;
+			}
 
-			default:
+			default: {
 				logger.error(`format ${format} not recognized`);
+			}
 		}
-	}
+	},
 };

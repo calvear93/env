@@ -1,7 +1,7 @@
-import os from 'os';
-import path from 'path';
-import { existsSync } from 'fs';
-import { readFile, writeFile } from 'fs/promises';
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 /**
  * Replaces undefined by null in JSON.stringify()
@@ -11,7 +11,7 @@ import { readFile, writeFile } from 'fs/promises';
  *
  * @returns {any} value
  */
-const replacer = (_: string, value: any): typeof value | null =>
+const replacer = (_: string, value: any): any =>
 	value === undefined ? null : value;
 
 /**
@@ -25,8 +25,7 @@ const replacer = (_: string, value: any): typeof value | null =>
 export function resolvePath(filePath: string): string {
 	const home = os.homedir();
 
-	if (home !== undefined)
-		filePath = filePath.replace(/^~($|\/|\\)/, `${home}$1`);
+	if (home) filePath = filePath.replace(/^~($|\/|\\)/, `${home}$1`);
 
 	return path.resolve(process.cwd(), filePath);
 }
@@ -41,11 +40,16 @@ export function resolvePath(filePath: string): string {
  * @returns {Promise<[Record<string, any>, boolean]>}
  */
 export async function readJson<T = Record<string, any>>(
-	path: string
-): Promise<[T | Record<string, any>, boolean] | never> {
-	if (!existsSync(path)) return [{}, false];
+	path: string,
+): Promise<[Record<string, any> | T, boolean]> {
+	try {
+		return [JSON.parse(await readFile(path, 'utf8')), true];
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT')
+			return [{}, false];
 
-	return [JSON.parse(await readFile(path, 'utf8')), true];
+		throw error; // invalid JSON or other IO error must still surface
+	}
 }
 
 /**
@@ -63,8 +67,8 @@ export async function writeJson(
 	path: string,
 	content: Record<string, unknown>,
 	overwrite = false,
-	undefinedAsNull = false
-): Promise<boolean | never> {
+	undefinedAsNull = false,
+): Promise<boolean> {
 	const exists = existsSync(path);
 
 	if (exists && !overwrite) return false;
@@ -74,9 +78,9 @@ export async function writeJson(
 		`${JSON.stringify(
 			content,
 			undefinedAsNull ? replacer : undefined,
-			4
+			4,
 		)}\n`,
-		'utf8'
+		'utf8',
 	);
 
 	return true;
@@ -95,8 +99,9 @@ export async function writeJson(
 export async function writeEnvFromJson(
 	path: string,
 	content: Record<string, unknown>,
-	overwrite = false
-): Promise<boolean | never> {
+	overwrite = false,
+	quotes = false,
+): Promise<boolean> {
 	const exists = existsSync(path);
 
 	if (exists && !overwrite) return false;
@@ -104,8 +109,8 @@ export async function writeEnvFromJson(
 	let data = '';
 
 	for (const key in content) {
-		const value = content[key];
-		// if (typeof value === 'string') value = `"${value}"`;
+		let value = content[key];
+		if (quotes) value = `"${value}"`;
 
 		data += `${key}=${value}\n`;
 	}

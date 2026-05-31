@@ -1,4 +1,4 @@
-import { Arguments, Argv } from 'yargs';
+import type { Arguments, Argv } from 'yargs';
 
 /**
  * Result of provider environment load.
@@ -7,10 +7,10 @@ import { Arguments, Argv } from 'yargs';
  * @type EnvResult
  */
 export type EnvResult =
-	| Record<string, unknown>
-	| Record<string, unknown>[]
+	| Promise<Record<string, unknown>[]>
 	| Promise<Record<string, unknown>>
-	| Promise<Record<string, unknown>[]>;
+	| Record<string, unknown>
+	| Record<string, unknown>[];
 
 /**
  * Wrapped provider result for inject to env.
@@ -20,8 +20,8 @@ export type EnvResult =
  */
 export interface EnvProviderResult {
 	key: string;
-	config?: Record<string, unknown>;
 	value: Record<string, any> | Record<string, any>[];
+	config?: Record<string, unknown>;
 }
 
 /**
@@ -34,7 +34,7 @@ export interface EnvProviderResult {
  */
 export interface EnvProvider<
 	A,
-	C extends Record<string, any> | undefined = undefined
+	C extends Record<string, any> | undefined = undefined,
 > {
 	// unique key
 	key: string;
@@ -59,8 +59,8 @@ export interface EnvProvider<
  * @interface EnvProviderConfig
  */
 export interface EnvProviderConfig {
+	handler: EnvProvider<any, any>;
 	path: string;
 	type: 'integrated' | 'module' | 'script';
-	handler: EnvProvider<any, any>;
 	config?: Record<string, unknown>;
 }

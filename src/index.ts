@@ -1,3 +1,3 @@
-export * from './interfaces';
-export * from './utils/logger';
-export * from './arguments';
+export * from './arguments.js';
+export * from './interfaces/index.js';
+export * from './utils/logger.js';

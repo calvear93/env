@@ -1,29 +1,32 @@
-import { EnvProvider } from '../interfaces';
-import { AppSettingsProvider } from './app-settings.provider';
-import { SecretsProvider } from './secrets.provider';
-import { PackageJsonProvider } from './package-json.provider';
-import { LocalProvider } from './local.provider';
+import type { EnvProvider } from '../interfaces/index.js';
+import { AppSettingsProvider } from './app-settings.provider.js';
+import { LocalProvider } from './local.provider.js';
+import { PackageJsonProvider } from './package-json.provider.js';
+import { SecretsProvider } from './secrets.provider.js';
 
 const IntegratedProviders: Record<string, EnvProvider<any, any>> = {
-	[PackageJsonProvider.key]: PackageJsonProvider,
 	[AppSettingsProvider.key]: AppSettingsProvider,
+	[LocalProvider.key]: LocalProvider,
+	[PackageJsonProvider.key]: PackageJsonProvider,
 	[SecretsProvider.key]: SecretsProvider,
-	[LocalProvider.key]: LocalProvider
 };
 
+// order defines provider load + merge precedence (later entries win):
+// package-json (base info) < app-settings < secrets < local (highest).
+// Do NOT alphabetize this array — the sequence is semantic.
 const IntegratedProviderConfig = [
 	{
-		path: PackageJsonProvider.key
+		path: PackageJsonProvider.key,
 	},
 	{
-		path: AppSettingsProvider.key
+		path: AppSettingsProvider.key,
 	},
 	{
-		path: SecretsProvider.key
+		path: SecretsProvider.key,
 	},
 	{
-		path: LocalProvider.key
-	}
+		path: LocalProvider.key,
+	},
 ];
 
-export { IntegratedProviders, IntegratedProviderConfig };
+export { IntegratedProviderConfig, IntegratedProviders };

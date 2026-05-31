@@ -1,5 +1,5 @@
-import { CommandArguments } from '../arguments';
-import { EnvProvider } from '../interfaces';
+import type { CommandArguments } from '../arguments.js';
+import type { EnvProvider } from '../interfaces/index.js';
 
 const KEY = 'package-json';
 
@@ -16,26 +16,27 @@ export const PackageJsonProvider: EnvProvider<PackageJsonCommandArguments> = {
 	builder: (builder) => {
 		builder.options({
 			packageInfoPrefix: {
-				group: KEY,
 				alias: 'vp',
-				type: 'string',
 				default: '',
-				describe: 'Prefix for loaded variables'
-			}
+				group: KEY,
+				type: 'string',
+				describe:
+					'Prefix for loaded variables using package-json provider',
+			},
 		});
 	},
 
-	load: ({ env = 'development', projectInfo, packageInfoPrefix }) => {
-		const { version, project, name, title, description } = projectInfo;
+	load: ({ env = 'development', packageInfoPrefix, projectInfo }) => {
+		const { description, name, project, title, version } = projectInfo;
 
 		return {
-			[`${packageInfoPrefix}ENV`]: env,
+			[`${packageInfoPrefix}ENV`]: env ?? null,
 
-			[`${packageInfoPrefix}VERSION`]: version,
-			[`${packageInfoPrefix}PROJECT`]: project,
-			[`${packageInfoPrefix}NAME`]: name,
-			[`${packageInfoPrefix}TITLE`]: title,
-			[`${packageInfoPrefix}DESCRIPTION`]: description
+			[`${packageInfoPrefix}DESCRIPTION`]: description ?? null,
+			[`${packageInfoPrefix}NAME`]: name ?? null,
+			[`${packageInfoPrefix}PROJECT`]: project ?? null,
+			[`${packageInfoPrefix}TITLE`]: title ?? null,
+			[`${packageInfoPrefix}VERSION`]: version ?? null,
 		};
-	}
+	},
 };

@@ -1,7 +1,7 @@
-import chalk from 'chalk';
-import { CommandModule } from 'yargs';
-import { CommandArguments } from '../arguments';
-import { logger } from '../utils';
+import pc from 'picocolors';
+import type { CommandModule } from 'yargs';
+import type { CommandArguments } from '../arguments.js';
+import { logger, ui } from '../utils/index.js';
 
 export interface PullCommandArguments extends CommandArguments {
 	// whether variables should be overwritten in already exists
@@ -15,38 +15,39 @@ export interface PullCommandArguments extends CommandArguments {
  */
 export const pullCommand: CommandModule<any, PullCommandArguments> = {
 	command: 'pull [options..]',
-	describe: 'Pulls environment variables from providers',
+	describe: 'Pull environment variables from provider stores',
 	builder: (builder) => {
 		builder
 			.options({
 				overwrite: {
 					alias: 'o',
-					type: 'boolean',
 					default: false,
-					describe: 'Overwrite local variables'
-				}
+					describe: 'Overwrite local variables',
+					type: 'boolean',
+				},
 			})
 			.example('env pull -e dev', 'Download "dev" environment secrets')
 			.example(
 				'env pull -e dev -o',
-				'Download and overwrite (if any exists) "dev" environment secrets'
+				'Download and overwrite (if any exists) "dev" environment secrets',
 			);
 
 		return builder;
 	},
 	handler: async ({ providers, ...argv }) => {
+		const pullProviders = providers.filter(
+			({ handler: { pull } }) => !!pull,
+		);
 		const promises = await Promise.all(
-			providers
-				.filter(({ handler: { pull } }) => !!pull)
-				.map(({ handler: { key, pull }, config }) => {
-					logger.silly(`pulling from ${chalk.yellow(key)} provider`);
+			pullProviders.map(({ config, handler: { key, pull } }) => {
+				logger.silly(`pulling from ${pc.yellow(key)} provider`);
 
-					return pull!(argv, config);
-				})
+				return pull!(argv, config);
+			}),
 		);
 
 		if (promises.length > 0)
-			logger.info('environment variables pulled successfully');
+			ui.action('⬇️', `pulled from ${promises.length} provider(s)`);
 		else logger.warn('no providers for pull variables');
-	}
+	},
 };

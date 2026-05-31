@@ -1,7 +1,16 @@
-import Ajv, { Format, JSONSchemaType, ValidateFunction } from 'ajv';
-import addFormats from 'ajv-formats';
-import toJsonSchema, { Options } from 'to-json-schema';
+import type { Format, JSONSchemaType, ValidateFunction } from 'ajv';
+import type { Options } from 'to-json-schema';
 
+// cached AJV instances (with and without formats)
+let _ajv: any;
+let _ajvWithFormats: any;
+
+// cached module references
+let _AjvClass: any;
+let _addFormats: any;
+let _toJsonSchema: any;
+
+/* eslint-disable regexp/no-useless-assertions, regexp/no-super-linear-backtracking -- domain validation regexes from JSON Schema spec; modifying these patterns would change format validation behavior */
 const FORMAT_REGEXPS: Record<string, Format> = {
 	'ip-address':
 		/^(?:(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})$/,
@@ -9,18 +18,19 @@ const FORMAT_REGEXPS: Record<string, Format> = {
 	color: /^(#?([\dA-Fa-f]{3}){1,2}\b|aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|yellow|(rgb\(\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*,\s*\b(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\b\s*\))|(rgb\(\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*\)))$/,
 
 	hostname:
-		/^(?=.{1,255}$)[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?(?:\.[\dA-Za-z](?:(?:[\dA-Za-z]|-){0,61}[\dA-Za-z])?)*\.?$/,
+		/^(?=.{1,255}$)[\da-z](?:[\da-z-]{0,61}[\da-z])?(?:\.[\da-z](?:[\da-z-]{0,61}[\da-z])?)*\.?$/i,
 
-	alphanumeric: /^[\dA-Za-z]+$/,
+	alphanumeric: /^[\da-z]+$/i,
 
 	'utc-millisec': (input: string) => !Number.isNaN(+input),
 
-	alpha: /^[A-Za-z]+$/,
+	alpha: /^[a-z]+$/i,
 
 	style: /\s*(.+?):\s*([^;]+);?/g,
 
-	phone: /^\+(?:\d ?){6,14}\d$/
+	phone: /^\+(?:\d ?){6,14}\d$/,
 };
+/* eslint-enable regexp/no-useless-assertions, regexp/no-super-linear-backtracking */
 
 /**
  * Generates JSON schema from JSON template/object.
@@ -29,16 +39,26 @@ const FORMAT_REGEXPS: Record<string, Format> = {
  * @param {Record<string, unknown>} json json object
  * @param {Options} [options]
  *
- * @returns {*}  {Record<string, unknown>}
+ * @returns {*}  {Promise<Record<string, unknown>>}
  */
-export function schemaFrom(
+export async function schemaFrom(
 	json: Record<string, unknown>,
-	options?: Options & { nullable?: boolean }
-): Record<string, unknown> {
-	return toJsonSchema(json, {
+	options?: Options & { nullable?: boolean },
+): Promise<Record<string, unknown>> {
+	if (!_toJsonSchema) {
+		const mod = await import('to-json-schema');
+		_toJsonSchema = mod.default;
+	}
+
+	return _toJsonSchema(json, {
 		required: false,
 		...options,
-		postProcessFnc: (type, schema, value, defaultFunc) => {
+		postProcessFnc: (
+			type: string,
+			schema: any,
+			value: unknown,
+			defaultFunc: any,
+		) => {
 			if (value !== json) {
 				schema.type = [type];
 				schema.nullable = options?.nullable ?? false;
@@ -47,7 +67,7 @@ export function schemaFrom(
 			if (value === null || value === undefined) schema.nullable = true;
 
 			return defaultFunc(type, schema, value);
-		}
+		},
 	});
 }
 
@@ -60,11 +80,14 @@ export function schemaFrom(
  * @returns {boolean} if is a JSON schema
  */
 export function isJsonSchemaObject(
-	schema: Record<string, unknown>
+	schema: Record<string, unknown>,
 ): schema is JSONSchemaType<object> {
 	if (schema.type === 'object') return true;
 
-	return Array.isArray(schema.type) && schema.type.includes('object');
+	return (
+		Array.isArray(schema.type) &&
+		(schema.type as string[]).includes('object')
+	);
 }
 
 /**
@@ -78,7 +101,7 @@ export function isJsonSchemaObject(
  */
 export function schemaToJson(
 	schema: Record<string, unknown>,
-	container: Record<string, any> = {}
+	container: Record<string, any> = {},
 ): unknown {
 	if (isJsonSchemaObject(schema)) {
 		for (const key in schema.properties)
@@ -105,7 +128,7 @@ export function flatSchema(
 	schema: Record<string, unknown>,
 	parentKey = '',
 	nestingDelimiter = '__',
-	container: Record<string, any> = {}
+	container: Record<string, any> = {},
 ): Record<string, unknown> {
 	if (isJsonSchemaObject(schema)) {
 		for (const key in schema.properties) {
@@ -117,7 +140,7 @@ export function flatSchema(
 
 			container = {
 				...container,
-				...flatSchema(schema.properties[key], subKey, nestingDelimiter)
+				...flatSchema(schema.properties[key], subKey, nestingDelimiter),
 			};
 		}
 
@@ -136,23 +159,13 @@ export function flatSchema(
  * @param {Record<string, object>} schema json schema by provider
  * @param {boolean} enableFormats whether formats are enabled
  *
- * @returns {ValidateFunction} validator
+ * @returns {Promise<ValidateFunction>} validators
  */
-export function createValidator(
+export async function createValidator(
 	schema: Record<string, unknown>,
-	enableFormats = true
-): ValidateFunction {
-	const ajv = new Ajv({
-		allErrors: true,
-		allowUnionTypes: true
-	});
-
-	if (enableFormats) {
-		addFormats(ajv, { mode: 'fast' });
-
-		for (const key in FORMAT_REGEXPS)
-			ajv.addFormat(key, FORMAT_REGEXPS[key]);
-	}
+	enableFormats = true,
+): Promise<ValidateFunction> {
+	const ajv = await getAjv(enableFormats);
 
 	return ajv.compile(schema);
 }
@@ -166,23 +179,13 @@ export function createValidator(
  * @param {Record<string, object>} schemaLookup json schema by provider
  * @param {boolean} enableFormats whether formats are enabled
  *
- * @returns {Record<string, ValidateFunction>} validators lookup
+ * @returns {Promise<Record<string, ValidateFunction>>} validators lookup
  */
-export function createValidators(
+export async function createValidators(
 	schemaLookup: Record<string, object>,
-	enableFormats = true
-): Record<string, ValidateFunction> {
-	const ajv = new Ajv({
-		allErrors: true,
-		allowUnionTypes: true
-	});
-
-	if (enableFormats) {
-		addFormats(ajv, { mode: 'fast' });
-
-		for (const key in FORMAT_REGEXPS)
-			ajv.addFormat(key, FORMAT_REGEXPS[key]);
-	}
+	enableFormats = true,
+): Promise<Record<string, ValidateFunction>> {
+	const ajv = await getAjv(enableFormats);
 
 	const validators: Record<string, ValidateFunction> = {};
 
@@ -190,4 +193,51 @@ export function createValidators(
 		validators[key] = ajv.compile(schemaLookup[key]);
 
 	return validators;
+}
+
+/**
+ * Returns a cached AJV instance (lazy-loads ajv and ajv-formats on first call).
+ *
+ * @param {boolean} withFormats whether to include format validators
+ * @returns {Promise<any>} cached AJV instance
+ */
+async function getAjv(withFormats: boolean): Promise<any> {
+	if (!_AjvClass) {
+		const [ajvMod, formatsMod] = await Promise.all([
+			import('ajv'),
+			import('ajv-formats'),
+		]);
+		_AjvClass = ajvMod.Ajv;
+		_addFormats = formatsMod.default;
+	}
+
+	if (withFormats) {
+		if (!_ajvWithFormats) {
+			_ajvWithFormats = new _AjvClass({
+				allErrors: true,
+				allowUnionTypes: true,
+			});
+
+			(
+				_addFormats as unknown as (
+					ajv: any,
+					options?: { mode?: string },
+				) => void
+			)(_ajvWithFormats, { mode: 'fast' });
+
+			for (const key in FORMAT_REGEXPS)
+				_ajvWithFormats.addFormat(key, FORMAT_REGEXPS[key]);
+		}
+
+		return _ajvWithFormats;
+	}
+
+	if (!_ajv) {
+		_ajv = new _AjvClass({
+			allErrors: true,
+			allowUnionTypes: true,
+		});
+	}
+
+	return _ajv;
 }

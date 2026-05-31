@@ -1,28 +1,32 @@
-#!/usr/bin/env node
-
-import chalk from 'chalk';
-import yargsParser from 'yargs-parser';
-import yargs, { Arguments } from 'yargs';
-import { IntegratedProviders } from './providers';
-import { args, CommandArguments } from './arguments';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import pc from 'picocolors';
+import yargs from 'yargs';
+import type { Arguments } from 'yargs';
+import { Parser } from 'yargs/helpers';
+import { args } from './arguments.js';
+import type { CommandArguments } from './arguments.js';
 import {
 	envCommand,
 	exportCommand,
 	pullCommand,
 	pushCommand,
-	schemaCommand
-} from './commands';
+	schemaCommand,
+} from './commands/index.js';
+import { IntegratedProviders } from './providers/index.js';
 import {
+	configureLogger,
 	getSubcommand,
 	interpolateJson,
 	loadConfigFile,
 	loadProjectInfo,
 	loadSchemaFile,
 	logger,
-	resolvePath
-} from './utils';
+	resolvePath,
+	ui,
+} from './utils/index.js';
 
-type Alias = string | string[];
+type Alias = string[] | string;
 
 /**
  * Preload basic config from command line and config file.
@@ -35,28 +39,28 @@ type Alias = string | string[];
  */
 async function preloadConfig(
 	rawArgv: string[],
-	parser: Partial<yargsParser.Configuration>,
-	delimiters: [string, string]
+	parser: Record<string, unknown>,
+	delimiters: [string, string],
 ): Promise<Partial<CommandArguments>> {
 	// preload base config
-	const preloadedArgv = yargsParser(rawArgv, {
-		configuration: parser,
-		boolean: ['help'],
-		string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
+	const preloadedArgv = Parser.detailed(rawArgv, {
 		array: ['modes', 'logMaskAnyRegEx', 'logMaskValuesOfKeys'],
+		boolean: ['help'],
+		configuration: parser as any,
+		string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
 		alias: {
-			env: args.env.alias as Alias,
-			modes: args.modes.alias as Alias,
 			configFile: args.configFile.alias as Alias,
+			env: args.env.alias as Alias,
 			logLevel: args.logLevel.alias as Alias,
 			logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
-			logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias
+			logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias,
+			modes: args.modes.alias as Alias,
 		},
 		default: {
+			configFile: args.configFile.default,
 			root: args.root.default,
-			configFile: args.configFile.default
-		}
-	});
+		},
+	}).argv;
 
 	// loads configuration file
 	await loadConfigFile(preloadedArgv, delimiters);
@@ -69,10 +73,10 @@ async function preloadConfig(
 	const { logLevel, logMaskAnyRegEx, logMaskValuesOfKeys } = preloadedArgv;
 
 	// logging level
-	logger.setSettings({
-		minLevel: logLevel,
+	configureLogger(logger, {
 		maskAnyRegEx: logMaskAnyRegEx,
-		maskValuesOfKeys: logMaskValuesOfKeys
+		maskValuesOfKeys: logMaskValuesOfKeys,
+		minLevel: logLevel,
 	});
 
 	return preloadedArgv;
@@ -87,7 +91,13 @@ async function preloadConfig(
  */
 export async function exec(rawArgv: string[]) {
 	// reads some lib base config from package.json
-	const { config, version } = await import(`${__dirname}/package.json`);
+	const pkg = JSON.parse(
+		readFileSync(
+			fileURLToPath(new URL('package.json', import.meta.url)),
+			'utf8',
+		),
+	) as { config: Record<string, any>; version: string };
+	const { config, version } = pkg;
 
 	// execs yargs
 	const subcommand = getSubcommand(rawArgv, config.delimiters.subcommand);
@@ -95,30 +105,25 @@ export async function exec(rawArgv: string[]) {
 	const preloadedArgv = await preloadConfig(
 		rawArgv,
 		config.parser,
-		config.delimiters.template
+		config.delimiters.template,
 	);
 
-	const { env, modes, providers, help } = preloadedArgv;
+	const { env, help, modes, providers } = preloadedArgv;
 
 	if (help) build(rawArgv, preloadedArgv, subcommand, config, version);
 
 	if (!Array.isArray(providers) || providers.length === 0) {
 		logger.error('no providers found');
 
-		throw new Error('no providers found');
+		process.exit(1);
 	}
 
-	const envMsg = env ? ` ${chalk.bold.underline.green(env)} environment` : '';
-	const modesMsg = modes
-		? ` ${chalk.bold.magenta(modes.join('+'))} mode`
-		: '';
-
-	logger.info(`loading${envMsg}${env && modes ? ' in' : ''}${modesMsg}`);
+	ui.header(version, env, modes);
 
 	// read loaders from config
 	for (const provider of providers!) {
 		try {
-			logger.debug(`using ${chalk.yellow(provider.path)} provider`);
+			logger.debug(`using ${pc.yellow(provider.path)} provider`);
 
 			if (!provider.type || provider.type === 'integrated') {
 				provider.handler = IntegratedProviders[provider.path];
@@ -133,14 +138,12 @@ export async function exec(rawArgv: string[]) {
 			}
 		} catch {
 			logger.error(
-				`${chalk.yellow(
-					provider.path
-				)} provider not found or not compatible`
+				`${pc.yellow(
+					provider.path,
+				)} provider not found or not compatible`,
 			);
 
-			throw new Error(
-				`${provider.path} provider not found or not compatible`
-			);
+			process.exit(1);
 		}
 	}
 
@@ -161,8 +164,20 @@ function build(
 	preloadedArgv: Partial<Arguments<CommandArguments>>,
 	subcommand: string[],
 	config: Record<string, any>,
-	version = 'unknown'
+	version = 'unknown',
 ): void {
+	const versionTag = pc.dim(`v${version}`);
+	const banner = [
+		'',
+		`${pc.bold(pc.yellow('⚡ env'))} ${versionTag}  ${pc.dim('· environment variables made easy')}`,
+		'',
+		`${pc.bold('Usage:')} $0 [command] [options..] ${pc.dim(': <subcmd> :')} [options..]`,
+	].join('\n');
+	const epilog = [
+		`${pc.dim('Run')} ${pc.cyan('env <command> --help')} ${pc.dim('for command-specific options.')}`,
+		`${pc.dim('Use')} ${pc.cyan('--log debug')} ${pc.dim('to inspect the resolved environment (secrets stay masked).')}`,
+	].join('\n');
+
 	const builder = yargs(rawArgv)
 		.strict()
 		.scriptName('env')
@@ -170,7 +185,9 @@ function build(
 		.detectLocale(false)
 		.showHelpOnFail(false)
 		.parserConfiguration(config.parser)
-		.usage('Usage: $0 [command] [options..] [: subcmd [:]] [options..]')
+		.wrap(Math.min(110, process.stdout.columns ?? 110))
+		.usage(banner)
+		.epilog(epilog)
 		.options(args)
 		.middleware(async (argv): Promise<void> => {
 			// in case of subcommand argument for main
@@ -181,10 +198,11 @@ function build(
 
 			logger.silly(
 				'interpolating arguments surrounded by',
-				chalk.bold.yellow(
-					config.delimiters.template[0],
-					config.delimiters.template[1]
-				)
+				pc.bold(
+					pc.yellow(
+						`${config.delimiters.template[0]} ${config.delimiters.template[1]}`,
+					),
+				),
 			);
 
 			const subcmdAux = argv.subcmd as string[];
@@ -205,7 +223,7 @@ function build(
 			// and current project info from package.json
 			[argv.projectInfo, argv.schema] = await Promise.all([
 				loadProjectInfo((argv.packageJson ?? argv.pkg) as string),
-				loadSchemaFile(argv, config.delimiters.template)
+				loadSchemaFile(argv, config.delimiters.template),
 			]);
 
 			if (argv.schemaValidate) {
@@ -227,8 +245,8 @@ function build(
 
 	// extends command from plugins
 	for (const { handler } of providers!)
-		handler?.builder && handler.builder(builder);
+		if (handler?.builder) handler.builder(builder);
 
 	// executes command processing
-	builder.parse();
+	void builder.parse();
 }
