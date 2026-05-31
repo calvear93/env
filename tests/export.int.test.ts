@@ -1,4 +1,5 @@
-import { execEnv } from './exec';
+import { describe, expect, test } from 'vitest';
+import { execEnv } from './exec.js';
 
 describe('export commands', () => {
 	test('export', () => {

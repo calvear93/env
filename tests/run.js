@@ -1,7 +1,6 @@
 function validateEnv(...vars) {
-	for(const key of vars) {
-		if(!process.env[key])
-		{
+	for (const key of vars) {
+		if (!process.env[key]) {
 			throw new Error(`${key} dont loaded`);
 		}
 	}
@@ -28,5 +27,5 @@ validateEnv(
 	'VAR4',
 	'ARR1',
 	'GROUP2__VAR1',
-	'GROUP2__VAR2'
+	'GROUP2__VAR2',
 );

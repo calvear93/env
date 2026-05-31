@@ -1,4 +1,5 @@
-import { execEnv, execDebugEnv } from './exec';
+import { describe, expect, test } from 'vitest';
+import { execDebugEnv, execEnv } from './exec.js';
 
 const subcmd = ': node tests/run.js';
 
@@ -6,7 +7,10 @@ describe('env command', () => {
 	test('show helps', () => {
 		const response = execEnv('--help');
 
-		expect(response).toMatch(/usage: env/i);
+		// ANSI-tolerant: words stay intact even when wrapped in color codes
+		expect(response).toMatch(/usage/i);
+		expect(response).toMatch(/commands:/i);
+		expect(response).toMatch(/env pull/);
 	});
 
 	test('load env into run.js', () => {
