@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { UserConfigExport } from 'vite';
 import dts from 'vite-plugin-dts';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import tsconfig from './tsconfig.json' with { type: 'json' };
 
 const { compilerOptions } = tsconfig;
@@ -22,6 +21,10 @@ const isExternal = (id: string): boolean =>
 
 export default {
 	clearScreen: false,
+	// vite 8 resolves tsconfig `paths` natively (replaces vite-tsconfig-paths)
+	resolve: {
+		tsconfigPaths: true,
+	},
 	build: {
 		sourcemap: compilerOptions.sourceMap,
 		target: compilerOptions.target,
@@ -45,7 +48,6 @@ export default {
 		},
 	},
 	plugins: [
-		tsconfigPaths(),
 		dts({
 			entryRoot: 'src',
 			exclude: ['src/**/*.{test,spec}.ts'],

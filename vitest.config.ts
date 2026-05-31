@@ -1,11 +1,13 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
 import type { ViteUserConfig } from 'vitest/config';
 
 const REPORTS_DIR = '__reports__';
 
 export default {
 	clearScreen: false,
-	plugins: [tsconfigPaths()],
+	// vite 8 resolves tsconfig `paths` natively (replaces vite-tsconfig-paths)
+	resolve: {
+		tsconfigPaths: true,
+	},
 	test: {
 		coverage: {
 			include: ['src/**/*.ts'],
