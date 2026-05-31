@@ -1,37 +1,29 @@
 {
 	"compilerOptions": {
+		"ignoreDeprecations": "6.0",
 		"baseUrl": "src",
-		"outDir": "dist",
-
+		"paths": {
+			"arguments": ["arguments.ts"],
+			"commands/*": ["commands/*"],
+			"interfaces": ["interfaces/index.ts"],
+			"providers": ["providers/index.ts"],
+			"utils": ["utils/index.ts"]
+		},
 		"target": "es2022",
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"resolveJsonModule": true,
-
-		"allowJs": false,
-		"checkJs": false,
-
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-
-		"incremental": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
 		"sourceMap": true,
 		"declaration": true,
 		"declarationMap": true,
-		"removeComments": true,
-
-		"isolatedModules": true,
-		"esModuleInterop": true,
-		"importHelpers": false,
-		"skipLibCheck": false,
-		"downlevelIteration": false,
-
 		"strict": true,
 		"strictPropertyInitialization": false,
-		"noFallthroughCasesInSwitch": false,
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"exactOptionalPropertyTypes": false
+		"skipLibCheck": true,
+		"types": ["node"]
 	},
-	"include": ["src/**/*", "tests/**/*", "**/*.spec.ts", "**/*.test.ts"]
+	"include": ["src/**/*", "tests/**/*", "vite.config.ts", "vitest.config.ts"]
 }
