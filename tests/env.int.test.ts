@@ -7,7 +7,7 @@ describe('env command', () => {
 	test('show helps', () => {
 		const response = execEnv('--help');
 
-		// ANSI-tolerant: words stay intact even when wrapped in color codes
+		// tolerant to ANSI codes: words stay intact even when color-wrapped
 		expect(response).toMatch(/usage/i);
 		expect(response).toMatch(/commands:/i);
 		expect(response).toMatch(/env pull/);

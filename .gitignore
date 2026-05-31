@@ -5,6 +5,7 @@
 
 # testing
 /coverage
+/__reports__
 
 # published package
 /dist

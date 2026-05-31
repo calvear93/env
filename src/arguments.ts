@@ -45,9 +45,10 @@ export const args: Record<keyof CommandArguments, Options> = {
 	},
 	ci: {
 		default: ci.isCI,
-		describe: 'Run providers in continuous-integration mode (skips local files)',
 		group: GROUPS.CORE,
 		type: 'boolean',
+		describe:
+			'Run providers in continuous-integration mode (skips local files)',
 	},
 	configFile: {
 		alias: 'c',

@@ -15,7 +15,7 @@
 
 <p align="center">
   <img
-	src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square"
+	src="https://img.shields.io/badge/version-3.0.0-blue?style=flat-square"
 	alt="version"
   />
   &nbsp;
@@ -25,13 +25,18 @@
   />
   &nbsp;
   <img
-	src="https://img.shields.io/badge/nodejs-~14.0.0_||_^16.14.2-darkgreen?style=flat-square"
+	src="https://img.shields.io/badge/ESM-only-f7df1e?style=flat-square"
+	alt="esm only"
+  />
+  &nbsp;
+  <img
+	src="https://img.shields.io/badge/nodejs->=20-darkgreen?style=flat-square"
 	alt="nodejs engine"
   />
   &nbsp;
   <img
-	src="https://img.shields.io/badge/npm->=7.5.6-darkgreen?style=flat-square"
-	alt="npm engine"
+	src="https://img.shields.io/badge/pnpm->=9-darkgreen?style=flat-square"
+	alt="pnpm engine"
   />
   &nbsp;
   <img
@@ -54,22 +59,26 @@ Eases NodeJS <b>environment variable handling</b>, like [env-cmd](https://www.np
 
 ## 📌 **Requirements**
 
-First, [download](https://nodejs.org/) and install **NodeJS**. Version `16` or higher is required.
+First, [download](https://nodejs.org/) and install **NodeJS**. Version `20` or higher is required.
 
-Validate installed versions of node and npm with:
+> 🧩 **ESM only**: this package is published as native ECMAScript Modules
+> (`"type": "module"`). Import it from ESM code, and author any custom provider
+> as an ESM module with a `export default`.
+
+Validate installed versions of node and pnpm with:
 
 ```bash
 > node -v
-v16.14.2
+v20.0.0
 
-> npm -v
-8.3.0
+> pnpm -v
+9.0.0
 ```
 
-You can initialize a new npm project using:
+You can initialize a new project using:
 
 ```bash
-> npm init
+> pnpm init
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -78,9 +87,9 @@ You can initialize a new npm project using:
 
 ## ⚡️ **Quick start**
 
-> 🔔 Make sure that you have [NodeJS 14+](https://nodejs.org/) installed on your computer.
+> 🔔 Make sure that you have [NodeJS 20+](https://nodejs.org/) installed on your computer.
 
--   Installs the package:
+- Installs the package:
 
 ```bash
 > npm install @calvear/env
@@ -92,7 +101,7 @@ You can initialize a new npm project using:
 > _
 ```
 
--   Executes binary directly:
+- Executes binary directly:
 
 ```bash
 > node_modules/.bin/env --help
@@ -108,7 +117,7 @@ You can initialize a new npm project using:
 > _
 ```
 
--   Or add desired commands in your **npm script** in `package.json`:
+- Or add desired commands in your **npm script** in `package.json`:
 
 ```javascript
 {
@@ -132,7 +141,7 @@ You can initialize a new npm project using:
 }
 ```
 
--   Execs your command:
+- Execs your command:
 
 **file**: _dist/main.js_
 
@@ -195,9 +204,9 @@ console.log(`My environment loaded is: ${process.env.ENV}`);
 │   ├── exec.ts # initialization logic (load config, commands, etc.)
 │   └── main.ts
 ├── tests/ # integration tests
-├── .eslintrc.json
-├── jest.config.json
-├── tsconfig.build.json
+├── eslint.config.js
+├── vite.config.ts
+├── vitest.config.ts
 └── tsconfig.json
 ```
 
@@ -219,45 +228,45 @@ _`[[root]]/config-file.[[env]].json`_ will be _`config/config-file.dev.json`_.
 
 ### Global options
 
-| Option							 | Description									 | Type	   | Default | Required? |
+| Option                             | Description                                     | Type       | Default | Required? |
 | ---------------------------------- | ----------------------------------------------- | ---------- | ------- | --------- |
-| `--help`						   | Shows help									  | `boolean`  |		 | No		|
-| `--e, --env`					   | Environment for load							| `string`   |		 | Yes	   |
-| `-m, --modes`					  | Execution modes								 | `string[]` | `[]`	| No		|
-| `--nd, --nestingDelimiter`		 | Nesting level delimiter for flatten			 | `string`   | `__`	| No		|
-| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays		  | `boolean`  | `false` | No		|
-| `-x, --expand`					 | Interpolates environment variables using itself | `boolean`  | `false` | No		|
-| `-ci`							  | Continuous Integration mode					 | `boolean`  | `false` | No		|
+| `--help`                           | Shows help                                      | `boolean`  |         | No        |
+| `--e, --env`                       | Environment for load                            | `string`   |         | Yes       |
+| `-m, --modes`                      | Execution modes                                 | `string[]` | `[]`    | No        |
+| `--nd, --nestingDelimiter`         | Nesting level delimiter for flatten             | `string`   | `__`    | No        |
+| `--arrDesc, --arrayDescomposition` | Whether serialize or break down arrays          | `boolean`  | `false` | No        |
+| `-x, --expand`                     | Interpolates environment variables using itself | `boolean`  | `false` | No        |
+| `-ci`                              | Continuous Integration mode                     | `boolean`  | `false` | No        |
 
 </br>
 
 ### Workspace options
 
-| Option			 | Description					   | Type	 | Default						   | Required? |
+| Option             | Description                       | Type     | Default                           | Required? |
 | ------------------ | --------------------------------- | -------- | --------------------------------- | --------- |
-| `--root`		   | Default environment folder path   | `string` | `env`							 | No		|
-| `-c, --configFile` | Config JSON file path			 | `string` | `[[root]]/settings/settings.json` | No		|
-| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/settings/schema.json`   | No		|
+| `--root`           | Default environment folder path   | `string` | `env`                             | No        |
+| `-c, --configFile` | Config JSON file path             | `string` | `[[root]]/settings/settings.json` | No        |
+| `-s, --schemaFile` | Environment Schema JSON file path | `string` | `[[root]]/settings/schema.json`   | No        |
 
 ### JSON Schema options
 
-| Option				 | Description												| Type			  | Default | Required? |
+| Option                 | Description                                                | Type              | Default | Required? |
 | ---------------------- | ---------------------------------------------------------- | ----------------- | ------- | --------- |
-| `-r, --resolve`		| Whether merges new schema or override					  | `merge, override` | `merge` | No		|
-| `--null, --nullable`   | Whether variables are nullable by default				  | `boolean`		 | `true`  | No		|
-| `--df, --detectFormat` | Whether format of strings variables are included in schema | `boolean`		 | `true`  | No		|
+| `-r, --resolve`        | Whether merges new schema or override                      | `merge, override` | `merge` | No        |
+| `--null, --nullable`   | Whether variables are nullable by default                  | `boolean`         | `true`  | No        |
+| `--df, --detectFormat` | Whether format of strings variables are included in schema | `boolean`         | `false` | No        |
 
 ### Logger options
 
-| Option			  | Description | Type									 | Default | Required? |
+| Option              | Description | Type                                     | Default | Required? |
 | ------------------- | ----------- | ---------------------------------------- | ------- | --------- |
-| `--log, --logLevel` | Log level   | `silly, trace, debug, info, warn, error` | `info`  | No		|
+| `--log, --logLevel` | Log level   | `silly, trace, debug, info, warn, error` | `info`  | No        |
 
 <div align="center">
   <span style="font-size:20px;font-weight:bold" align="center">Commands</span>
 </div>
 
--   ## **`env`**
+- ## **`env`**
 
 Inject your environment variables into `process.env` and executes a command.
 
@@ -279,7 +288,7 @@ Examples:
 > env -e prod -m build optimize : npm build
 ```
 
--   ## **`pull`**
+- ## **`pull`**
 
 Pulls environment variables from providers stores.
 
@@ -287,9 +296,9 @@ Pulls environment variables from providers stores.
 env pull -e [env] [options..]
 ```
 
-| Option			| Description			   | Type	  | Default | Required? |
+| Option            | Description               | Type      | Default | Required? |
 | ----------------- | ------------------------- | --------- | ------- | --------- |
-| `-o, --overwrite` | Overwrite local variables | `boolean` | `false` | No		|
+| `-o, --overwrite` | Overwrite local variables | `boolean` | `false` | No        |
 
 Examples:
 
@@ -297,7 +306,7 @@ Examples:
 > env pull -e dev
 ```
 
--   ## **`push`**
+- ## **`push`**
 
 Pushes environment variables to providers stores.
 
@@ -305,9 +314,9 @@ Pushes environment variables to providers stores.
 env push -e [env] [options..]
 ```
 
-| Option		| Description						  | Type	  | Default | Required? |
+| Option        | Description                          | Type      | Default | Required? |
 | ------------- | ------------------------------------ | --------- | ------- | --------- |
-| `-f, --force` | Force push for secrets (replace all) | `boolean` | `false` | No		|
+| `-f, --force` | Force push for secrets (replace all) | `boolean` | `false` | No        |
 
 Examples:
 
@@ -315,7 +324,7 @@ Examples:
 > env push -e dev
 ```
 
--   ## **`schema`**
+- ## **`schema`**
 
 Generates validation schema from providers output variables.
 
@@ -329,7 +338,7 @@ Examples:
 > env schema -e dev -m build
 ```
 
--   ## **`export`**
+- ## **`export`**
 
 Export unified environment variables to a file from providers.
 
@@ -337,10 +346,10 @@ Export unified environment variables to a file from providers.
 env export -e [env] -m [modes] [options..]
 ```
 
-| Option		  | Description						| Type	 | Default  | Required? |
+| Option          | Description                        | Type     | Default  | Required? |
 | --------------- | ---------------------------------- | -------- | -------- | --------- |
-| `-u, -p, --uri` | Uri for export file with variables | `string` | `.env`   | No		|
-| `-f, --format`  | Format for export variables		| `string` | `dotenv` | No		|
+| `-u, -p, --uri` | Uri for export file with variables | `string` | `.env`   | No        |
+| `-f, --format`  | Format for export variables        | `string` | `dotenv` | No        |
 
 Examples:
 
@@ -355,9 +364,9 @@ Examples:
 ## 📡 **Providers**
 
 Main feature of this library is using providers for get and set environment variables.
-So, you can define your own provider, but lib came with 3 integrated providers:
+So, you can define your own provider, but lib came with 4 integrated providers:
 
--   ## **`package-json`**
+- ## **`package-json`**
 
 Load some info from your project `package.json`.
 
@@ -373,9 +382,9 @@ Info read is:
 }
 ```
 
-| Option			  | Description				 | Type	 | Default | Required? |
+| Option              | Description                 | Type     | Default | Required? |
 | ------------------- | --------------------------- | -------- | ------- | --------- |
-| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`	| No		|
+| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`    | No        |
 
 Examples:
 
@@ -385,7 +394,7 @@ Examples:
 
 </br>
 
--   ## **`app-settings`**
+- ## **`app-settings`**
 
 Non secrets loader for `appsettings.json`.
 
@@ -436,65 +445,38 @@ In example:
 }
 ```
 
-| Option				  | Description						  | Type	 | Default					 | Required? |
-| ----------------------- | ------------------------------------ | -------- | --------------------------- | --------- |
-| `--ef, --envFile`	   | Environment variables file path	  | `string` | `[[root]]/appsettings.json` | No		|
-| `--sp, --sectionPrefix` | Prefix for env and modes in env file | `string` | `` | No					 |
+| Option            | Description                     | Type     | Default                     | Required? |
+| ----------------- | ------------------------------- | -------- | --------------------------- | --------- |
+| `--ef, --envFile` | Environment variables file path | `string` | `[[root]]/appsettings.json` | No        |
 
 </br>
 
--   ## **`secrets`**
+- ## **`secrets`**
 
 Secrets loader for `env/[[env]].env.json`.
 
-| Option				| Description				| Type	 | Default					 | Required? |
+| Option                | Description                | Type     | Default                     | Required? |
 | --------------------- | -------------------------- | -------- | --------------------------- | --------- |
-| `--sf, --secretsFile` | Secret variables file path | `string` | `[[root]]/[[env]].env.json` | No		|
+| `--sf, --secretsFile` | Secret variables file path | `string` | `[[root]]/[[env]].env.json` | No        |
 
--   ## **`local`**
+- ## **`local`**
 
 Local variables loader for `env/[[env]].local.env.json`.
 
-| Option			  | Description			   | Type	 | Default						   | Required? |
+| Option              | Description               | Type     | Default                           | Required? |
 | ------------------- | ------------------------- | -------- | --------------------------------- | --------- |
-| `--lf, --localFile` | Local variables file path | `string` | `[[root]]/[[env]].local.env.json` | No		|
-
--   ## **`package-json`**
-
-Load some info from your project `package.json`.
-
-Info read is:
-
-```json
-{
-	"version": "1.0.0",
-	"project": "project-name",
-	"name": "@package-name",
-	"title": "app-name",
-	"description": "any description"
-}
-```
-
-| Option			  | Description				 | Type	 | Default | Required? |
-| ------------------- | --------------------------- | -------- | ------- | --------- |
-| `--vp, --varPrefix` | Prefix for loaded variables | `string` | `""`	| No		|
-
-Examples:
-
-```bash
-> env -e dev -m build : react-script build : --vp REACT_APP_
-```
+| `--lf, --localFile` | Local variables file path | `string` | `[[root]]/[[env]].local.env.json` | No        |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- PROVIDERS -->
+<!-- CUSTOM PROVIDERS -->
 
 ## ✒ **Creating Custom Providers**
 
 You can create your custom providers, in two ways:
 
--   **Local Script**: you must create a JavaScript file (.js), exporting by default your "provider" following standard interface exported by this lib.
--   **NPM Package**: you must create your custom NPM library and export by default your "provider" using standard interface exported by this lib.
+- **Local Script**: you must create a JavaScript file (.js), exporting by default your "provider" following standard interface exported by this lib.
+- **NPM Package**: you must create your custom NPM library and export by default your "provider" using standard interface exported by this lib.
 
 How to load your provider is shown in Config Section.
 
@@ -617,19 +599,19 @@ You can configure any config argument inside you config file, but commonly provi
 
 ## 📑 Roadmap
 
--   [x] Environment injection handling
--   [x] Customizable variables store providers
--   [x] Commands
-	-   [x] `push` executes a pushing action over every providers
-	-   [x] `pull` executes a pulling action over every providers
-	-   [x] `schema` regenerates JSON schema using providers output
-	-   [x] `export` exports environment variables in json or dotenv format
-	-   [ ] `prepare` prepares environment (creates folder and files required)
--   [ ] Improve documentation
--   [ ] Providers pull history
--   [ ] Providers pull and push difference calc and prompts
--   [ ] Providers dependsOn option
--   [ ] Programatic module
+- [x] Environment injection handling
+- [x] Customizable variables store providers
+- [x] Commands
+    - [x] `push` executes a pushing action over every providers
+    - [x] `pull` executes a pulling action over every providers
+    - [x] `schema` regenerates JSON schema using providers output
+    - [x] `export` exports environment variables in json or dotenv format
+    - [ ] `prepare` prepares environment (creates folder and files required)
+- [ ] Improve documentation
+- [ ] Providers pull history
+- [ ] Providers pull and push difference calc and prompts
+- [ ] Providers dependsOn option
+- [ ] Programatic module
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -637,7 +619,7 @@ You can configure any config argument inside you config file, but commonly provi
 
 Project uses ESLint, for code formatting and code styling normalizing.
 
--   **eslint**: linter integrated with TypeScript.
+- **eslint**: linter integrated with TypeScript.
 
 For correct interpretation of linters, is recommended to use [Visual Studio Code](https://code.visualstudio.com/) as IDE and install the plugins in .vscode folder at 'extensions.json', as well as use the config provided in 'settings.json'
 
@@ -655,12 +637,14 @@ For last changes see [CHANGELOG.md](CHANGELOG.md) file for details.
 
 ## 🛠️ Built with
 
--   [yargs](http://yargs.js.org/)
--   [tslog](https://tslog.js.org/#/)
--   [subslate](https://github.com/josh-hemphill/subslate)
--   [merge-deep](https://github.com/jonschlinkert/merge-deep)
--   [ajv](https://ajv.js.org/)
--   [to-json-schema](https://www.npmjs.com/package/to-json-schema)
+- [yargs](http://yargs.js.org/)
+- [tslog](https://tslog.js.org/#/) (v4)
+- [picocolors](https://github.com/alexeyraspopov/picocolors)
+- [subslate](https://github.com/josh-hemphill/subslate)
+- [merge-deep](https://github.com/jonschlinkert/merge-deep)
+- [ajv](https://ajv.js.org/)
+- [to-json-schema](https://www.npmjs.com/package/to-json-schema)
+- [vite](https://vite.dev/) + [vitest](https://vitest.dev/) (build & test)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
