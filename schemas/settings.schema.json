@@ -90,7 +90,7 @@
 			"default": "info"
 		},
 		"logMaskAnyRegEx": {
-			"description": "Regex for hide sensitive information matching by it's key.",
+			"description": "Regexes that mask matching content inside any string value (global, every occurrence).",
 			"type": "array",
 			"items": {
 				"type": "string"
@@ -98,7 +98,7 @@
 			"default": []
 		},
 		"logMaskValuesOfKeys": {
-			"description": "Keys for hide sensitive information",
+			"description": "Mask a variable's whole value when its key matches: an exact key name (case-insensitive) or a /source/flags regex on the key name, e.g. \"/token/i\".",
 			"type": "array",
 			"items": {
 				"type": "string"

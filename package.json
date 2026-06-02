@@ -1,5 +1,5 @@
 {
-	"version": "3.0.1",
+	"version": "3.1.0",
 	"project": "common",
 	"name": "@calvear/env",
 	"type": "module",
@@ -21,6 +21,7 @@
 		"test:watch": "vitest --project unit",
 		"test:cov": "vitest run --project unit --coverage",
 		"test:int": "vitest run --project integration",
+		"run:test": "node dist/main.js --root tests/env --log debug -e dev : node tests/run.js",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint --cache --cache-location node_modules/.cache/eslint/ .",
 		"lint:fix": "eslint --fix --cache --cache-location node_modules/.cache/eslint/ .",

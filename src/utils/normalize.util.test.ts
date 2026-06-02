@@ -31,6 +31,13 @@ describe('flatten', () => {
 	it('supports a parent key prefix', () => {
 		expect(flatten({ a: 1 }, '__', 'p__')).toEqual({ p__a: 1 });
 	});
+	it('strips the $ global marker per segment (leading only)', () => {
+		expect(flatten({ $TOP: 2, A$B: 3, GROUP: { $VAR1: 1 } })).toEqual({
+			A$B: 3,
+			GROUP__VAR1: 1,
+			TOP: 2,
+		});
+	});
 });
 
 describe('normalize', () => {

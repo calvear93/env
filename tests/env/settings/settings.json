@@ -1,5 +1,5 @@
 {
-	"logMaskValuesOfKeys": ["SECRET"],
+	"logMaskValuesOfKeys": ["SECRET", "/group1/i"],
 	"providers": [
 		{
 			"path": "package-json",

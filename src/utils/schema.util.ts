@@ -134,9 +134,11 @@ export function flatSchema(
 		for (const key in schema.properties) {
 			if (key[0] === '#') continue;
 
-			// global property, but prefix removed for injection
+			// global property: strip the `$` marker so the flat schema key
+			// matches the injected env key (which flatten/normalize also strip)
+			const cleanKey = key[0] === '$' ? key.slice(1) : key;
 			const subKey =
-				parentKey + (parentKey ? nestingDelimiter : '') + key;
+				parentKey + (parentKey ? nestingDelimiter : '') + cleanKey;
 
 			container = {
 				...container,

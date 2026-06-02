@@ -38,10 +38,13 @@ different stores, **JSON Schema validation**, value **interpolation**, secret
   and `local` providers, plus your own (NPM package or local script).
 - 💉 **Injection** — load variables into `process.env` and run any command.
 - ✅ **JSON Schema** — auto-generate and validate variables before injecting.
-- 🪆 **Nested & shared keys** — `GROUP__VAR` flattening and `$`-prefixed shared
-  keys.
+- 🪆 **Nested & global keys** — `GROUP__VAR` flattening and `$`-prefixed global
+  keys (the `$` marker is stripped on injection).
 - 🧵 **Interpolation** — reference other args/vars with `[[ ]]` delimiters.
-- 🙈 **Masking** — hide secret values in logs.
+- 🙈 **Masking** — hide secrets in the debug output by key name, key regex, or
+  value content regex.
+- 🎨 **Pretty output** — colorized, sorted, masked debug render of the resolved
+  environment.
 - 📤 **Export** — write the unified environment to a `.env` or JSON file.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -132,7 +135,7 @@ Run it:
     environment (12 variables)
       ENV        = dev
       NODE_ENV   = development
-      SECRET     = ***
+      SECRET     = *****
       VERSION    = 3.0.0
       ...
 
@@ -142,6 +145,10 @@ Run it:
   My environment loaded is: dev
     ✓ finished in 168ms
 ```
+
+> The resolved environment is only rendered at `--log debug`. Values are
+> **sorted**, **secrets are masked**, and colored by type — strings in gray,
+> numbers in orange, booleans `true`/`false` in green/red.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -185,11 +192,13 @@ Run it:
 
 ### Logger options
 
-| Option                         | Description                            | Type                                          | Default |
-| ------------------------------ | -------------------------------------- | --------------------------------------------- | ------- |
-| `--log, --logLevel`            | Log level                              | `silly`/`trace`/`debug`/`info`/`warn`/`error` | `info`  |
-| `--mvk, --logMaskValuesOfKeys` | Mask values of the given keys in logs  | `string[]`                                    | `[]`    |
-| `--mrx, --logMaskAnyRegEx`     | Mask values matching the given regexes | `string[]`                                    | `[]`    |
+| Option                         | Description                                            | Type                                          | Default |
+| ------------------------------ | ------------------------------------------------------ | --------------------------------------------- | ------- |
+| `--log, --logLevel`            | Log level                                              | `silly`/`trace`/`debug`/`info`/`warn`/`error` | `info`  |
+| `--mvk, --logMaskValuesOfKeys` | Mask a value when its **key** matches (exact or regex) | `string[]`                                    | `[]`    |
+| `--mrx, --logMaskAnyRegEx`     | Mask **value content** matching a regex (every match)  | `string[]`                                    | `[]`    |
+
+See [🙈 Masking secrets](#-masking-secrets) for the full masking semantics.
 
 ---
 
@@ -406,9 +415,10 @@ Any CLI argument can be set in your config file
 
 ```jsonc
 {
-	"log": "silly",
-	// hide values of these keys in the logs
-	"logMaskValuesOfKeys": ["SECRET", "MY_API_KEY"],
+	"logLevel": "silly",
+	// mask secrets in the debug output (see the Masking section)
+	"logMaskValuesOfKeys": ["SECRET", "/token/i", "/api_key/i"],
+	"logMaskAnyRegEx": ["AKIA[0-9A-Z]{16}"],
 	"providers": [
 		{ "path": "package-json" },
 		{ "path": "app-settings" },
@@ -430,33 +440,56 @@ Any CLI argument can be set in your config file
 
 <!-- SHARED / NESTED -->
 
-## 🪆 Shared & nested keys
+## 🪆 Nested & global keys
 
-Organize keys in nested objects. Declare **shared** keys (skipping group
-separation) by prefixing them with `$`:
+Organize variables in nested objects. They are **flattened** into `process.env`
+using the nesting delimiter (`__` by default):
 
 ```jsonc
 {
-	"$SHARED": "sharedValue",
 	"GROUP1": {
-		"$SHARED": "sharedValue2",
 		"VAR": "anyValue1",
+		"GROUP2": { "VAR": "anyValue2" },
 	},
-	"GROUP2": { "SUBGROUP1": { "VAR": "anyValue1" } },
 	"VAR3": "anyValue3",
 }
 ```
 
-Consumed in your app as flattened keys (`__` separator by default):
-
 ```javascript
 process.env.GROUP1__VAR; // "anyValue1"
-process.env.GROUP2__SUBGROUP1__VAR; // "anyValue1"
+process.env.GROUP1__GROUP2__VAR; // "anyValue2"
 process.env.VAR3; // "anyValue3"
-// shared keys drop the `$` and the group prefix
-process.env.SHARED; // "sharedValue"
-process.env.GROUP1__SHARED; // "sharedValue2"
 ```
+
+### `$` global marker
+
+Prefix a key with `$` to mark it as **global/shared** — relevant for the
+`secrets` provider, which uses the marker to scope the secret across the project
+rather than per-mode. The marker is **stripped on injection** at any nesting
+depth, while the group prefix is **kept**:
+
+```jsonc
+{
+	"$TOKEN": "rootValue",
+	"GROUP1": {
+		"$SHARED": "groupValue",
+		"VAR": "anyValue",
+	},
+}
+```
+
+```javascript
+// the `$` is removed; the nesting prefix is preserved
+process.env.TOKEN; // "rootValue"        (was $TOKEN)
+process.env.GROUP1__SHARED; // "groupValue"  (was GROUP1.$SHARED)
+process.env.GROUP1__VAR; // "anyValue"
+```
+
+> The `$` is removed only from the **process environment** and from JSON Schema
+> validation keys. It is **preserved** in the secrets file storage, so the
+> `secrets` provider round-trips the global marker intact.
+>
+> Skip a key entirely (never injected) by prefixing it with `#`.
 
 ### Priority (lowest → highest)
 
@@ -464,6 +497,61 @@ process.env.GROUP1__SHARED; // "sharedValue2"
 2. `appsettings.json` (`app-settings`)
 3. `<env>.env.json` (`secrets`)
 4. `<env>.local.env.json` (`local`, skipped in `--ci`)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- MASKING -->
+
+## 🙈 Masking secrets
+
+When the resolved environment is rendered (at `--log debug`) and when objects
+are logged, secrets are masked as `*****`. There are two complementary
+mechanisms, configurable via CLI flags or the [config file](#-config):
+
+### By key — `logMaskValuesOfKeys` (`--mvk`)
+
+Masks a variable's **whole value** when its **key** matches. Each entry is
+either an **exact key name** (case-insensitive) or a `/source/flags` **regex**
+matched against the key:
+
+```jsonc
+{
+	"logMaskValuesOfKeys": [
+		"PASSWORD", // exact key (case-insensitive)
+		"/token/i", // any key containing "token"
+		"/_secret$/i", // any key ending in "_secret"
+	],
+}
+```
+
+```bash
+# same, via CLI flag
+> env -e dev --log debug --mvk PASSWORD "/token/i" : node app.js
+```
+
+### By value content — `logMaskAnyRegEx` (`--mrx`)
+
+Masks **only the matching portion** of any string value, wherever it appears.
+The global flag is always forced, so **every** occurrence is masked; use the
+`/source/flags` form for extra flags such as `i`:
+
+```jsonc
+{
+	"logMaskAnyRegEx": [
+		"AKIA[0-9A-Z]{16}", // AWS access key ids
+		"/bearer .+/i", // bearer tokens (case-insensitive)
+	],
+}
+```
+
+| Goal                                                | Use                   |
+| --------------------------------------------------- | --------------------- |
+| Know the **key** of the secret                      | `logMaskValuesOfKeys` |
+| Know the **shape** of the secret (token, key, RUT…) | `logMaskAnyRegEx`     |
+
+> In JSON the backslash must be escaped: write `\\d` for `\d`. Neither mechanism
+> masks the variable **name** — keys are always shown. Masking only affects the
+> output; the real (unmasked) values are still injected into `process.env`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

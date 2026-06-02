@@ -41,6 +41,33 @@ describe('createLogger', () => {
 		expect(log.settings.maskValuesRegEx).toHaveLength(1);
 		expect(log.settings.maskValuesRegEx?.[0]).toBeInstanceOf(RegExp);
 	});
+
+	it('forces the global flag so every occurrence is masked', () => {
+		const log = createLogger({ maskAnyRegEx: ['secret'] });
+		const regex = log.settings.maskValuesRegEx![0]!;
+		expect(regex.source).toBe('secret');
+		expect(regex.global).toBe(true);
+	});
+
+	it('keeps an explicitly supplied global flag without duplicating it', () => {
+		const log = createLogger({ maskAnyRegEx: [String.raw`/secret/g`] });
+		const regex = log.settings.maskValuesRegEx![0]!;
+		expect(regex.source).toBe('secret');
+		expect(regex.flags).toBe('g');
+	});
+
+	it('parses the /source/flags form and keeps extra flags', () => {
+		const log = createLogger({ maskAnyRegEx: [String.raw`/secret/i`] });
+		const regex = log.settings.maskValuesRegEx![0]!;
+		expect(regex.source).toBe('secret');
+		expect(regex.global).toBe(true);
+		expect(regex.ignoreCase).toBe(true);
+	});
+
+	it('enables case-insensitive key masking', () => {
+		const log = createLogger();
+		expect(log.settings.maskValuesOfKeysCaseInsensitive).toBe(true);
+	});
 });
 
 describe('configureLogger', () => {
@@ -64,6 +91,7 @@ describe('configureLogger', () => {
 		expect(log.settings.maskValuesRegEx).toHaveLength(2);
 		expect(log.settings.maskValuesRegEx?.[0]).toBeInstanceOf(RegExp);
 		expect(log.settings.maskValuesRegEx?.[1]).toBeInstanceOf(RegExp);
+		expect(log.settings.maskValuesRegEx?.[0]?.global).toBe(true);
 	});
 
 	it('is a no-op when empty object provided', () => {

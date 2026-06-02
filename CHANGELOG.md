@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2026-06-02
+
+### Added
+
+-   pretty environment render colorized by type at `--log debug` — strings in gray, numbers in orange, booleans `true`/`false` in green/red — sorted and masked; the `export` command shares the same render
+-   mask secrets by key regex: `logMaskValuesOfKeys` (`--mvk`) entries may now be a `/source/flags` regex matched against the key name (e.g. `/token/i`), in addition to exact key names
+-   `logMaskAnyRegEx` (`--mrx`) supports the `/source/flags` form and always forces the global flag, so **every** occurrence inside a value is masked
+-   case-insensitive key masking for `logMaskValuesOfKeys`
+
+### Fixed
+
+-   nested `$` global marker leaked into the variable name: `GROUP.$VAR1` was injected as `GROUP__$VAR1`. `flatten` now strips the marker per segment → `GROUP__VAR1` (the marker is still preserved in the secrets file storage)
+-   `flatSchema` strips the `$` marker as well, so schema-validation keys match the injected (stripped) environment keys and global keys are validated correctly
+
 ## [3.0.0] - 2026-05-31
 
 ### Breaking

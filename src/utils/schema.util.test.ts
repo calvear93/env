@@ -79,6 +79,19 @@ describe('flatSchema', () => {
 			}),
 		).toEqual({ g__v: { type: 'string' } });
 	});
+	it('strips the $ global marker so flat keys match the injected env', () => {
+		expect(
+			flatSchema({
+				type: 'object',
+				properties: {
+					GROUP: {
+						properties: { $VAR1: { type: 'string' } },
+						type: 'object',
+					},
+				},
+			}),
+		).toEqual({ GROUP__VAR1: { type: 'string' } });
+	});
 	it('skips # prefixed keys', () => {
 		const result = flatSchema({
 			type: 'object',

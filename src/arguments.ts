@@ -102,7 +102,7 @@ export const args: Record<keyof CommandArguments, Options> = {
 	logMaskValuesOfKeys: {
 		alias: 'mvk',
 		default: [],
-		describe: 'Mask the values of these keys in logs',
+		describe: 'Mask a value when its key matches (exact or /regex/)',
 		group: GROUPS.LOG_WORKSPACE,
 		type: 'array',
 	},

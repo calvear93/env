@@ -9,6 +9,9 @@ const PROVIDER_ICONS: Record<string, string> = {
 	secrets: '🔐',
 };
 
+// escape introducer (ANSI), kept as a constant so the source stays ASCII-clean
+const ESC = String.fromCodePoint(27);
+
 /** Whether output is visible at the given verbosity (lower = more verbose). */
 function visibleAt(level: number): boolean {
 	return (logger.settings.minLevel ?? LOG_LEVELS.info) <= level;
@@ -18,6 +21,35 @@ function line(text = '', level = LOG_LEVELS.info): void {
 	if (visibleAt(level)) process.stdout.write(`${text}\n`);
 }
 
+interface KeyMaskers {
+	// lowercased exact key names
+	exact: Set<string>;
+	// regexes matched against the key name (no global flag, used with .test)
+	patterns: RegExp[];
+}
+
+/**
+ * Splits `maskValuesOfKeys` entries into exact key names and key-name regexes.
+ * An entry written as `/source/flags` becomes a regex matched against the key;
+ * anything else is an exact (case-insensitive) key name. The global flag is
+ * intentionally NOT forced here: a global regex is stateful under `.test()`
+ * (its `lastIndex` advances), unlike the value masking which needs `g` for
+ * `replace`.
+ */
+function buildKeyMaskers(keys: readonly string[]): KeyMaskers {
+	const exact = new Set<string>();
+	const patterns: RegExp[] = [];
+
+	for (const entry of keys) {
+		const delimited = /^\/(.*)\/([a-z]*)$/s.exec(entry);
+
+		if (delimited) patterns.push(new RegExp(delimited[1], delimited[2]));
+		else exact.add(entry.toLowerCase());
+	}
+
+	return { exact, patterns };
+}
+
 /**
  * Masks a value the same way the logger does, reusing its mask settings, so the
  * pretty variables view never leaks secrets.
@@ -25,22 +57,27 @@ function line(text = '', level = LOG_LEVELS.info): void {
 function maskValue(
 	key: string,
 	value: string,
+	keyMaskers: KeyMaskers,
 ): { masked: boolean; value: string } {
-	const {
-		maskPlaceholder = '***',
-		maskValuesOfKeys = [],
-		maskValuesRegEx = [],
-	} = logger.settings;
+	const { maskPlaceholder = '***', maskValuesRegEx = [] } = logger.settings;
 
-	if (maskValuesOfKeys.some((k) => k.toLowerCase() === key.toLowerCase()))
+	if (
+		keyMaskers.exact.has(key.toLowerCase()) ||
+		keyMaskers.patterns.some((rx) => rx.test(key))
+	)
 		return { masked: true, value: maskPlaceholder };
 
 	let masked = false;
 	let out = value;
 
 	for (const regex of maskValuesRegEx) {
-		const next = out.replaceAll(
-			new RegExp(regex.source, 'g'),
+		// preserve the regex's own flags (e.g. `i`) and force global so every
+		// occurrence is masked, mirroring how the logger compiles its patterns
+		const flags = regex.flags.includes('g')
+			? regex.flags
+			: `${regex.flags}g`;
+		const next = out.replace(
+			new RegExp(regex.source, flags),
 			maskPlaceholder,
 		);
 
@@ -49,6 +86,26 @@ function maskValue(
 	}
 
 	return { masked, value: out };
+}
+
+/** 256-color orange, gated by picocolors' own color-support detection. */
+function orange(text: string): string {
+	return pc.isColorSupported ? `${ESC}[38;5;208m${text}${ESC}[39m` : text;
+}
+
+/** Colors a scalar value by its runtime type so types are visually distinct. */
+function colorScalar(value: unknown, text: string): string {
+	switch (typeof value) {
+		case 'bigint':
+		case 'number':
+			return orange(text);
+		case 'boolean':
+			return value ? pc.green(text) : pc.red(text);
+		case 'string':
+			return pc.gray(text);
+		default:
+			return pc.dim(text);
+	}
 }
 
 /** Formats a duration in ms as "142ms" or "1.4s". */
@@ -90,12 +147,22 @@ export const ui = {
 			0,
 		);
 		const heading = pc.dim(`environment (${entries.length} variables)`);
+		// compile key maskers once, not per variable
+		const keyMaskers = buildKeyMaskers(
+			logger.settings.maskValuesOfKeys ?? [],
+		);
 
 		line(`  ${heading}`, LOG_LEVELS.debug);
 
 		for (const [key, value] of entries) {
-			const { masked, value: shown } = maskValue(key, String(value));
-			const colored = masked ? pc.yellow(shown) : pc.green(shown);
+			const { masked, value: shown } = maskValue(
+				key,
+				String(value),
+				keyMaskers,
+			);
+			const colored = masked
+				? pc.yellow(shown)
+				: colorScalar(value, shown);
 
 			line(
 				`    ${pc.cyan(key.padEnd(width))} ${pc.dim('=')} ${colored}`,

@@ -88,7 +88,7 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 			);
 		}
 
-		logger.debug('environment loaded:', env);
+		ui.variables(env);
 
 		const { format, uri } = argv;
 

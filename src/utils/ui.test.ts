@@ -1,3 +1,4 @@
+import pc from 'picocolors';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LOG_LEVELS, logger } from './logger.js';
 import { formatDuration, ui } from './ui.js';
@@ -269,6 +270,42 @@ describe('ui.variables', () => {
 		expect(out).toContain('visible');
 	});
 
+	it('masks keys matching a /regex/ entry (substring, case-insensitive)', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		logger.settings.maskValuesOfKeys = ['/token/i'];
+		ui.variables({
+			ACCESS_TOKEN: 'aaa',
+			HOST: 'localhost',
+			Refresh_Token: 'bbb',
+		});
+		const out = capturedOutput();
+		expect(out).not.toContain('aaa');
+		expect(out).not.toContain('bbb');
+		expect(out).toContain('localhost');
+	});
+
+	it('respects flags: /token/ without i does not mask uppercase keys', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		logger.settings.maskValuesOfKeys = ['/token/'];
+		ui.variables({ TOKEN: 'shown' });
+		const out = capturedOutput();
+		expect(out).toContain('shown');
+	});
+
+	it('supports mixing exact keys and /regex/ entries', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		logger.settings.maskValuesOfKeys = ['PASSWORD', '/key/i'];
+		ui.variables({
+			API_KEY: 'kkk',
+			HOST: 'localhost',
+			PASSWORD: 'ppp',
+		});
+		const out = capturedOutput();
+		expect(out).not.toContain('kkk');
+		expect(out).not.toContain('ppp');
+		expect(out).toContain('localhost');
+	});
+
 	it('masks every occurrence matching a mask regex', () => {
 		logger.settings.minLevel = LOG_LEVELS.debug;
 		logger.settings.maskValuesRegEx = [/token/];
@@ -278,9 +315,72 @@ describe('ui.variables', () => {
 		expect(out).toContain('clean');
 	});
 
+	it('preserves regex flags such as case-insensitivity', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		logger.settings.maskValuesRegEx = [/secret/i];
+		ui.variables({ A: 'SECRET-value', B: 'Secret' });
+		const out = capturedOutput();
+		expect(out).not.toContain('SECRET');
+		expect(out).not.toContain('Secret');
+		expect(out).toContain('***');
+	});
+
+	it('reuses an already-global mask regex as-is', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		logger.settings.maskValuesRegEx = [/tok/g];
+		ui.variables({ A: 'tok tok tok' });
+		const out = capturedOutput();
+		expect(out).not.toContain('tok');
+		expect(out).toContain('***');
+	});
+
+	it('handles undefined maskValuesOfKeys', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		(logger.settings as any).maskValuesOfKeys = undefined;
+		ui.variables({ FOO: 'bar' });
+		expect(capturedOutput()).toContain('bar');
+	});
+
 	it('handles an empty environment', () => {
 		logger.settings.minLevel = LOG_LEVELS.debug;
 		ui.variables({});
 		expect(capturedOutput()).toContain('environment (0 variables)');
+	});
+
+	it('colors values distinctly by runtime type', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		// numbers/bigints render in 256-color orange (gated by color support)
+		const esc = String.fromCodePoint(27);
+		const orange = (t: string) =>
+			pc.isColorSupported ? `${esc}[38;5;208m${t}${esc}[39m` : t;
+		ui.variables({ BIG: 10n, NO: false, NUM: 42, STR: 'hello', YES: true });
+		const out = capturedOutput();
+		// pc.* is identity when colors are disabled, so this holds either way
+		expect(out).toContain(orange('42'));
+		expect(out).toContain(orange('10'));
+		expect(out).toContain(pc.green('true'));
+		expect(out).toContain(pc.red('false'));
+		expect(out).toContain(pc.gray('hello'));
+	});
+
+	it('renders numbers as plain text when colors are unsupported', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		const original = pc.isColorSupported;
+		(pc as any).isColorSupported = false;
+		try {
+			ui.variables({ NUM: 7 });
+			const out = capturedOutput();
+			expect(out).toContain('7');
+			// no 256-color orange escape when color is unsupported
+			expect(out).not.toContain('38;5;208');
+		} finally {
+			(pc as any).isColorSupported = original;
+		}
+	});
+
+	it('renders non-scalar values dimmed', () => {
+		logger.settings.minLevel = LOG_LEVELS.debug;
+		ui.variables({ NOTHING: null });
+		expect(capturedOutput()).toContain(pc.dim('null'));
 	});
 });

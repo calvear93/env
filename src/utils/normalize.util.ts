@@ -2,6 +2,10 @@
  * Flatten a object keeping depth path
  * in key using __ as level separator.
  *
+ * Keys prefixed with `#` are skipped, and the `$` global marker is stripped
+ * per segment so nested globals (e.g. `GROUP.$VAR1`) flatten to `GROUP__VAR1`
+ * instead of leaving the `$` embedded mid-key.
+ *
  * @param {Record<string, any>} obj
  * @param {string} nestingDelimiter char for delimit nesting levels
  * @param {string} pkey first level key
@@ -23,7 +27,8 @@ export function flatten(
 
 		// skipped property
 		if (key[0] === '#') continue;
-		key = pkey + key;
+		// shared/global keys are prefixed with `$`; strip the marker per segment
+		key = pkey + (key[0] === '$' ? key.slice(1) : key);
 
 		if (value === null || type !== 'object' || Array.isArray(value)) {
 			flattened[key] = value;
