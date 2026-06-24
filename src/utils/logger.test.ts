@@ -50,14 +50,14 @@ describe('createLogger', () => {
 	});
 
 	it('keeps an explicitly supplied global flag without duplicating it', () => {
-		const log = createLogger({ maskAnyRegEx: [String.raw`/secret/g`] });
+		const log = createLogger({ maskAnyRegEx: ['/secret/g'] });
 		const regex = log.settings.maskValuesRegEx![0]!;
 		expect(regex.source).toBe('secret');
 		expect(regex.flags).toBe('g');
 	});
 
 	it('parses the /source/flags form and keeps extra flags', () => {
-		const log = createLogger({ maskAnyRegEx: [String.raw`/secret/i`] });
+		const log = createLogger({ maskAnyRegEx: ['/secret/i'] });
 		const regex = log.settings.maskValuesRegEx![0]!;
 		expect(regex.source).toBe('secret');
 		expect(regex.global).toBe(true);
