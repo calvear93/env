@@ -1,2 +1,5 @@
+minimumReleaseAgeExclude:
+  - unplugin-dts@1.0.3
+  - vite-plugin-dts@5.0.3
 onlyBuiltDependencies:
-    - unrs-resolver
+  - unrs-resolver
