@@ -27,8 +27,8 @@
 		"lint:fix": "eslint --fix --cache --cache-location node_modules/.cache/eslint/ .",
 		"format": "prettier --cache --write \"**/*.{ts,cts,mts,js,cjs,mjs,json,md,yml,yaml}\"",
 		"format:check": "prettier --cache --check \"**/*.{ts,cts,mts,js,cjs,mjs,json,md,yml,yaml}\"",
-		"pub": "pnpm typecheck && pnpm lint && pnpm test:cov && pnpm build && npm publish dist --access public --no-git-checks",
-		"pub:alpha": "pnpm typecheck && pnpm lint && pnpm test:cov && pnpm build && pnpm publish dist --tag alpha --access public --no-git-checks",
+		"pub": "pnpm typecheck && pnpm lint && pnpm test:cov && pnpm build && npm publish ./dist  --access public --no-git-checks",
+		"pub:alpha": "pnpm typecheck && pnpm lint && pnpm test:cov && pnpm build && pnpm publish ./dist  --tag alpha --access public --no-git-checks",
 		"prebuild": "del-cli dist",
 		"postbuild": "copyfiles package.json README.md LICENSE.md CHANGELOG.md schemas/env.schema.json schemas/settings.schema.json assets/* dist"
 	},
