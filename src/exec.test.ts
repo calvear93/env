@@ -316,6 +316,19 @@ describe('exec – build() middleware callback', () => {
 		expect(fakeArgv.subcmd[0]).toBe('undefined');
 	});
 
+	it('middleware preserves booleans typed by yargs over preloaded strings', async () => {
+		// re-capture middleware with a raw boolean-as-string flag; the preload
+		// parser does not know command options, so it reads 'false' as string
+		capturedMiddleware = undefined;
+		await exec(['node', 'env', '-e', 'dev', '--overwrite=false']);
+		vi.clearAllMocks();
+
+		const fakeArgv = makeFakeArgv({ overwrite: false });
+		await capturedMiddleware!(fakeArgv);
+		// preloadedArgv.overwrite === 'false' must not clobber the boolean
+		expect(fakeArgv.overwrite).toBe(false);
+	});
+
 	it('middleware sets schemaValidate=false when no schema loaded', async () => {
 		const fakeArgv = makeFakeArgv({ schemaValidate: true });
 		await capturedMiddleware!(fakeArgv);

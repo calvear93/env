@@ -100,9 +100,9 @@ describe('args – CLI option map', () => {
 		expect(args.logMaskValuesOfKeys.default).toEqual([]);
 	});
 
-	it('exportIgnoreKeys: alias=iek, hidden=true, default=[]', () => {
+	it('exportIgnoreKeys: alias=iek, visible, default=[]', () => {
 		expect(args.exportIgnoreKeys.alias).toBe('iek');
-		expect(args.exportIgnoreKeys.hidden).toBe(true);
+		expect(args.exportIgnoreKeys.hidden).toBeUndefined();
 		expect(args.exportIgnoreKeys.default).toEqual([]);
 	});
 });

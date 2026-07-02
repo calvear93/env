@@ -193,8 +193,19 @@ function build(
 			// in case of subcommand argument for main
 			if (subcommand?.length > 0) argv.subcmd = subcommand;
 
-			// merges preloaded args
-			Object.assign(argv, preloadedArgv);
+			// merges preloaded args, preserving booleans already
+			// typed by yargs (preload parser reads them as strings)
+			for (const key in preloadedArgv) {
+				const value = preloadedArgv[key];
+
+				if (
+					typeof argv[key] === 'boolean' &&
+					(value === 'true' || value === 'false')
+				)
+					continue;
+
+				argv[key] = value;
+			}
 
 			logger.silly(
 				'interpolating arguments surrounded by',

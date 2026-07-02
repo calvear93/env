@@ -179,7 +179,7 @@ export async function flatAndValidateResults(
 	if (!argv.schemaValidate)
 		return flatResults(results, argv.nestingDelimiter);
 
-	const validators = await createValidators(argv.schema!, argv.detectFormat);
+	const validators = await createValidators(argv.schema!);
 
 	return results.flatMap(({ key, value }) => {
 		let baseValue = value;

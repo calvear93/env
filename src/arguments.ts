@@ -80,8 +80,8 @@ export const args: Record<keyof CommandArguments, Options> = {
 	exportIgnoreKeys: {
 		alias: 'iek',
 		default: [],
+		describe: 'Keys to exclude from the exported file',
 		group: GROUPS.JSON_SCHEMA_WORKSPACE,
-		hidden: true,
 		type: 'array',
 	},
 	logLevel: {

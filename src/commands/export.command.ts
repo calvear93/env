@@ -18,6 +18,11 @@ export interface ExportCommandArguments extends CommandArguments {
 	uri: string;
 
 	exportQuotes: boolean;
+
+	overwrite: boolean;
+
+	// whether validate schema before exporting variables
+	schemaValidate: boolean;
 }
 
 /**
@@ -44,6 +49,18 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 					default: 'dotenv',
 					describe: 'Format for export variables',
 					type: 'string',
+				},
+				overwrite: {
+					alias: 'o',
+					default: true,
+					describe: 'Overwrite the target file if it already exists',
+					type: 'boolean',
+				},
+				schemaValidate: {
+					alias: 'validate',
+					default: true,
+					describe: 'Whether validates variables using JSON schema',
+					type: 'boolean',
 				},
 				uri: {
 					alias: ['u', 'p', 'path'],
@@ -90,30 +107,41 @@ export const exportCommand: CommandModule<any, ExportCommandArguments> = {
 
 		ui.variables(env);
 
-		const { format, uri } = argv;
+		const { format, overwrite, uri } = argv;
+		let written: boolean;
 
 		switch (format) {
 			case 'dotenv': {
-				await writeEnvFromJson(uri, env, true, exportQuotes);
-				ui.action(
-					'📤',
-					`exported ${Object.keys(env).length} variables → ${uri} (${format})`,
+				written = await writeEnvFromJson(
+					uri,
+					env,
+					overwrite,
+					exportQuotes,
 				);
 				break;
 			}
 
 			case 'json': {
-				await writeJson(uri, env, true);
-				ui.action(
-					'📤',
-					`exported ${Object.keys(env).length} variables → ${uri} (${format})`,
-				);
+				written = await writeJson(uri, env, overwrite);
 				break;
 			}
 
 			default: {
 				logger.error(`format ${format} not recognized`);
+
+				return;
 			}
+		}
+
+		if (written) {
+			ui.action(
+				'📤',
+				`exported ${Object.keys(env).length} variables → ${uri} (${format})`,
+			);
+		} else {
+			logger.warn(
+				`file ${uri} already exists, use --overwrite for replacing it`,
+			);
 		}
 	},
 };

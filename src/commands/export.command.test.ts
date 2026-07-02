@@ -26,6 +26,7 @@ const base = {
 	exportIgnoreKeys: ['IGNORE'],
 	exportQuotes: false,
 	nestingDelimiter: '__',
+	overwrite: true,
 	providers: [],
 	schemaValidate: false,
 };
@@ -106,6 +107,22 @@ describe('exportCommand handler', () => {
 		// after interpolation FULL should be resolved
 		expect(env).toHaveProperty('BASE');
 		expect(env).toHaveProperty('FULL');
+	});
+
+	it('passes overwrite=false to the writer when file must be preserved', async () => {
+		writeEnvFromJson.mockResolvedValueOnce(false);
+		await exportCommand.handler({
+			...base,
+			format: 'dotenv',
+			overwrite: false,
+			uri: '.env',
+		} as any);
+		expect(writeEnvFromJson).toHaveBeenCalledWith(
+			'.env',
+			expect.any(Object),
+			false,
+			false,
+		);
 	});
 
 	it('skips exportIgnoreKeys deletion when not provided', async () => {
