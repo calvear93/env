@@ -10,16 +10,11 @@ export default {
 	},
 	test: {
 		coverage: {
+			exclude: ['src/**/index.ts', '**/*.d.ts', '**/*.{test,spec}.ts'],
 			include: ['src/**/*.ts'],
 			provider: 'v8',
 			reporter: ['text', 'text-summary', 'lcov'],
 			reportsDirectory: `${REPORTS_DIR}/coverage`,
-			exclude: [
-				'src/**/index.ts',
-				'src/main.ts',
-				'**/*.d.ts',
-				'**/*.{test,spec}.ts',
-			],
 			thresholds: {
 				branches: 100,
 				functions: 100,
