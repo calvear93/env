@@ -1,7 +1,14 @@
 import pc from 'picocolors';
 import type { CommandArguments } from '../arguments.js';
 import type { EnvProvider } from '../interfaces/index.js';
-import { logger as globalLogger, readJson } from '../utils/index.js';
+import {
+	logger as globalLogger,
+	readJson,
+	SECTION_DEFAULT,
+	SECTION_ENV,
+	SECTION_LOCAL,
+	SECTION_MODE,
+} from '../utils/index.js';
 
 const KEY = 'app-settings';
 
@@ -37,10 +44,10 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 		if (!wasFound) logger.warn(`${pc.blue(envFile)} not found`);
 
 		const composite =
-			appsettings['|DEFAULT|'] ||
-			appsettings['|ENV|'] ||
-			appsettings['|MODE|'] ||
-			appsettings['|LOCAL|'];
+			appsettings[SECTION_DEFAULT] ||
+			appsettings[SECTION_ENV] ||
+			appsettings[SECTION_MODE] ||
+			appsettings[SECTION_LOCAL];
 
 		const [envFileSettings, envLocalFileSettings, ...modeFileSettings] =
 			await Promise.all([
@@ -58,7 +65,7 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 			]);
 
 		// only load local in env load cmd
-		if (ci) appsettings['|LOCAL|'] = null;
+		if (ci) appsettings[SECTION_LOCAL] = null;
 
 		// order defines section + file merge precedence (later entries win):
 		// flat root < |DEFAULT| < |ENV| < |MODE| < appsettings.<env>.json
@@ -67,17 +74,17 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 		return [
 			composite ? {} : appsettings,
 
-			appsettings['|DEFAULT|'],
+			appsettings[SECTION_DEFAULT],
 
-			appsettings['|ENV|']?.[env],
+			appsettings[SECTION_ENV]?.[env],
 
-			...modes.map((mode) => appsettings['|MODE|']?.[mode]),
+			...modes.map((mode) => appsettings[SECTION_MODE]?.[mode]),
 
 			envFileSettings,
 
 			...modeFileSettings,
 
-			appsettings['|LOCAL|']?.[env],
+			appsettings[SECTION_LOCAL]?.[env],
 
 			envLocalFileSettings,
 		];

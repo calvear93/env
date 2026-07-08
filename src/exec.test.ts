@@ -25,9 +25,12 @@ vi.mock('node:fs', async () => {
 });
 
 // ---------------------------------------------------------------------------
-// utils – keep all real except loadSchemaFile which we control per-test
+// utils – keep all real except loadSchemaFile and resolveEnv which we
+// control per-test
 // ---------------------------------------------------------------------------
 let loadSchemaFileImpl: (argv: any, delimiters: any) => Promise<any> = () =>
+	Promise.resolve();
+let resolveEnvImpl: (argv: any, delimiters: any) => Promise<void> = () =>
 	Promise.resolve();
 
 vi.mock('./utils/index.js', async () => {
@@ -39,6 +42,9 @@ vi.mock('./utils/index.js', async () => {
 		...actual,
 		loadSchemaFile: vi.fn((argv: any, delimiters: any) =>
 			loadSchemaFileImpl(argv, delimiters),
+		),
+		resolveEnv: vi.fn((argv: any, delimiters: any) =>
+			resolveEnvImpl(argv, delimiters),
 		),
 	};
 });
@@ -104,6 +110,7 @@ vi.mock('./commands/index.js', () => ({
 // Dynamically import exec AFTER all vi.mock() registrations
 // ---------------------------------------------------------------------------
 const { exec } = await import('./exec.js');
+const utils = await import('./utils/index.js');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -257,6 +264,50 @@ describe('exec – "script" type provider', () => {
 		const exit = spyExit();
 		await exec(['node', 'env', '-e', 'dev']);
 		expect(exit).toHaveBeenCalledWith(1);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Tests: env inference wiring (resolveEnv)
+// ---------------------------------------------------------------------------
+describe('exec – env inference wiring (resolveEnv)', () => {
+	beforeEach(() => {
+		resetProviders();
+		capturedMiddleware = undefined;
+		loadSchemaFileImpl = () => Promise.resolve();
+		resolveEnvImpl = () => Promise.resolve();
+	});
+
+	afterEach(() => {
+		resolveEnvImpl = () => Promise.resolve();
+		vi.clearAllMocks();
+	});
+
+	it('invokes resolveEnv with the preloaded argv and template delimiters', async () => {
+		await exec(['node', 'env', '-e', 'dev']);
+		expect(utils.resolveEnv).toHaveBeenCalledOnce();
+		expect(utils.resolveEnv).toHaveBeenCalledWith(
+			expect.objectContaining({ env: 'dev' }),
+			['[[', ']]'],
+		);
+	});
+
+	it('does not invoke resolveEnv when --help is passed', async () => {
+		await exec(['node', 'env', '--help']);
+		expect(utils.resolveEnv).not.toHaveBeenCalled();
+	});
+
+	it('propagates an env assigned by resolveEnv to the middleware argv', async () => {
+		resolveEnvImpl = (argv) => {
+			argv.env = 'dev';
+			return Promise.resolve();
+		};
+		await exec(['node', 'env']);
+		vi.clearAllMocks();
+
+		const fakeArgv = makeFakeArgv({ env: undefined });
+		await capturedMiddleware!(fakeArgv);
+		expect(fakeArgv.env).toBe('dev');
 	});
 });
 

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.4.0] - 2026-07-08
+
+### Added
+
+-   **environment inference from npm scripts**: when `-e` is not provided (neither by CLI nor config file), the environment is inferred from the npm script name (`npm_lifecycle_event`), taking the last segment after `:` — `start:dev` → `dev`. Per-env scripts no longer need to repeat `-e`: `"start:dev": "env -m debug : vite"`. Scripts without a `:` suffix and direct CLI invocations are unaffected. The inferred value is validated against the environments defined in the workspace, discovered dynamically as the union of the `|ENV|`/`|LOCAL|` section keys of `appsettings.json` and the per-env provider files (`appsettings.<env>[.local].json` / `<env>[.local].env.json`)
+
+### Changed
+
+-   **unknown inferred environment aborts**: if the environment inferred from the script name is not defined in the workspace, the command exits with an error listing the defined ones (catches typos like `start:prd`). Scripts with a non-env `:` suffix (i.e. `test:mutation`) that omit `-e` in a workspace with defined environments must now pass `-e` explicitly. When the workspace has no defined environments, inference is skipped and behavior is unchanged
+-   **unknown explicit environment warns**: passing `-e <env>` with an environment that is not defined now logs a warning (execution continues as before)
+
 ## [3.3.0] - 2026-07-08
 
 ### Changed

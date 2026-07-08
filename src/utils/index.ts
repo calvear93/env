@@ -1,5 +1,6 @@
 export * from './argv.util.js';
 export * from './command.util.js';
+export * from './infer-env.util.js';
 export * from './interpolate.util.js';
 export * from './json.util.js';
 export * from './logger.js';

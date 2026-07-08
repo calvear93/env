@@ -38,6 +38,9 @@ export default {
 				extends: true,
 				test: {
 					environment: 'node',
+					// int files share the mutable tests/env fixture
+					// (pull rewrites dev.env.json), so they must not race
+					fileParallelism: false,
 					globalSetup: ['tests/global-setup.ts'],
 					hookTimeout: 120_000,
 					include: ['tests/**/*.int.test.ts'],

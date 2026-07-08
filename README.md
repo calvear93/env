@@ -200,6 +200,45 @@ Run it:
 
 See [🙈 Masking secrets](#-masking-secrets) for the full masking semantics.
 
+### 🔮 Environment inference from npm scripts
+
+When `-e` is not provided (neither by CLI nor config file), the CLI infers the
+environment from the **npm script name** (`npm_lifecycle_event`), taking the
+last segment after `:` — running `npm run start:dev` infers `dev`, so the
+`-e` flag becomes redundant in per-env scripts:
+
+```jsonc
+{
+	"scripts": {
+		"start:dev": "env -m debug : node dist/main.js", // infers "dev"
+		"start:qa": "env -m debug : node dist/main.js", // infers "qa"
+		"start:prod": "env -m debug : node dist/main.js", // infers "prod"
+	},
+}
+```
+
+The inferred value is validated against the environments **defined** in the
+workspace, discovered dynamically as the union of:
+
+- the `|ENV|` and `|LOCAL|` section keys of `appsettings.json`,
+- per-env provider files in the root folder (`appsettings.<env>.json`,
+  `appsettings.<env>.local.json`, `<env>.env.json`, `<env>.local.env.json`).
+
+Validation rules:
+
+- **inferred** env unknown → the command **aborts** listing the defined
+  environments (catches typos like `start:prd`);
+- **explicit** `-e` unknown → only a **warning**;
+- no defined environments → inference is skipped silently;
+- scripts without a `:` suffix (i.e. `preview`) and direct CLI invocations
+  are unaffected.
+
+Scripts whose suffix is **not** an environment (i.e. `test:mutation`,
+`env:schema`) must keep an explicit `-e`.
+
+> `[[env]]` inside `--configFile` cannot reference an inferred environment —
+> the config file is loaded **before** inference runs.
+
 ---
 
 ### `env`

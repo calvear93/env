@@ -22,6 +22,7 @@ import {
 	loadProjectInfo,
 	loadSchemaFile,
 	logger,
+	resolveEnv,
 	resolvePath,
 	ui,
 } from './utils/index.js';
@@ -107,6 +108,11 @@ export async function exec(rawArgv: string[]) {
 		config.parser,
 		config.delimiters.template,
 	);
+
+	// infers env from npm script name (npm_lifecycle_event) when
+	// not provided by -e nor config file; skipped for --help
+	if (!preloadedArgv.help)
+		await resolveEnv(preloadedArgv, config.delimiters.template);
 
 	const { env, help, modes, providers } = preloadedArgv;
 
