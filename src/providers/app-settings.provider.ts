@@ -42,23 +42,28 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 			appsettings['|MODE|'] ||
 			appsettings['|LOCAL|'];
 
-		const unitary = await Promise.all([
-			readJson(`${root}/appsettings.${env}.json`).then(
-				([settings]) => settings,
-			),
-			readJson(`${root}/appsettings.${env}.local.json`).then(
-				([settings]) => (ci ? {} : settings),
-			),
-			...modes.map((mode) =>
-				readJson(`${root}/appsettings.${mode}.json`).then(
+		const [envFileSettings, envLocalFileSettings, ...modeFileSettings] =
+			await Promise.all([
+				readJson(`${root}/appsettings.${env}.json`).then(
 					([settings]) => settings,
 				),
-			),
-		]);
+				readJson(`${root}/appsettings.${env}.local.json`).then(
+					([settings]) => (ci ? {} : settings),
+				),
+				...modes.map((mode) =>
+					readJson(`${root}/appsettings.${mode}.json`).then(
+						([settings]) => settings,
+					),
+				),
+			]);
 
 		// only load local in env load cmd
 		if (ci) appsettings['|LOCAL|'] = null;
 
+		// order defines section + file merge precedence (later entries win):
+		// flat root < |DEFAULT| < |ENV| < |MODE| < appsettings.<env>.json
+		// < appsettings.<mode>.json < |LOCAL| < appsettings.<env>.local.json.
+		// Local layers are always highest — do NOT reorder.
 		return [
 			composite ? {} : appsettings,
 
@@ -68,9 +73,13 @@ export const AppSettingsProvider: EnvProvider<AppSettingsCommandArguments> = {
 
 			...modes.map((mode) => appsettings['|MODE|']?.[mode]),
 
+			envFileSettings,
+
+			...modeFileSettings,
+
 			appsettings['|LOCAL|']?.[env],
 
-			...unitary,
+			envLocalFileSettings,
 		];
 	},
 };

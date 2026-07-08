@@ -205,7 +205,35 @@ describe('AppSettingsProvider.load', () => {
 		} as any)) as any[];
 		expect(out[1]).toBeUndefined(); // |DEFAULT|
 		expect(out[2]).toBeUndefined(); // |ENV|?.[env]
-		expect(out[3]).toBeUndefined(); // |LOCAL|?.[env]
+		expect(out[4]).toBeUndefined(); // |LOCAL|?.[env] (after appsettings.<env>.json)
+	});
+
+	it('orders local layers above unitary env/mode files (local wins)', async () => {
+		readJson
+			.mockResolvedValueOnce([
+				{ '|LOCAL|': { dev: { KEY: 'section-local' } } },
+				true,
+			]) // envFile
+			.mockResolvedValueOnce([{ KEY: 'env-file' }, true]) // appsettings.dev.json
+			.mockResolvedValueOnce([{ KEY: 'env-local-file' }, true]) // appsettings.dev.local.json
+			.mockResolvedValueOnce([{ KEY: 'mode-file' }, true]); // appsettings.build.json
+		const out = (await AppSettingsProvider.load({
+			ci: false,
+			env: 'dev',
+			envFile: 'f',
+			modes: ['build'],
+			root: 'r',
+		} as any)) as any[];
+		// sections/files are merged last-wins downstream, so array order is precedence:
+		// appsettings.<env>.json < appsettings.<mode>.json < |LOCAL| < appsettings.<env>.local.json
+		const indexOf = (value: string) =>
+			out.findIndex((settings) => settings?.KEY === value);
+		expect(indexOf('env-file')).toBeGreaterThanOrEqual(0);
+		expect(indexOf('env-file')).toBeLessThan(indexOf('mode-file'));
+		expect(indexOf('mode-file')).toBeLessThan(indexOf('section-local'));
+		expect(indexOf('section-local')).toBeLessThan(
+			indexOf('env-local-file'),
+		);
 	});
 
 	it('handles multiple modes', async () => {

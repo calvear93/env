@@ -304,19 +304,35 @@ Non-secret loader for `appsettings.json`, organized by sections:
 ```jsonc
 {
 	"|DEFAULT|": { "VAR1": "v1_default" },
-	"|MODE|": {
-		"build": { "NODE_ENV": "production" },
-		"debug": { "NODE_ENV": "development" },
-	},
 	"|ENV|": {
 		"dev": {
 			"C1": "V1",
 			"GROUP1": { "VAR2": "G1V2", "GROUP2": { "VAR1": "G1G2V1" } },
 		},
 	},
+	"|MODE|": {
+		"build": { "NODE_ENV": "production" },
+		"debug": { "NODE_ENV": "development" },
+	},
 	"|LOCAL|": { "dev": { "LOCAL_VAR": "only-local" } },
 }
 ```
+
+It also merges the unitary files `appsettings.<env>.json`,
+`appsettings.<mode>.json` and `appsettings.<env>.local.json`.
+
+#### Precedence (lowest → highest)
+
+1. flat root object (only when no `|...|` section is present)
+2. `|DEFAULT|`
+3. `|ENV|` for the current `--env`
+4. `|MODE|` for each `--modes` entry (later modes win)
+5. `appsettings.<env>.json`
+6. `appsettings.<mode>.json` (one per mode, in `--modes` order)
+7. `|LOCAL|` for the current `--env`
+8. `appsettings.<env>.local.json`
+
+Local layers (7 and 8) always win, and both are skipped in `--ci`.
 
 | Option            | Description                   | Type     | Default                     |
 | ----------------- | ----------------------------- | -------- | --------------------------- |
@@ -493,10 +509,17 @@ process.env.GROUP1__VAR; // "anyValue"
 
 ### Priority (lowest → highest)
 
-1. `package-json` info
-2. `appsettings.json` (`app-settings`)
-3. `<env>.env.json` (`secrets`)
-4. `<env>.local.env.json` (`local`, skipped in `--ci`)
+Providers are merged in declaration order — with the default `providers` list:
+
+1. `NODE_ENV=development` (built-in base value)
+2. `package-json` info
+3. `appsettings.json` (`app-settings` — see the
+   [app-settings precedence](#precedence-lowest--highest) above)
+4. `<env>.env.json` (`secrets`)
+5. `<env>.local.env.json` (`local`, skipped in `--ci` — overrides everything)
+
+> The resolved variables are written into the child process `process.env`, so
+> they override any variables inherited from the parent shell.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

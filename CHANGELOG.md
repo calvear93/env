@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.3.0] - 2026-07-08
+
+### Changed
+
+-   **`app-settings` local layers now always win**: the merge order of the `app-settings` provider is now `flat root` < `|DEFAULT|` < `|ENV|` < `|MODE|` < `appsettings.<env>.json` < `appsettings.<mode>.json` < `|LOCAL|` < `appsettings.<env>.local.json`. Previously the unitary files were merged after every section (with `appsettings.<mode>.json` highest), so a committed `appsettings.<env|mode>.json` could override the `|LOCAL|` section and `appsettings.<env>.local.json` — contradicting the library-wide "local wins" principle (`package-json` < `app-settings` < `secrets` < `local`). Only setups that overlap keys between unitary files and local layers are affected.
+
+### Added
+
+-   precedence documented in README: the `app-settings` section now lists the full 8-layer section/file precedence, and the "Priority" section documents the complete provider chain (`NODE_ENV` base < `package-json` < `app-settings` < `secrets` < `local`) plus the fact that resolved variables override the inherited `process.env` of the child process
+
 ## [3.1.0] - 2026-06-02
 
 ### Added
