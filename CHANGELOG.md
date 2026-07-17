@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.4.1] - 2026-07-17
+
+### Fixed
+
+-   **CLI flags passed via a command-specific alias were silently overridden by the config file**: `preloadConfig`'s early argv parse only knew about a small hardcoded set of aliases (`configFile`, `env`, `logLevel`, `logMaskAnyRegEx`, `logMaskValuesOfKeys`, `modes`). Any other aliased option — most notably `--validate` (alias for `schemaValidate`, declared per-command in `env`/`export`) — was captured under the wrong key during preload, so `loadConfigFile`'s `argv[key] ??= configFile[key]` filled `schemaValidate` from `settings.json` instead, and the middleware's CLI-vs-config-file protection (which only recognizes a preloaded value that is literally the string `"true"`/`"false"`) never kicked in for it. In practice: `--validate=false` (or `--schemaValidate=false`) had no effect whenever `settings.json` declared `"schemaValidate": true` as a JSON boolean — the config file always won. The preload alias map is now derived from every shared option's `.alias` (`arguments.ts`) plus `schemaValidate: 'validate'`, so CLI-provided values for these options correctly take precedence over the config file, same as any other flag.
+
 ## [3.4.0] - 2026-07-08
 
 ### Added

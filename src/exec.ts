@@ -49,13 +49,17 @@ async function preloadConfig(
 		boolean: ['help'],
 		configuration: parser as any,
 		string: ['root', 'env', 'configFile', 'schemaFile', 'logLevel'],
+		// every shared option's alias, plus command-specific options that need
+		// the same CLI-over-config-file protection in the middleware below
+		// (schemaValidate/validate isn't in `args` — it's declared per-command
+		// in env.command.ts/export.command.ts with the same alias shape).
 		alias: {
-			configFile: args.configFile.alias as Alias,
-			env: args.env.alias as Alias,
-			logLevel: args.logLevel.alias as Alias,
-			logMaskAnyRegEx: args.logMaskAnyRegEx.alias as Alias,
-			logMaskValuesOfKeys: args.logMaskValuesOfKeys.alias as Alias,
-			modes: args.modes.alias as Alias,
+			...(Object.fromEntries(
+				Object.entries(args)
+					.filter(([, option]) => option.alias)
+					.map(([key, option]) => [key, option.alias as Alias]),
+			) as Record<string, Alias>),
+			schemaValidate: 'validate',
 		},
 		default: {
 			configFile: args.configFile.default,

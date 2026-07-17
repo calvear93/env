@@ -32,6 +32,11 @@ let loadSchemaFileImpl: (argv: any, delimiters: any) => Promise<any> = () =>
 	Promise.resolve();
 let resolveEnvImpl: (argv: any, delimiters: any) => Promise<void> = () =>
 	Promise.resolve();
+// mirrors the real loadConfigFile's `argv[key] ??= configFile[key]` merge —
+// defaults to a no-op (as if no config file exists), tests override it to
+// simulate a config file that sets specific keys (e.g. schemaValidate: true).
+let loadConfigFileImpl: (argv: any, delimiters: any) => Promise<void> = () =>
+	Promise.resolve();
 
 vi.mock('./utils/index.js', async () => {
 	const actual =
@@ -40,6 +45,9 @@ vi.mock('./utils/index.js', async () => {
 		);
 	return {
 		...actual,
+		loadConfigFile: vi.fn((argv: any, delimiters: any) =>
+			loadConfigFileImpl(argv, delimiters),
+		),
 		loadSchemaFile: vi.fn((argv: any, delimiters: any) =>
 			loadSchemaFileImpl(argv, delimiters),
 		),
@@ -319,6 +327,7 @@ describe('exec – build() middleware callback', () => {
 		resetProviders();
 		capturedMiddleware = undefined;
 		loadSchemaFileImpl = () => Promise.resolve();
+		loadConfigFileImpl = () => Promise.resolve();
 		// run exec to capture the middleware function
 		await exec(['node', 'env', '-e', 'dev']);
 		vi.clearAllMocks();
@@ -378,6 +387,33 @@ describe('exec – build() middleware callback', () => {
 		await capturedMiddleware!(fakeArgv);
 		// preloadedArgv.overwrite === 'false' must not clobber the boolean
 		expect(fakeArgv.overwrite).toBe(false);
+	});
+
+	it('middleware preserves schemaValidate=false passed via its --validate alias, even when the config file declares schemaValidate: true', async () => {
+		// simulates a real settings.json with "schemaValidate": true (a JSON
+		// boolean, exactly like env/settings/settings.json in consumer repos) —
+		// loadConfigFile merges config-file keys with `argv[key] ??= value`, so
+		// this only takes effect if the preload parser didn't already capture
+		// schemaValidate from the CLI via its `validate` alias.
+		loadConfigFileImpl = (argv: any) => {
+			argv.schemaValidate ??= true;
+			return Promise.resolve();
+		};
+		// a schema MUST resolve here: if loadSchemaFile returns nothing, the
+		// middleware's own `argv.schemaValidate = !!argv.schema` forces false
+		// regardless of the alias bug, masking it — a truthy schema is what
+		// makes this test actually distinguish "CLI --validate=false wins"
+		// (stays false) from "config file wins" (would flip back to true).
+		const mockSchema = { properties: {}, type: 'object' };
+		loadSchemaFileImpl = () => Promise.resolve(mockSchema);
+		capturedMiddleware = undefined;
+		await exec(['node', 'env', '-e', 'dev', '--validate=false']);
+		vi.clearAllMocks();
+
+		const fakeArgv = makeFakeArgv({ schemaValidate: false });
+		await capturedMiddleware!(fakeArgv);
+		// --validate=false must survive even though the config file says true
+		expect(fakeArgv.schemaValidate).toBe(false);
 	});
 
 	it('middleware sets schemaValidate=false when no schema loaded', async () => {
