@@ -33,6 +33,35 @@ const FORMAT_REGEXPS: Record<string, Format> = {
 /* eslint-enable regexp/no-useless-assertions, regexp/no-super-linear-backtracking */
 
 /**
+ * Recursively wraps string schema types into arrays (e.g. type: 'string' -> type: ['string']),
+ * preserving root schema type and compatibility with existing schema format.
+ */
+function wrapSchemaTypes(
+	node: Record<string, any>,
+	root: Record<string, any>,
+): void {
+	if (node !== root && typeof node.type === 'string') {
+		node.type = [node.type];
+	}
+
+	if (node.properties) {
+		for (const key in node.properties) {
+			wrapSchemaTypes(node.properties[key], root);
+		}
+	}
+
+	if (node.items) {
+		if (Array.isArray(node.items)) {
+			for (const item of node.items) {
+				wrapSchemaTypes(item, root);
+			}
+		} else {
+			wrapSchemaTypes(node.items, root);
+		}
+	}
+}
+
+/**
  * Generates JSON schema from JSON template/object.
  *
  * @export
@@ -50,7 +79,7 @@ export async function schemaFrom(
 		_toJsonSchema = mod.default;
 	}
 
-	return _toJsonSchema(json, {
+	const schema = _toJsonSchema(json, {
 		required: false,
 		...options,
 		postProcessFnc: (
@@ -60,7 +89,6 @@ export async function schemaFrom(
 			defaultFunc: any,
 		) => {
 			if (value !== json) {
-				schema.type = [type];
 				schema.nullable = options?.nullable ?? false;
 			}
 
@@ -69,6 +97,10 @@ export async function schemaFrom(
 			return defaultFunc(type, schema, value);
 		},
 	});
+
+	wrapSchemaTypes(schema, schema);
+
+	return schema;
 }
 
 /**

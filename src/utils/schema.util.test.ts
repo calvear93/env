@@ -26,6 +26,40 @@ describe('schemaFrom', () => {
 		const s: any = await schemaFrom({ a: 'x' });
 		expect(s.properties.a.nullable).toBe(false);
 	});
+	it('generates schema for arrays with length greater than 2', async () => {
+		const s: any = await schemaFrom({
+			CORS_ORIGINS: [
+				'https://transporte.achs.cl',
+				'https://fichaclinica-transporte-adm.achs.cl',
+				'https://fichaclinica-transporte-liberacion-ot.achs.cl',
+				'https://api.achs.cl',
+			],
+		});
+		expect(s.properties.CORS_ORIGINS.type).toEqual(['array']);
+		expect(s.properties.CORS_ORIGINS.items.type).toEqual(['string']);
+		expect(s.properties.CORS_ORIGINS.nullable).toBe(false);
+		expect(s.properties.CORS_ORIGINS.items.nullable).toBe(false);
+	});
+	it('generates schema for arrays of objects with length greater than 2', async () => {
+		const s: any = await schemaFrom({
+			ITEMS: [{ id: 1 }, { id: 2 }, { id: 3 }],
+		});
+		expect(s.properties.ITEMS.type).toEqual(['array']);
+		expect(s.properties.ITEMS.items.type).toEqual(['object']);
+		expect(s.properties.ITEMS.items.properties.id.type).toEqual([
+			'integer',
+		]);
+	});
+	it('handles tuple array items when mode is tuple', async () => {
+		const s: any = await schemaFrom(
+			{ PAIR: ['hello', 42] },
+			{ arrays: { mode: 'tuple' } },
+		);
+		expect(s.properties.PAIR.type).toEqual(['array']);
+		expect(Array.isArray(s.properties.PAIR.items)).toBe(true);
+		expect(s.properties.PAIR.items[0].type).toEqual(['string']);
+		expect(s.properties.PAIR.items[1].type).toEqual(['integer']);
+	});
 });
 
 describe('isJsonSchemaObject', () => {
